@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { COMPANY_TYPES, ROLES } from "@/lib/constants";
 import type { CompanyType, Role } from "@/lib/types";
 import {
@@ -355,9 +356,20 @@ export default function WaitlistForm({
         <p className="text-lg text-red-600">{message}</p>
       )}
       <p className="text-lg text-navy/70 leading-relaxed">
-        {isCity
-          ? "Tell us where you are. V1 is London — this list helps us pick the next city."
-          : "London only for now. No city-wide live map yet."}
+        {isCity ? (
+          "Tell us where you are. V1 is London — this list helps us pick the next city."
+        ) : (
+          <>
+            V1 for London. For the worldwide list,{" "}
+            <Link
+              href="/waitlist/city"
+              className="text-navy font-medium underline underline-offset-2 hover:text-accent"
+            >
+              click here
+            </Link>
+            .
+          </>
+        )}
       </p>
     </form>
   );
