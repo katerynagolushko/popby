@@ -23,12 +23,12 @@ export default async function HomePage({
               <span className="hl-accent">IRL</span>
             </h1>
 
-            <p className="mt-8 sm:mt-10 font-display font-semibold tracking-[-0.02em] text-[1.4rem] sm:text-[1.7rem] xl:text-[1.9rem] leading-[1.25] text-navy">
+            <p className="mt-10 sm:mt-12 font-display font-semibold tracking-[-0.02em] text-[1.4rem] sm:text-[1.7rem] xl:text-[1.9rem] leading-[1.5] text-navy">
               It&apos;s time to make it easy to meet{" "}
               <span className="hl-accent">cool people</span> in the startup world
             </p>
 
-            <p className="mt-5 sm:mt-6 font-display font-semibold tracking-[-0.02em] text-[1.05rem] sm:text-[1.2rem] xl:text-[1.3rem] leading-[1.3] text-navy">
+            <p className="mt-6 sm:mt-8 font-display font-semibold tracking-[-0.02em] text-[1.25rem] sm:text-[1.45rem] xl:text-[1.6rem] leading-[1.35] text-navy">
               spontaneous hangouts
             </p>
 
@@ -39,7 +39,7 @@ export default async function HomePage({
               </p>
             )}
 
-            <div className="mt-6 sm:mt-7 flex flex-col sm:flex-row gap-3 sm:gap-4 shrink-0">
+            <div className="mt-8 sm:mt-9 flex flex-col sm:flex-row gap-3 sm:gap-4 shrink-0">
               <Link
                 href="/waitlist"
                 className="popby-btn popby-btn-accent landing-cta"
