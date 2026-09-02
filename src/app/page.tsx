@@ -17,34 +17,30 @@ export default async function HomePage({
         <Logo size="md" />
 
         <div className="py-10 lg:py-12 flex-1 flex flex-col justify-center">
-          <h1 className="text-4xl sm:text-5xl xl:text-[3.4rem] text-navy leading-[1.06] mb-3">
-            The social network that only works IRL
+          <h1 className="font-display font-extrabold text-[2.65rem] sm:text-[3.5rem] xl:text-[4.35rem] text-navy leading-[0.98] tracking-[-0.04em] mb-10 max-w-[14ch]">
+            The{" "}
+            <span className="hl-accent">startup</span> social network for{" "}
+            <span className="hl-accent">IRL!!!!</span>
           </h1>
-          <p className="text-xl sm:text-2xl font-display font-semibold text-navy/80 leading-snug mb-8">
-            The startup social network for IRL.
-          </p>
 
-          <div className="space-y-4 text-xl leading-relaxed text-navy/80 max-w-xl mb-10">
-            <p>
+          <ul className="space-y-7 sm:space-y-8 text-xl sm:text-2xl leading-snug text-navy/85 max-w-xl mb-10 font-display font-semibold tracking-[-0.02em] list-none pl-0">
+            <li className="relative pl-5 before:absolute before:left-0 before:top-[0.55em] before:h-1.5 before:w-1.5 before:rounded-full before:bg-navy/35">
               See who&apos;s free to{" "}
-              <span className="text-navy font-medium">spontaneously</span> hang
-              out nearby.
-            </p>
-            <p>
-              Connect the startup ecosystem and forge meaningful{" "}
-              <span className="text-navy font-medium">human-first</span>{" "}
-              connections.
-            </p>
-            <p>
-              Don&apos;t pitch unless someone asks, or you both agreed in
-              advance. You&apos;re here to make friends with people in the
-              startup world.
-            </p>
-            <p className="text-lg text-navy/70">
-              No feed. No posts. No follower counts. Toggle live, pick a format,
-              meet in person.
-            </p>
-          </div>
+              <span className="hl-accent">spontaneously</span> hang out nearby.
+            </li>
+            <li className="relative pl-5 before:absolute before:left-0 before:top-[0.55em] before:h-1.5 before:w-1.5 before:rounded-full before:bg-navy/35">
+              Connect the startup ecosystem with{" "}
+              <span className="hl-mint">human-first</span> connections.
+            </li>
+            <li className="relative pl-5 before:absolute before:left-0 before:top-[0.55em] before:h-1.5 before:w-1.5 before:rounded-full before:bg-navy/35">
+              Don&apos;t pitch unless asked. You&apos;re here to make{" "}
+              <span className="hl-accent">friends</span>.
+            </li>
+            <li className="relative pl-5 before:absolute before:left-0 before:top-[0.55em] before:h-1.5 before:w-1.5 before:rounded-full before:bg-navy/35">
+              No feed. No posts. No followers. Toggle{" "}
+              <span className="hl-mint">live</span>, meet in person.
+            </li>
+          </ul>
 
           {softGated && (
             <p className="text-lg text-navy bg-paper-2 border border-paper-3 rounded-xl px-4 py-3 mb-8 max-w-xl leading-relaxed">
@@ -63,17 +59,11 @@ export default async function HomePage({
           </div>
         </div>
 
-        <footer className="pt-2 space-y-2">
+        <footer className="pt-2">
           <p className="text-lg text-navy/70 leading-relaxed max-w-xl">
             {APP_NAME} starts in {APP_CITY}. City-wide live accounts aren&apos;t
             open yet. The demo runs the full loop with fake people.
           </p>
-          <Link
-            href="/login"
-            className="inline-block text-lg text-navy/70 underline underline-offset-2 hover:text-navy transition-colors"
-          >
-            Founder sign-in
-          </Link>
         </footer>
       </section>
 
