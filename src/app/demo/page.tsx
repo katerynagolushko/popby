@@ -23,6 +23,7 @@ import {
   DEMO_ME_PROFILE,
   DEMO_TOP_MATCH_COUNT,
   INITIAL_DEMO_PEOPLE,
+  newDemoMatchBatchSeed,
   pickSessionDemoMePhoto,
   subsampleForMap,
   toMapPeople,
@@ -44,6 +45,7 @@ type SelectedPerson = DemoPerson & { isSelf?: boolean };
 export default function DemoPage() {
   const [people] = useState<DemoPerson[]>(INITIAL_DEMO_PEOPLE);
   const [myLive, setMyLive] = useState<DemoPerson | null>(null);
+  const [matchBatchSeed, setMatchBatchSeed] = useState(0);
   const [selected, setSelected] = useState<SelectedPerson | null>(null);
   const [showGoLive, setShowGoLive] = useState(false);
   const [showRating, setShowRating] = useState(false);
@@ -82,8 +84,11 @@ export default function DemoPage() {
   }, [myLive]);
 
   const topMatches = useMemo(
-    () => (myLive ? topDemoMatches(people, origin, myLive) : []),
-    [people, myLive, origin]
+    () =>
+      myLive
+        ? topDemoMatches(people, origin, myLive, DEMO_TOP_MATCH_COUNT, matchBatchSeed)
+        : [],
+    [people, myLive, origin, matchBatchSeed]
   );
 
   const mapPeople = useMemo(() => {
@@ -174,6 +179,8 @@ export default function DemoPage() {
 
   function handleGoLive(payload: GoLivePayload) {
     const name = draft.first_name.trim() || "You";
+    // New seed each go-live so Top 5 rotates across replay / re-test sessions.
+    setMatchBatchSeed(newDemoMatchBatchSeed());
     const session: DemoPerson = {
       profile: {
         ...DEMO_ME_PROFILE,

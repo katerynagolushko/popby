@@ -164,13 +164,23 @@ const CLUSTERS: {
   { name: "Wimbledon", lat: 51.421, lng: -0.208, weight: 3, spread: 0.014 },
 ];
 
+/**
+ * Hard ban — founder never wants this profile in the Encode demo.
+ * Check both spellings (earlier bugs surfaced "Louis").
+ */
+const BANNED_DEMO_FIRST_NAMES = new Set(["lewis", "louis"]);
+
+export function isBannedDemoName(firstName: string): boolean {
+  return BANNED_DEMO_FIRST_NAMES.has(firstName.trim().toLowerCase());
+}
+
 /** Clearly male-coded names — paired exclusively with male portraits. */
 const FIRST_NAMES_MEN = [
   "Adam", "Jake", "Tom", "Chris", "Marcus", "Leo", "Omar", "Noah", "Ryan", "James",
-  "Ben", "Daniel", "Mateo", "Samir", "Hugo", "Felix", "Owen", "Louis", "Adrian", "Ibrahim",
+  "Ben", "Daniel", "Mateo", "Samir", "Hugo", "Felix", "Owen", "Liam", "Adrian", "Ibrahim",
   "Theo", "Nate", "Ravi", "Seb", "Callum", "Miles", "Ethan", "Jasper", "Anil", "Finn",
   "Reuben", "Arjun", "Luca", "Harvey", "Zach", "Idris", "Niko", "Pascal", "Will", "Yusuf",
-] as const;
+].filter((n) => !isBannedDemoName(n));
 
 /** Clearly female-coded names — paired exclusively with female portraits. */
 const FIRST_NAMES_WOMEN = [
@@ -178,7 +188,7 @@ const FIRST_NAMES_WOMEN = [
   "Chloe", "Yasmin", "Freya", "Ivy", "Mei", "Hannah", "Rosa", "Anya", "Leila", "Grace",
   "Tara", "Nadia", "Cara", "Lucia", "Esme", "Fatima", "Julia", "Rina", "Nora", "Ava",
   "Ines", "Sophie", "Kira", "Noor", "Bella", "Uma", "Celine", "Dalia", "Hana", "Pearl",
-] as const;
+].filter((n) => !isBannedDemoName(n));
 
 const MALE_NAME_SET = new Set(
   FIRST_NAMES_MEN.map((n) => n.toLowerCase())
@@ -613,12 +623,16 @@ function generateSeeds(count: number): DemoSeed[] {
   for (let qi = 0; qi < genderQueue.length; qi++) {
     const gender = genderQueue[qi]!;
     const names = gender === "male" ? FIRST_NAMES_MEN : FIRST_NAMES_WOMEN;
-    let first = pick(rng, names);
-    let tries = 0;
-    while (usedNames.has(first.toLowerCase()) && tries < 8) {
-      first = pick(rng, names);
-      tries++;
-    }
+    const available = names.filter(
+      (n) => !usedNames.has(n.toLowerCase()) && !isBannedDemoName(n)
+    );
+    const first =
+      available.length > 0
+        ? pick(rng, available)
+        : pick(
+            rng,
+            names.filter((n) => !isBannedDemoName(n))
+          );
     usedNames.add(first.toLowerCase());
 
     const photo_url = claimPhoto(gender);
@@ -713,8 +727,11 @@ function seedToPerson(seed: DemoSeed): DemoPerson {
   };
 }
 
-export const INITIAL_DEMO_PEOPLE: DemoPerson[] =
-  generateSeeds(DEMO_PERSON_COUNT).map(seedToPerson);
+export const INITIAL_DEMO_PEOPLE: DemoPerson[] = generateSeeds(
+  DEMO_PERSON_COUNT
+)
+  .map(seedToPerson)
+  .filter((p) => !isBannedDemoName(p.profile.first_name));
 
 const DEMO_PEOPLE_BY_ID = new Map(
   INITIAL_DEMO_PEOPLE.map((p) => [p.profile.id, p])
@@ -791,7 +808,7 @@ export function getDemoReviews(person: DemoPerson): DemoReview[] {
   const rng = mulberry32(hashPersonId(person.profile.id) ^ 0x5e11);
   const self = person.profile.first_name.toLowerCase();
   const namePool = [...FIRST_NAMES_MEN, ...FIRST_NAMES_WOMEN].filter(
-    (name) => name.toLowerCase() !== self
+    (name) => name.toLowerCase() !== self && !isBannedDemoName(name)
   );
 
   const targetSum = avg * n;
@@ -901,7 +918,9 @@ export function rankDemoPeople(
   origin: { lat: number; lng: number },
   myLive: DemoPerson | null
 ): DemoPerson[] {
-  const others = people.filter((p) => !p.isSelf);
+  const others = people.filter(
+    (p) => !p.isSelf && !isBannedDemoName(p.profile.first_name)
+  );
   const preferVibe = myLive?.availability.match_preference === "vibe";
 
   return [...others].sort((a, b) => {
@@ -932,14 +951,107 @@ export function rankDemoPeople(
 
 export const DEMO_TOP_MATCH_COUNT = 5;
 
-/** Top N matches after go-live. Product of matching = this list, not an endless strip. */
+/** Candidate pool size before seeded variety pick (fresh batches on re-go-live). */
+export const DEMO_MATCH_CANDIDATE_POOL = 12;
+
+function distanceBand(
+  metres: number
+): "near" | "walk" | "neighbourhood" | "across_town" {
+  if (metres < 400) return "near";
+  if (metres < 1200) return "walk";
+  if (metres < 3500) return "neighbourhood";
+  return "across_town";
+}
+
+/**
+ * From a ranked candidate pool, pick `count` people with a session seed so
+ * re-go-live / replay yields a different batch, while still respecting Closest
+ * vs vibe ranking (only the top pool is eligible). Biases toward mixed
+ * formats, roles, and distance bands.
+ */
+function pickVariedMatchBatch(
+  rankedPool: DemoPerson[],
+  origin: { lat: number; lng: number },
+  count: number,
+  batchSeed: number
+): DemoPerson[] {
+  if (rankedPool.length <= count) return rankedPool.slice(0, count);
+
+  const rng = mulberry32(batchSeed >>> 0);
+  const candidates = shuffleInPlace(rng, [...rankedPool]);
+  const picked: DemoPerson[] = [];
+  const formats = new Set<string>();
+  const roles = new Set<string>();
+  const bands = new Set<string>();
+
+  const novelty = (p: DemoPerson) => {
+    const metres = distanceMetres(origin, {
+      lat: p.availability.lat,
+      lng: p.availability.lng,
+    });
+    const band = distanceBand(metres);
+    let score = rng() * 0.35; // light seed jitter among near-ties
+    if (!formats.has(p.availability.hangout_format)) score += 2.2;
+    if (!roles.has(p.profile.role)) score += 1.6;
+    if (!bands.has(band)) score += 1.4;
+    // Soft preference for earlier (better) rank position still present in pool order
+    const rankBonus =
+      (rankedPool.length - rankedPool.indexOf(p)) / rankedPool.length;
+    score += rankBonus * 0.8;
+    return score;
+  };
+
+  while (picked.length < count && candidates.length > 0) {
+    let bestIdx = 0;
+    let bestScore = -Infinity;
+    for (let i = 0; i < candidates.length; i++) {
+      const s = novelty(candidates[i]!);
+      if (s > bestScore) {
+        bestScore = s;
+        bestIdx = i;
+      }
+    }
+    const [chosen] = candidates.splice(bestIdx, 1);
+    if (!chosen) break;
+    picked.push(chosen);
+    formats.add(chosen.availability.hangout_format);
+    roles.add(chosen.profile.role);
+    bands.add(
+      distanceBand(
+        distanceMetres(origin, {
+          lat: chosen.availability.lat,
+          lng: chosen.availability.lng,
+        })
+      )
+    );
+  }
+
+  return picked;
+}
+
+/** Fresh unsigned seed for each go-live / replay batch. */
+export function newDemoMatchBatchSeed(): number {
+  return (
+    (Date.now() ^ Math.floor(Math.random() * 0xffffffff) ^ 0x9e3779b9) >>> 0
+  );
+}
+
+/**
+ * Top N matches after go-live. Product of matching = this list, not an endless strip.
+ * Pass `batchSeed` (new each go-live) so testers see rotating batches from the
+ * top candidate pool while Closest / Most my vibe still drive who is eligible.
+ */
 export function topDemoMatches(
   people: DemoPerson[],
   origin: { lat: number; lng: number },
   myLive: DemoPerson | null,
-  count = DEMO_TOP_MATCH_COUNT
+  count = DEMO_TOP_MATCH_COUNT,
+  batchSeed = 0
 ): DemoPerson[] {
-  return rankDemoPeople(people, origin, myLive).slice(0, count);
+  const ranked = rankDemoPeople(people, origin, myLive);
+  const poolSize = Math.max(count, DEMO_MATCH_CANDIDATE_POOL);
+  const pool = ranked.slice(0, poolSize);
+  return pickVariedMatchBatch(pool, origin, count, batchSeed);
 }
 
 /** Coarse cell key so nearby hangout clusters share one map-display bucket. */
@@ -997,7 +1109,9 @@ export function subsampleForMap(
   limit = DEMO_MAP_MARKER_LIMIT
 ): DemoPerson[] {
   const self = people.filter((p) => p.isSelf);
-  const others = people.filter((p) => !p.isSelf);
+  const others = people.filter(
+    (p) => !p.isSelf && !isBannedDemoName(p.profile.first_name)
+  );
 
   const cellMap = new Map<string, DemoPerson[]>();
   for (const p of others) {
