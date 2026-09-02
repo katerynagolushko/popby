@@ -11,11 +11,12 @@ import {
   DEMO_ME_ID,
   DEMO_ME_PROFILE,
   DEMO_PERSON_COUNT,
+  DEMO_TOP_MATCH_COUNT,
   INITIAL_DEMO_PEOPLE,
-  rankDemoPeople,
+  matchWhy,
   subsampleForMap,
   toMapPeople,
-  vibeMatchReason,
+  topDemoMatches,
   type DemoPerson,
 } from "@/lib/demo-data";
 import {
@@ -23,6 +24,7 @@ import {
   distanceMetres,
   formatDistance,
   hangoutSummary,
+  roleLabel,
 } from "@/lib/constants";
 
 const DEMO_MAP_CENTER: [number, number] = [
@@ -34,7 +36,7 @@ type ConnectionMap = Record<string, "none" | "pending" | "accepted">;
 
 type SelectedPerson = DemoPerson & { isSelf?: boolean };
 
-/** Full interactive demo — real London map, ~500 fake people, no Supabase. */
+/** Full interactive demo — real London map, fake crowd, no Supabase. */
 export default function DemoPage() {
   const [people] = useState<DemoPerson[]>(INITIAL_DEMO_PEOPLE);
   const [myLive, setMyLive] = useState<DemoPerson | null>(null);
@@ -51,9 +53,8 @@ export default function DemoPage() {
     return LONDON_CENTER;
   }, [myLive]);
 
-  // Ranking always uses the full 500; map only paints nearest ~100 + self.
-  const rankedPeople = useMemo(
-    () => rankDemoPeople(people, origin, myLive),
+  const topMatches = useMemo(
+    () => (myLive ? topDemoMatches(people, origin, myLive) : []),
     [people, myLive, origin]
   );
 
@@ -96,8 +97,8 @@ export default function DemoPage() {
     setShowGoLive(false);
     showToast(
       payload.match_preference === "vibe"
-        ? "You're live. Suggestions favour your hangout vibe."
-        : "You're live. Suggestions are closest first."
+        ? `You're live. Here are your top ${DEMO_TOP_MATCH_COUNT} vibe matches.`
+        : `You're live. Here are your top ${DEMO_TOP_MATCH_COUNT} closest people.`
     );
   }
 
@@ -145,7 +146,7 @@ export default function DemoPage() {
         <PopbyMapLoader
           people={mapPeople}
           center={DEMO_MAP_CENTER}
-          zoom={12}
+          zoom={11.4}
           onPersonClick={handlePersonClick}
           className="h-full w-full"
         />
@@ -231,64 +232,100 @@ export default function DemoPage() {
       )}
 
       <div className="absolute top-14 inset-x-3 z-[900] pointer-events-none">
-        <div className="pointer-events-auto max-w-lg mx-auto space-y-2">
+        <div className="pointer-events-auto max-w-md mx-auto">
           {!myLive && (
             <p className="text-center text-[11px] text-muted bg-white/90 backdrop-blur rounded-lg px-3 py-1.5 border border-paper-3">
-              Fake London crowd for Encode. Go live to rank matches by distance or vibe.
+              Fake London crowd for Encode. Go live and we&apos;ll pick{" "}
+              {DEMO_TOP_MATCH_COUNT} people you should meet.
             </p>
           )}
-          {myLive && (
-            <p className="text-center text-[11px] text-muted bg-white/90 backdrop-blur rounded-lg px-3 py-1.5 border border-paper-3">
-              {preferVibe
-                ? "Sorted by hangout vibe (format + intent), then distance. Edit to switch."
-                : "Sorted by closest to your pin. Edit to switch to vibe match."}
-            </p>
+
+          {myLive && topMatches.length > 0 && (
+            <div className="bg-white border-2 border-navy rounded-2xl shadow-xl overflow-hidden max-h-[min(52vh,420px)] flex flex-col">
+              <div className="bg-navy text-white px-4 py-3 flex-shrink-0">
+                <p className="text-base font-bold tracking-tight" style={{ fontFamily: "var(--font-syne), system-ui, sans-serif" }}>
+                  You should connect with…
+                </p>
+                <p className="text-[11px] text-white/75 mt-0.5">
+                  {preferVibe
+                    ? `Top ${DEMO_TOP_MATCH_COUNT} by hangout vibe. Edit to switch to closest.`
+                    : `Top ${DEMO_TOP_MATCH_COUNT} closest to your pin. Edit to switch to vibe.`}
+                </p>
+              </div>
+              <ul className="overflow-y-auto divide-y divide-paper-3">
+                {topMatches.map((p, i) => {
+                  const metres = distanceMetres(origin, {
+                    lat: p.availability.lat,
+                    lng: p.availability.lng,
+                  });
+                  const why = matchWhy(myLive, p, origin);
+                  const status = getConnectionStatus(p.profile.id);
+                  return (
+                    <li
+                      key={p.profile.id}
+                      className="flex items-stretch gap-3 px-3 py-2.5 bg-white"
+                    >
+                      <button
+                        type="button"
+                        onClick={() => setSelected({ ...p })}
+                        className="flex items-center gap-3 min-w-0 flex-1 text-left"
+                      >
+                        <span className="flex-shrink-0 w-5 text-xs font-bold text-accent tabular-nums">
+                          {i + 1}
+                        </span>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={p.profile.photo_url ?? ""}
+                          alt=""
+                          className="w-11 h-11 rounded-full object-cover bg-paper-2 flex-shrink-0 ring-2 ring-paper-3"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).style.visibility =
+                              "hidden";
+                          }}
+                        />
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm font-semibold text-navy truncate">
+                            {p.profile.first_name}
+                            <span className="font-normal text-muted">
+                              {" "}
+                              · {roleLabel(p.profile.role)}
+                            </span>
+                          </p>
+                          <p className="text-[11px] text-muted truncate">
+                            {formatDistance(metres)} ·{" "}
+                            {hangoutSummary(
+                              p.availability.hangout_format,
+                              p.availability.hangout_intent
+                            )}
+                          </p>
+                          <p className="text-[11px] text-accent font-medium truncate">
+                            {why}
+                          </p>
+                        </div>
+                      </button>
+                      <div className="flex-shrink-0 flex items-center">
+                        {status === "none" ? (
+                          <button
+                            type="button"
+                            onClick={() => handleConnect(p.profile.id)}
+                            className="text-xs font-semibold bg-accent text-white rounded-lg px-3 py-2 hover:bg-accent-dark"
+                          >
+                            Connect
+                          </button>
+                        ) : status === "pending" ? (
+                          <span className="text-[11px] text-muted px-2">Sent</span>
+                        ) : (
+                          <span className="text-[11px] text-navy font-medium px-2">
+                            Connected
+                          </span>
+                        )}
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
           )}
-          <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
-            {rankedPeople.slice(0, 8).map((p) => {
-              const metres = distanceMetres(origin, {
-                lat: p.availability.lat,
-                lng: p.availability.lng,
-              });
-              const why =
-                preferVibe && myLive ? vibeMatchReason(myLive, p) : null;
-              return (
-                <button
-                  key={p.profile.id}
-                  type="button"
-                  onClick={() => setSelected({ ...p })}
-                  className="flex-shrink-0 flex items-center gap-2 bg-white/95 backdrop-blur border border-paper-3 rounded-xl px-2.5 py-2 shadow text-left min-w-[168px]"
-                >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={p.profile.photo_url ?? ""}
-                    alt=""
-                    className="w-9 h-9 rounded-full object-cover bg-paper-2"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).style.visibility = "hidden";
-                    }}
-                  />
-                  <div className="min-w-0">
-                    <p className="text-xs font-semibold text-navy truncate">
-                      {p.profile.first_name}
-                    </p>
-                    <p className="text-[10px] text-muted truncate max-w-[130px]">
-                      {formatDistance(metres)} ·{" "}
-                      {hangoutSummary(
-                        p.availability.hangout_format,
-                        p.availability.hangout_intent
-                      )}
-                    </p>
-                    {why && (
-                      <p className="text-[10px] text-accent font-medium truncate max-w-[130px]">
-                        {why}
-                      </p>
-                    )}
-                  </div>
-                </button>
-              );
-            })}
-          </div>
         </div>
       </div>
     </div>

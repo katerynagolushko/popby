@@ -31,6 +31,7 @@ export default function WaitlistForm({ className = "" }: { className?: string })
         ok?: boolean;
         error?: string;
         duplicate?: boolean;
+        emailSent?: boolean;
       };
 
       if (res.ok && data.ok) {
@@ -38,7 +39,9 @@ export default function WaitlistForm({ className = "" }: { className?: string })
         setMessage(
           data.duplicate
             ? "You're already on the list."
-            : "You're on the list. We'll email when early access opens in London."
+            : data.emailSent
+              ? "You're on the list. Check your inbox for a quick confirmation."
+              : "You're on the list. We'll email when early access opens in London."
         );
         setEmail("");
         return;

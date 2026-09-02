@@ -22,8 +22,31 @@ cp .env.example .env.local
 
 Fill in:
 - `NEXT_PUBLIC_SUPABASE_URL`
-- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY` (or `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`)
 - `OPENAI_API_KEY` (optional — for Luma screenshot event extraction)
+- `RESEND_API_KEY` + `WAITLIST_FROM_EMAIL` (optional — waitlist confirmation email; see below)
+
+## Waitlist signups (where they go)
+
+Landing form → `POST /api/waitlist` → Supabase table `waitlist` (columns: email, source, created_at).
+
+View them: Supabase dashboard → **Table Editor** → **waitlist**.
+
+Migration: `supabase/migrations/20260302_waitlist.sql` (also in `schema.sql`). Run it once if the table is missing.
+
+Signup still returns ok if Supabase env is missing (local/demo); nothing is persisted in that case.
+
+## Waitlist confirmation email (Resend — optional)
+
+Code path is ready in `src/lib/waitlist-email.ts`. If keys are missing, signup still succeeds; only the confirmation email is skipped.
+
+1. Create a [Resend](https://resend.com) account.
+2. Add and verify your domain (DNS: SPF, DKIM, and whatever Resend shows for the domain). Until the domain is verified, you can only send from Resend’s onboarding address in test mode.
+3. Create an API key. Put it in Vercel / `.env.local` as `RESEND_API_KEY`.
+4. Set `WAITLIST_FROM_EMAIL` to a verified sender, e.g. `Popby <hello@yourdomain.com>`.
+5. Redeploy. Join the waitlist once and check Resend → Emails plus the inbox.
+
+Do not pretend email works without keys. The API returns `emailSent: true|false` so you can confirm.
 
 ## 3. Run locally
 

@@ -6,30 +6,42 @@ import type {
   Profile,
   Role,
 } from "./types";
-import { distanceMetres } from "./constants";
+import {
+  distanceMetres,
+  formatDistance,
+  formatLabel,
+  intentLabel,
+} from "./constants";
 
 export const DEMO_ME_ID = "demo-me";
 
-/** Full ranking pool size. Map only draws a nearby subsample (see DEMO_MAP_MARKER_LIMIT). */
-export const DEMO_PERSON_COUNT = 500;
+/**
+ * Full ranking pool. Kept under unique-portrait capacity so faces don't
+ * obviously repeat on the map or in Top 5.
+ */
+export const DEMO_PERSON_COUNT = 350;
 
 /**
- * MapLibre DOM markers get expensive past ~100 on mobile.
- * Ranking / suggestions always use the full DEMO_PERSON_COUNT set;
- * the map only paints the nearest DEMO_MAP_MARKER_LIMIT (plus you when live).
+ * MapLibre DOM markers get expensive and unreadable when stacked.
+ * Ranking / Top 5 always use the full DEMO_PERSON_COUNT set;
+ * the map only paints a density-capped nearby subsample.
  */
-export const DEMO_MAP_MARKER_LIMIT = 100;
+export const DEMO_MAP_MARKER_LIMIT = 55;
+
+/** Min metres between any two generated pins (city-wide). */
+const MIN_PIN_GAP_M = 95;
+
+/** Map subsample: reject a pin if this many others already sit within radius. */
+const MAP_LOCAL_RADIUS_M = 220;
+const MAP_MAX_LOCAL = 3;
+/** Map subsample: hard min gap between painted pins. */
+const MAP_MIN_GAP_M = 110;
 
 export type DemoPerson = {
   profile: Profile & { avg_score?: number | null; rating_count?: number };
   availability: Availability;
   isSelf?: boolean;
 };
-
-/** Realistic demo portraits (randomuser.me — stock photos for prototypes) */
-function portrait(gender: "men" | "women", id: number) {
-  return `https://randomuser.me/api/portraits/${gender}/${id % 100}.jpg`;
-}
 
 function expiresIn(minutes: number) {
   return new Date(Date.now() + minutes * 60 * 1000).toISOString();
@@ -50,38 +62,97 @@ function pick<T>(rng: () => number, arr: readonly T[]): T {
   return arr[Math.floor(rng() * arr.length)]!;
 }
 
-/** London startup / hangout clusters — weights bias toward denser tech areas. */
-const CLUSTERS: { name: string; lat: number; lng: number; weight: number; spread: number }[] = [
-  { name: "Shoreditch", lat: 51.5238, lng: -0.0788, weight: 14, spread: 0.012 },
-  { name: "Old Street", lat: 51.5255, lng: -0.0877, weight: 13, spread: 0.01 },
-  { name: "King's Cross", lat: 51.5308, lng: -0.1238, weight: 10, spread: 0.01 },
-  { name: "Soho", lat: 51.5136, lng: -0.1365, weight: 9, spread: 0.008 },
-  { name: "Canary Wharf", lat: 51.5054, lng: -0.0235, weight: 8, spread: 0.012 },
-  { name: "Hackney", lat: 51.545, lng: -0.055, weight: 8, spread: 0.014 },
-  { name: "Brixton", lat: 51.4613, lng: -0.1156, weight: 7, spread: 0.012 },
-  { name: "Clapham", lat: 51.4618, lng: -0.1385, weight: 6, spread: 0.012 },
-  { name: "Camden", lat: 51.539, lng: -0.1426, weight: 6, spread: 0.01 },
-  { name: "London Bridge", lat: 51.5055, lng: -0.0865, weight: 6, spread: 0.009 },
-  { name: "Whitechapel", lat: 51.5194, lng: -0.059, weight: 5, spread: 0.01 },
-  { name: "Islington", lat: 51.5362, lng: -0.103, weight: 5, spread: 0.01 },
-  { name: "Bethnal Green", lat: 51.527, lng: -0.0545, weight: 4, spread: 0.01 },
-  { name: "Fitzrovia", lat: 51.5205, lng: -0.138, weight: 4, spread: 0.007 },
-  { name: "South Bank", lat: 51.506, lng: -0.11, weight: 3, spread: 0.008 },
-  { name: "Peckham", lat: 51.4742, lng: -0.0695, weight: 3, spread: 0.012 },
-  { name: "Angel", lat: 51.532, lng: -0.105, weight: 3, spread: 0.008 },
-  { name: "Spitalfields", lat: 51.5195, lng: -0.075, weight: 3, spread: 0.007 },
+function shuffleInPlace<T>(rng: () => number, arr: T[]) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(rng() * (i + 1));
+    const tmp = arr[i]!;
+    arr[i] = arr[j]!;
+    arr[j] = tmp;
+  }
+  return arr;
+}
+
+/**
+ * Unique portrait URLs. randomuser has 100 men + 100 women; xsgames adds more
+ * photo faces so we can fill DEMO_PERSON_COUNT without obvious clones.
+ */
+function buildPortraitPool(count: number, rng: () => number): string[] {
+  const pool: string[] = [];
+  for (let i = 0; i < 100; i++) {
+    pool.push(`https://randomuser.me/api/portraits/men/${i}.jpg`);
+    pool.push(`https://randomuser.me/api/portraits/women/${i}.jpg`);
+  }
+  for (let i = 0; i <= 78; i++) {
+    pool.push(
+      `https://xsgames.co/randomusers/assets/avatars/male/${i}.jpg`
+    );
+    pool.push(
+      `https://xsgames.co/randomusers/assets/avatars/female/${i}.jpg`
+    );
+  }
+  shuffleInPlace(rng, pool);
+  if (pool.length < count) {
+    // Last resort: unique illustrated faces (should not hit at DEMO_PERSON_COUNT=350)
+    for (let i = pool.length; i < count; i++) {
+      pool.push(
+        `https://api.dicebear.com/9.x/personas/png?seed=popby-${i}&size=128`
+      );
+    }
+  }
+  return pool.slice(0, count);
+}
+
+/**
+ * London hangout clusters — flatter weights + wider spread so Old Street /
+ * Shoreditch don't eat the map.
+ */
+const CLUSTERS: {
+  name: string;
+  lat: number;
+  lng: number;
+  weight: number;
+  spread: number;
+}[] = [
+  { name: "Shoreditch", lat: 51.5238, lng: -0.0788, weight: 7, spread: 0.018 },
+  { name: "Old Street", lat: 51.5255, lng: -0.0877, weight: 6, spread: 0.016 },
+  { name: "King's Cross", lat: 51.5308, lng: -0.1238, weight: 7, spread: 0.016 },
+  { name: "Soho", lat: 51.5136, lng: -0.1365, weight: 6, spread: 0.014 },
+  { name: "Canary Wharf", lat: 51.5054, lng: -0.0235, weight: 6, spread: 0.018 },
+  { name: "Hackney", lat: 51.545, lng: -0.055, weight: 6, spread: 0.02 },
+  { name: "Dalston", lat: 51.5485, lng: -0.075, weight: 5, spread: 0.016 },
+  { name: "Brixton", lat: 51.4613, lng: -0.1156, weight: 6, spread: 0.018 },
+  { name: "Clapham", lat: 51.4618, lng: -0.1385, weight: 5, spread: 0.018 },
+  { name: "Camden", lat: 51.539, lng: -0.1426, weight: 5, spread: 0.016 },
+  { name: "London Bridge", lat: 51.5055, lng: -0.0865, weight: 5, spread: 0.014 },
+  { name: "Bermondsey", lat: 51.4975, lng: -0.068, weight: 4, spread: 0.016 },
+  { name: "Whitechapel", lat: 51.5194, lng: -0.059, weight: 4, spread: 0.015 },
+  { name: "Islington", lat: 51.5362, lng: -0.103, weight: 5, spread: 0.015 },
+  { name: "Bethnal Green", lat: 51.527, lng: -0.0545, weight: 4, spread: 0.015 },
+  { name: "Fitzrovia", lat: 51.5205, lng: -0.138, weight: 4, spread: 0.012 },
+  { name: "South Bank", lat: 51.506, lng: -0.11, weight: 4, spread: 0.014 },
+  { name: "Peckham", lat: 51.4742, lng: -0.0695, weight: 5, spread: 0.018 },
+  { name: "Angel", lat: 51.532, lng: -0.105, weight: 4, spread: 0.012 },
+  { name: "Spitalfields", lat: 51.5195, lng: -0.075, weight: 3, spread: 0.012 },
+  { name: "Notting Hill", lat: 51.5094, lng: -0.1965, weight: 4, spread: 0.016 },
+  { name: "Battersea", lat: 51.476, lng: -0.145, weight: 4, spread: 0.016 },
+  { name: "Greenwich", lat: 51.4826, lng: -0.0077, weight: 4, spread: 0.016 },
+  { name: "Fulham", lat: 51.477, lng: -0.201, weight: 3, spread: 0.016 },
+  { name: "Marylebone", lat: 51.522, lng: -0.155, weight: 3, spread: 0.012 },
+  { name: "Wimbledon", lat: 51.421, lng: -0.208, weight: 2, spread: 0.014 },
 ];
 
 const FIRST_NAMES_MEN = [
   "Alex", "Jordan", "Tom", "Chris", "Marcus", "Leo", "Omar", "Noah", "Ryan", "Kai",
   "Ben", "Daniel", "Mateo", "Samir", "Hugo", "Felix", "Owen", "Louis", "Adrian", "Ibrahim",
   "Theo", "Nate", "Ravi", "Seb", "Callum", "Miles", "Ethan", "Jasper", "Anil", "Finn",
+  "Reuben", "Arjun", "Luca", "Harvey", "Zach", "Idris", "Niko", "Pascal", "Devon", "Yusuf",
 ];
 
 const FIRST_NAMES_WOMEN = [
   "Sam", "Priya", "Maya", "Elena", "Zara", "Aisha", "Nina", "Sofia", "Amelia", "Lara",
   "Chloe", "Yasmin", "Freya", "Ivy", "Mei", "Hannah", "Rosa", "Anya", "Leila", "Grace",
   "Tara", "Nadia", "Cara", "Lucia", "Esme", "Fatima", "Jules", "Rina", "Nora", "Ava",
+  "Ines", "Sloane", "Kira", "Noor", "Billie", "Uma", "Celine", "Dalia", "Hana", "Pearl",
 ];
 
 const ROLES: Role[] = [
@@ -90,16 +161,6 @@ const ROLES: Role[] = [
   "investor",
   "freelancer",
   "service_provider",
-];
-
-const COMPANY_TYPES: CompanyType[] = [
-  "early_stage",
-  "scale_up",
-  "corporate",
-  "vc_fund",
-  "agency",
-  "independent",
-  "student",
 ];
 
 const FORMATS: HangoutFormat[] = ["coffee", "walk", "cowork", "activity"];
@@ -163,8 +224,7 @@ const NOTES = [
 type DemoSeed = {
   id: string;
   first_name: string;
-  gender: "men" | "women";
-  portraitId: number;
+  photo_url: string;
   role: Role;
   company_type: CompanyType;
   bio: string;
@@ -182,13 +242,11 @@ type DemoSeed = {
   luma_profile_url?: string | null;
 };
 
-/** Hand-authored people near Old Street — keep a few familiar faces in the mix. */
-const HAND_SEEDS: DemoSeed[] = [
+/** Hand-authored people — portraits reserved from the unique pool at generation. */
+const HAND_SEED_BASE: Omit<DemoSeed, "photo_url">[] = [
   {
     id: "1",
     first_name: "Alex",
-    gender: "men",
-    portraitId: 32,
     role: "founder",
     company_type: "early_stage",
     bio: "Building in fintech. Always up for product feedback over coffee.",
@@ -206,8 +264,6 @@ const HAND_SEEDS: DemoSeed[] = [
   {
     id: "2",
     first_name: "Sam",
-    gender: "women",
-    portraitId: 65,
     role: "operator",
     company_type: "scale_up",
     bio: "Ex-Stripe ops. Here for walks and brainstorms.",
@@ -225,8 +281,6 @@ const HAND_SEEDS: DemoSeed[] = [
   {
     id: "3",
     first_name: "Priya",
-    gender: "women",
-    portraitId: 44,
     role: "investor",
     company_type: "vc_fund",
     bio: "Angel investor. Open to casual chats, not pitch meetings.",
@@ -245,8 +299,6 @@ const HAND_SEEDS: DemoSeed[] = [
   {
     id: "4",
     first_name: "Jordan",
-    gender: "men",
-    portraitId: 75,
     role: "freelancer",
     company_type: "independent",
     bio: "Product designer between gigs. Down to co-work somewhere quiet.",
@@ -263,13 +315,11 @@ const HAND_SEEDS: DemoSeed[] = [
   {
     id: "5",
     first_name: "Maya",
-    gender: "women",
-    portraitId: 28,
     role: "founder",
     company_type: "early_stage",
     bio: "Climate tech. Looking for honest feedback on our GTM.",
-    lat: 51.5288,
-    lng: -0.0912,
+    lat: 51.4613,
+    lng: -0.1156,
     hangout_format: "walk",
     hangout_intent: "product_feedback",
     hangout_note: "20 min max, be brutal",
@@ -281,13 +331,11 @@ const HAND_SEEDS: DemoSeed[] = [
   {
     id: "6",
     first_name: "Tom",
-    gender: "men",
-    portraitId: 52,
     role: "service_provider",
     company_type: "agency",
     bio: "Startup lawyer. Happy to answer quick questions, not full consults.",
-    lat: 51.5221,
-    lng: -0.0845,
+    lat: 51.5055,
+    lng: -0.0865,
     hangout_format: "coffee",
     hangout_intent: "casual_chat",
     hangout_note: "Legal basics over espresso",
@@ -299,13 +347,11 @@ const HAND_SEEDS: DemoSeed[] = [
   {
     id: "7",
     first_name: "Elena",
-    gender: "women",
-    portraitId: 17,
     role: "operator",
     company_type: "scale_up",
     bio: "Head of growth at a Series A. Love talking hiring and culture.",
-    lat: 51.5268,
-    lng: -0.0725,
+    lat: 51.5308,
+    lng: -0.1238,
     hangout_format: "coffee",
     hangout_intent: "brainstorm",
     hangout_note: null,
@@ -318,13 +364,11 @@ const HAND_SEEDS: DemoSeed[] = [
   {
     id: "8",
     first_name: "Chris",
-    gender: "men",
-    portraitId: 61,
     role: "investor",
     company_type: "vc_fund",
     bio: "Pre-seed VC. On the hunt for interesting founders, zero pitch decks.",
-    lat: 51.5195,
-    lng: -0.0812,
+    lat: 51.5136,
+    lng: -0.1365,
     hangout_format: "walk",
     hangout_intent: "casual_chat",
     hangout_note: "Just moved to London",
@@ -336,13 +380,11 @@ const HAND_SEEDS: DemoSeed[] = [
   {
     id: "9",
     first_name: "Zara",
-    gender: "women",
-    portraitId: 89,
     role: "freelancer",
     company_type: "independent",
     bio: "Engineer on contract. Free this afternoon, down to co-work.",
-    lat: 51.5332,
-    lng: -0.0885,
+    lat: 51.545,
+    lng: -0.055,
     hangout_format: "cowork",
     hangout_intent: "just_hang",
     hangout_note: "WeWork lobby or anywhere with WiFi",
@@ -396,23 +438,75 @@ function roleCompany(rng: () => number): { role: Role; company_type: CompanyType
   };
 }
 
+function placeNear(
+  cluster: (typeof CLUSTERS)[number],
+  placed: { lat: number; lng: number }[],
+  rng: () => number,
+  minGap = MIN_PIN_GAP_M
+): { lat: number; lng: number } {
+  for (let attempt = 0; attempt < 48; attempt++) {
+    const scale = 1 + attempt * 0.04;
+    const lat = cluster.lat + (rng() - 0.5) * 2 * cluster.spread * scale;
+    const lng = cluster.lng + (rng() - 0.5) * 2 * cluster.spread * scale;
+    const ok = placed.every(
+      (p) => distanceMetres(p, { lat, lng }) >= minGap
+    );
+    if (ok) {
+      const point = { lat, lng };
+      placed.push(point);
+      return point;
+    }
+  }
+  // Give up on gap; still jitter so we don't stack on the centroid.
+  const point = {
+    lat: cluster.lat + (rng() - 0.5) * 2 * cluster.spread * 1.6,
+    lng: cluster.lng + (rng() - 0.5) * 2 * cluster.spread * 1.6,
+  };
+  placed.push(point);
+  return point;
+}
+
+let demoMePhotoUrl =
+  "https://randomuser.me/api/portraits/women/47.jpg";
+
 function generateSeeds(count: number): DemoSeed[] {
-  const rng = mulberry32(20260302);
-  const seeds: DemoSeed[] = [...HAND_SEEDS];
-  const usedNames = new Set(HAND_SEEDS.map((s) => s.first_name.toLowerCase()));
+  const rng = mulberry32(20260305);
+  const portraits = buildPortraitPool(count + 1, rng); // +1 for DEMO_ME
+  let portraitIdx = 0;
+  const nextPhoto = () => portraits[portraitIdx++]!;
+
+  const placed: { lat: number; lng: number }[] = [];
+  const seeds: DemoSeed[] = HAND_SEED_BASE.map((base) => {
+    // Re-place hand seeds with min-gap so they don't sit on top of each other.
+    const cluster =
+      CLUSTERS.find(
+        (c) =>
+          Math.abs(c.lat - base.lat) < 0.01 && Math.abs(c.lng - base.lng) < 0.01
+      ) ?? weightedCluster(rng);
+    const point = placeNear(cluster, placed, rng);
+    return {
+      ...base,
+      lat: point.lat,
+      lng: point.lng,
+      photo_url: nextPhoto(),
+    };
+  });
+
+  const usedNames = new Set(seeds.map((s) => s.first_name.toLowerCase()));
 
   for (let i = seeds.length; i < count; i++) {
-    const gender: "men" | "women" = rng() < 0.5 ? "men" : "women";
-    const names = gender === "men" ? FIRST_NAMES_MEN : FIRST_NAMES_WOMEN;
+    const genderRoll = rng();
+    const names = genderRoll < 0.5 ? FIRST_NAMES_MEN : FIRST_NAMES_WOMEN;
     let first = pick(rng, names);
-    // Light collision avoidance so the strip doesn't look cloned
-    if (usedNames.has(first.toLowerCase()) && rng() > 0.35) {
+    let tries = 0;
+    while (usedNames.has(first.toLowerCase()) && tries < 8) {
       first = pick(rng, names);
+      tries++;
     }
     usedNames.add(first.toLowerCase());
 
     const cluster = weightedCluster(rng);
-    const jitter = () => (rng() - 0.5) * 2 * cluster.spread;
+    const point = placeNear(cluster, placed, rng);
     const { role, company_type } = roleCompany(rng);
     const hangout_format = pick(rng, FORMATS);
     const hangout_intent = pick(rng, INTENTS);
@@ -425,13 +519,12 @@ function generateSeeds(count: number): DemoSeed[] {
     seeds.push({
       id: String(i + 1),
       first_name: first,
-      gender,
-      portraitId: Math.floor(rng() * 99),
+      photo_url: nextPhoto(),
       role,
       company_type,
       bio: pick(rng, BIOS[role]),
-      lat: cluster.lat + jitter(),
-      lng: cluster.lng + jitter(),
+      lat: point.lat,
+      lng: point.lng,
       hangout_format,
       hangout_intent,
       hangout_note: pick(rng, NOTES),
@@ -445,6 +538,7 @@ function generateSeeds(count: number): DemoSeed[] {
     });
   }
 
+  demoMePhotoUrl = nextPhoto();
   return seeds;
 }
 
@@ -453,7 +547,7 @@ function seedToPerson(seed: DemoSeed): DemoPerson {
     profile: {
       id: seed.id,
       first_name: seed.first_name,
-      photo_url: portrait(seed.gender, seed.portraitId),
+      photo_url: seed.photo_url,
       role: seed.role,
       company_type: seed.company_type,
       bio: seed.bio,
@@ -489,7 +583,7 @@ export const INITIAL_DEMO_PEOPLE: DemoPerson[] =
 export const DEMO_ME_PROFILE: Profile = {
   id: DEMO_ME_ID,
   first_name: "You",
-  photo_url: portrait("women", 47),
+  photo_url: demoMePhotoUrl,
   role: "founder",
   company_type: "early_stage",
   bio: "Demo profile. Sign in later if we open real accounts.",
@@ -547,9 +641,21 @@ export function rankDemoPeople(
   });
 }
 
+export const DEMO_TOP_MATCH_COUNT = 5;
+
+/** Top N matches after go-live. Product of matching = this list, not an endless strip. */
+export function topDemoMatches(
+  people: DemoPerson[],
+  origin: { lat: number; lng: number },
+  myLive: DemoPerson | null,
+  count = DEMO_TOP_MATCH_COUNT
+): DemoPerson[] {
+  return rankDemoPeople(people, origin, myLive).slice(0, count);
+}
+
 /**
- * Subsample for MapLibre markers: always keep self, then nearest N from the
- * full ranked/unranked pool. Ranking strip still uses the full set.
+ * Subsample for MapLibre markers: keep self, then nearest candidates that
+ * pass local density + min-gap so pins don't stack into an unreadable blob.
  */
 export function subsampleForMap(
   people: DemoPerson[],
@@ -569,11 +675,75 @@ export function subsampleForMap(
           lat: b.availability.lat,
           lng: b.availability.lng,
         })
-    )
-    .slice(0, limit);
-  return [...others, ...self];
+    );
+
+  const picked: DemoPerson[] = [];
+  const usedPhotos = new Set<string>();
+
+  for (const p of others) {
+    if (picked.length >= limit) break;
+
+    const photo = p.profile.photo_url ?? "";
+    if (photo && usedPhotos.has(photo)) continue;
+
+    const latlng = { lat: p.availability.lat, lng: p.availability.lng };
+
+    if (
+      picked.some(
+        (q) =>
+          distanceMetres(latlng, {
+            lat: q.availability.lat,
+            lng: q.availability.lng,
+          }) < MAP_MIN_GAP_M
+      )
+    ) {
+      continue;
+    }
+
+    const localCount = picked.filter(
+      (q) =>
+        distanceMetres(latlng, {
+          lat: q.availability.lat,
+          lng: q.availability.lng,
+        }) < MAP_LOCAL_RADIUS_M
+    ).length;
+    if (localCount >= MAP_MAX_LOCAL) continue;
+
+    picked.push(p);
+    if (photo) usedPhotos.add(photo);
+  }
+
+  return [...picked, ...self];
 }
 
+/** Short reason shown on Top 5 cards. */
+export function matchWhy(
+  me: DemoPerson,
+  other: DemoPerson,
+  origin: { lat: number; lng: number }
+): string {
+  const metres = distanceMetres(origin, {
+    lat: other.availability.lat,
+    lng: other.availability.lng,
+  });
+  const preferVibe = me.availability.match_preference === "vibe";
+  const sameFormat =
+    me.availability.hangout_format === other.availability.hangout_format;
+  const sameIntent =
+    me.availability.hangout_intent === other.availability.hangout_intent;
+
+  if (preferVibe) {
+    if (sameFormat && sameIntent) return "Same hangout as you";
+    if (sameIntent) return `Also here for ${intentLabel(other.availability.hangout_intent)}`;
+    if (sameFormat) return `Also wants ${formatLabel(other.availability.hangout_format)}`;
+  }
+
+  if (metres < 180) return "Basically next to you";
+  if (metres < 550) return "A short walk away";
+  return `${formatDistance(metres)} from your pin`;
+}
+
+/** @deprecated use matchWhy — kept for any leftover imports */
 export function vibeMatchReason(
   me: DemoPerson,
   other: DemoPerson

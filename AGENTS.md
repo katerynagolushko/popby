@@ -43,20 +43,21 @@ Do **not** put hangout format, intent, or vibe preference on the profile — tho
 
 Public path for Encode: **landing waitlist + `/demo`**. City-wide real accounts are not open.
 
-- Landing: waitlist email (`POST /api/waitlist` → Supabase `waitlist` table when env is set). Primary CTA is waitlist; secondary is "Try the full demo". Soft founder sign-in link stays.
+- Landing: waitlist email (`POST /api/waitlist` → Supabase `waitlist` table when env is set). View signups in Supabase **Table Editor → waitlist**. Primary CTA is waitlist; secondary is "Try the full demo". Soft founder sign-in link stays.
 - Soft gate: unauthenticated `/map` (and other app routes) redirect to `/` so visitors are not pushed into real signup. Founder auth still works via `/login`.
-- **`/demo`**: ~500 fake people across London clusters (Shoreditch, Old Street, King's Cross, Soho, Canary Wharf, Hackney, Brixton, Clapham, etc.). Zero Supabase. Go-live picks format + intent + Closest / Most my vibe; suggestion strip ranks the full set; map paints ~100 nearest markers for mobile perf.
+- **`/demo`**: ~350 fake people across London clusters (flatter weights, min pin gap, density-capped map). Zero Supabase. Go-live picks format + intent + Closest / Most my vibe; **Top 5 matches** panel is the product of matching (not an endless strip). Map paints ~55 density-capped markers.
 - Waitlist schema: `supabase/migrations/20260302_waitlist.sql` (also in `schema.sql`). Run in Supabase before relying on persistence.
+- Optional waitlist confirmation email: `RESEND_API_KEY` + `WAITLIST_FROM_EMAIL` (see SETUP.md). Signup never fails if email isn’t configured.
 
 ## Main features
 
 - **Profiles**: first name, photo, role, company type, short bio, optional LinkedIn / X / Luma links with visibility control. Deliberately thin.
 - **Go-live availability** with format + intent, note, duration, and map pin (`availability` table, auto-expiry via `expires_at`).
-- **Live map**: MapLibre GL JS + OpenFreeMap "bright" style (no API key needed). Suggestion strip sorted by nearest or vibe.
+- **Live map**: MapLibre GL JS + OpenFreeMap "bright" style (no API key needed). After go-live, Top 5 matches (nearest or vibe).
 - **Connect requests + realtime messaging** (`connections`, `messages` tables).
 - **Ratings v1** (`ratings` table, avg score shown on profiles).
 - **Luma event import**: user uploads a screenshot of their Luma calendar; `/api/extract-events` uses GPT-4o-mini vision to extract events (Luma has no public end-user OAuth).
-- **`/demo` route**: full interactive Encode demo (~500 people), works with zero Supabase. Landing points here after waitlist.
+- **`/demo` route**: full interactive Encode demo (~350 people), works with zero Supabase. Landing points here after waitlist.
 - **Waitlist**: `waitlist` table + `/api/waitlist` for early access emails.
 
 ## Architecture / key decisions (don't relitigate these)
@@ -73,7 +74,7 @@ Public path for Encode: **landing waitlist + `/demo`**. City-wide real accounts 
 
 - Pages: `src/app/` (`page.tsx` landing + waitlist, `demo/`, `login/`, `onboarding/`, `map/`, `profile/`, `messages/`, `api/waitlist/`, `api/extract-events/`, `auth/callback/`)
 - Components: `src/components/` (`WaitlistForm.tsx`, `PopbyMap.tsx`, `PopbyMapLoader.tsx` for ssr:false dynamic import, `GoLiveModal.tsx` which supports a `demo` prop, `PersonSheet.tsx`, `RatingModal.tsx`, `EventScreenshotUpload.tsx`)
-- Lib: `src/lib/` (brand, constants, types, demo-data with 500-person generator + map subsample helpers, map-tiles, maplibre-setup, `supabase/` clients)
+- Lib: `src/lib/` (brand, constants, types, demo-data with crowd generator + density-capped map subsample + Top 5 ranking, waitlist-email, map-tiles, maplibre-setup, `supabase/` clients)
 - Human docs: `README.md` (overview + demo), `SETUP.md` (Supabase/Vercel setup)
 
 ## Dev
