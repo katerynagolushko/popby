@@ -344,7 +344,7 @@ export default function MapPage() {
         />
       </div>
 
-      <div className="absolute bottom-6 inset-x-0 flex justify-center z-[1000] px-4">
+      <div className="absolute bottom-[max(18%,calc(env(safe-area-inset-bottom)+1.25rem))] inset-x-0 flex justify-center z-[1000] px-4">
         {myLiveSession ? (
           <div className="flex items-center gap-3 bg-navy text-white rounded-xl px-5 py-3.5 min-h-[56px] shadow-xl">
             <span className="live-dot" />

@@ -330,7 +330,7 @@ export default function DemoPage() {
 
       {!matchesOpen && (
         <div
-          className="absolute inset-x-0 bottom-0 z-[1000] p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] flex flex-col items-center gap-2.5 pointer-events-none"
+          className="absolute inset-x-0 bottom-[max(18%,calc(env(safe-area-inset-bottom)+1.25rem))] z-[1000] p-3 flex flex-col items-center gap-2.5 pointer-events-none"
         >
           {myLive ? (
             <div className="pointer-events-auto flex items-center gap-2.5 bg-navy text-white rounded-xl px-4 py-3.5 min-h-[56px] shadow-xl w-full max-w-md">
