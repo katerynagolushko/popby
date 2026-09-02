@@ -28,8 +28,8 @@ import {
 } from "@/lib/constants";
 
 const DEMO_MAP_CENTER: [number, number] = [
-  LONDON_CENTER.lat,
-  LONDON_CENTER.lng,
+  51.512, // mid-London so west/south/east pins aren't cropped at city zoom
+  -0.12,
 ];
 
 type ConnectionMap = Record<string, "none" | "pending" | "accepted">;
@@ -60,8 +60,8 @@ export default function DemoPage() {
 
   const mapPeople = useMemo(() => {
     const all = myLive ? [...people, myLive] : people;
-    return toMapPeople(subsampleForMap(all, origin));
-  }, [people, myLive, origin]);
+    return toMapPeople(subsampleForMap(all));
+  }, [people, myLive]);
 
   const showToast = useCallback((msg: string) => {
     setToast(msg);
@@ -146,7 +146,7 @@ export default function DemoPage() {
         <PopbyMapLoader
           people={mapPeople}
           center={DEMO_MAP_CENTER}
-          zoom={11.4}
+          zoom={11}
           onPersonClick={handlePersonClick}
           className="h-full w-full"
         />
@@ -232,27 +232,40 @@ export default function DemoPage() {
       )}
 
       <div className="absolute top-14 inset-x-3 z-[900] pointer-events-none">
-        <div className="pointer-events-auto max-w-md mx-auto">
+        <div className="pointer-events-auto max-w-lg mx-auto">
           {!myLive && (
-            <p className="text-center text-[11px] text-muted bg-white/90 backdrop-blur rounded-lg px-3 py-1.5 border border-paper-3">
-              Fake London crowd for Encode. Go live and we&apos;ll pick{" "}
-              {DEMO_TOP_MATCH_COUNT} people you should meet.
-            </p>
+            <div className="bg-white border-2 border-navy rounded-2xl shadow-xl overflow-hidden">
+              <div className="bg-navy text-white px-4 py-3.5">
+                <p
+                  className="text-lg font-bold tracking-tight leading-snug"
+                  style={{ fontFamily: "var(--font-syne), system-ui, sans-serif" }}
+                >
+                  Fake London crowd for Encode
+                </p>
+                <p className="text-sm text-white/85 mt-1 leading-snug">
+                  Go live and we pick {DEMO_TOP_MATCH_COUNT} people you should
+                  meet. Pins are spread across the city, not one blob.
+                </p>
+              </div>
+            </div>
           )}
 
           {myLive && topMatches.length > 0 && (
-            <div className="bg-white border-2 border-navy rounded-2xl shadow-xl overflow-hidden max-h-[min(52vh,420px)] flex flex-col">
-              <div className="bg-navy text-white px-4 py-3 flex-shrink-0">
-                <p className="text-base font-bold tracking-tight" style={{ fontFamily: "var(--font-syne), system-ui, sans-serif" }}>
+            <div className="bg-paper border-2 border-navy rounded-2xl shadow-2xl overflow-hidden max-h-[min(62vh,520px)] flex flex-col">
+              <div className="bg-navy text-white px-4 py-4 flex-shrink-0">
+                <p
+                  className="text-xl font-bold tracking-tight leading-tight"
+                  style={{ fontFamily: "var(--font-syne), system-ui, sans-serif" }}
+                >
                   You should connect with…
                 </p>
-                <p className="text-[11px] text-white/75 mt-0.5">
+                <p className="text-sm text-white/80 mt-1.5 leading-snug">
                   {preferVibe
-                    ? `Top ${DEMO_TOP_MATCH_COUNT} by hangout vibe. Edit to switch to closest.`
-                    : `Top ${DEMO_TOP_MATCH_COUNT} closest to your pin. Edit to switch to vibe.`}
+                    ? `Your top ${DEMO_TOP_MATCH_COUNT} by hangout vibe. Edit live to switch to closest.`
+                    : `Your top ${DEMO_TOP_MATCH_COUNT} closest to your pin. Edit live to switch to vibe.`}
                 </p>
               </div>
-              <ul className="overflow-y-auto divide-y divide-paper-3">
+              <ul className="overflow-y-auto divide-y divide-paper-3 bg-white">
                 {topMatches.map((p, i) => {
                   const metres = distanceMetres(origin, {
                     lat: p.availability.lat,
@@ -263,42 +276,42 @@ export default function DemoPage() {
                   return (
                     <li
                       key={p.profile.id}
-                      className="flex items-stretch gap-3 px-3 py-2.5 bg-white"
+                      className="flex items-stretch gap-3 px-3.5 py-3.5 bg-white"
                     >
                       <button
                         type="button"
                         onClick={() => setSelected({ ...p })}
                         className="flex items-center gap-3 min-w-0 flex-1 text-left"
                       >
-                        <span className="flex-shrink-0 w-5 text-xs font-bold text-accent tabular-nums">
+                        <span className="flex-shrink-0 w-6 text-sm font-bold text-accent tabular-nums">
                           {i + 1}
                         </span>
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
                           src={p.profile.photo_url ?? ""}
                           alt=""
-                          className="w-11 h-11 rounded-full object-cover bg-paper-2 flex-shrink-0 ring-2 ring-paper-3"
+                          className="w-14 h-14 rounded-full object-cover bg-paper-2 flex-shrink-0 ring-2 ring-navy/15"
                           onError={(e) => {
                             (e.target as HTMLImageElement).style.visibility =
                               "hidden";
                           }}
                         />
                         <div className="min-w-0 flex-1">
-                          <p className="text-sm font-semibold text-navy truncate">
+                          <p className="text-base font-semibold text-navy truncate">
                             {p.profile.first_name}
-                            <span className="font-normal text-muted">
+                            <span className="font-normal text-muted text-sm">
                               {" "}
                               · {roleLabel(p.profile.role)}
                             </span>
                           </p>
-                          <p className="text-[11px] text-muted truncate">
+                          <p className="text-xs text-muted truncate mt-0.5">
                             {formatDistance(metres)} ·{" "}
                             {hangoutSummary(
                               p.availability.hangout_format,
                               p.availability.hangout_intent
                             )}
                           </p>
-                          <p className="text-[11px] text-accent font-medium truncate">
+                          <p className="text-xs text-accent font-semibold truncate mt-0.5">
                             {why}
                           </p>
                         </div>
@@ -308,14 +321,14 @@ export default function DemoPage() {
                           <button
                             type="button"
                             onClick={() => handleConnect(p.profile.id)}
-                            className="text-xs font-semibold bg-accent text-white rounded-lg px-3 py-2 hover:bg-accent-dark"
+                            className="text-sm font-semibold bg-accent text-white rounded-xl px-3.5 py-2.5 hover:bg-accent-dark shadow-sm"
                           >
                             Connect
                           </button>
                         ) : status === "pending" ? (
-                          <span className="text-[11px] text-muted px-2">Sent</span>
+                          <span className="text-xs text-muted px-2">Sent</span>
                         ) : (
-                          <span className="text-[11px] text-navy font-medium px-2">
+                          <span className="text-xs text-navy font-semibold px-2">
                             Connected
                           </span>
                         )}

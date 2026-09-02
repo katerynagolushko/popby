@@ -24,18 +24,19 @@ export const DEMO_PERSON_COUNT = 350;
 /**
  * MapLibre DOM markers get expensive and unreadable when stacked.
  * Ranking / Top 5 always use the full DEMO_PERSON_COUNT set;
- * the map only paints a density-capped nearby subsample.
+ * the map paints a density-capped, city-wide spread subsample
+ * (per-cluster quotas — never "nearest to Old Street").
  */
-export const DEMO_MAP_MARKER_LIMIT = 55;
+export const DEMO_MAP_MARKER_LIMIT = 72;
 
 /** Min metres between any two generated pins (city-wide). */
 const MIN_PIN_GAP_M = 95;
 
 /** Map subsample: reject a pin if this many others already sit within radius. */
-const MAP_LOCAL_RADIUS_M = 220;
-const MAP_MAX_LOCAL = 3;
+const MAP_LOCAL_RADIUS_M = 280;
+const MAP_MAX_LOCAL = 2;
 /** Map subsample: hard min gap between painted pins. */
-const MAP_MIN_GAP_M = 110;
+const MAP_MIN_GAP_M = 130;
 
 export type DemoPerson = {
   profile: Profile & { avg_score?: number | null; rating_count?: number };
@@ -103,8 +104,8 @@ function buildPortraitPool(count: number, rng: () => number): string[] {
 }
 
 /**
- * London hangout clusters — flatter weights + wider spread so Old Street /
- * Shoreditch don't eat the map.
+ * London hangout clusters — near-flat weights + wide spread so East London
+ * tech land doesn't eat the map. Generation and map subsample both key off these.
  */
 const CLUSTERS: {
   name: string;
@@ -113,32 +114,34 @@ const CLUSTERS: {
   weight: number;
   spread: number;
 }[] = [
-  { name: "Shoreditch", lat: 51.5238, lng: -0.0788, weight: 7, spread: 0.018 },
-  { name: "Old Street", lat: 51.5255, lng: -0.0877, weight: 6, spread: 0.016 },
-  { name: "King's Cross", lat: 51.5308, lng: -0.1238, weight: 7, spread: 0.016 },
-  { name: "Soho", lat: 51.5136, lng: -0.1365, weight: 6, spread: 0.014 },
-  { name: "Canary Wharf", lat: 51.5054, lng: -0.0235, weight: 6, spread: 0.018 },
-  { name: "Hackney", lat: 51.545, lng: -0.055, weight: 6, spread: 0.02 },
-  { name: "Dalston", lat: 51.5485, lng: -0.075, weight: 5, spread: 0.016 },
-  { name: "Brixton", lat: 51.4613, lng: -0.1156, weight: 6, spread: 0.018 },
-  { name: "Clapham", lat: 51.4618, lng: -0.1385, weight: 5, spread: 0.018 },
+  { name: "Shoreditch", lat: 51.5238, lng: -0.0788, weight: 4, spread: 0.016 },
+  { name: "Old Street", lat: 51.5255, lng: -0.0877, weight: 4, spread: 0.014 },
+  { name: "King's Cross", lat: 51.5308, lng: -0.1238, weight: 5, spread: 0.016 },
+  { name: "Soho", lat: 51.5136, lng: -0.1365, weight: 5, spread: 0.014 },
+  { name: "Westminster", lat: 51.4994, lng: -0.133, weight: 4, spread: 0.014 },
+  { name: "Canary Wharf", lat: 51.5054, lng: -0.0235, weight: 5, spread: 0.018 },
+  { name: "Hackney", lat: 51.545, lng: -0.055, weight: 5, spread: 0.02 },
+  { name: "Dalston", lat: 51.5485, lng: -0.075, weight: 4, spread: 0.016 },
+  { name: "Brixton", lat: 51.4613, lng: -0.1156, weight: 5, spread: 0.018 },
+  { name: "Clapham", lat: 51.4618, lng: -0.1385, weight: 4, spread: 0.018 },
   { name: "Camden", lat: 51.539, lng: -0.1426, weight: 5, spread: 0.016 },
-  { name: "London Bridge", lat: 51.5055, lng: -0.0865, weight: 5, spread: 0.014 },
-  { name: "Bermondsey", lat: 51.4975, lng: -0.068, weight: 4, spread: 0.016 },
-  { name: "Whitechapel", lat: 51.5194, lng: -0.059, weight: 4, spread: 0.015 },
-  { name: "Islington", lat: 51.5362, lng: -0.103, weight: 5, spread: 0.015 },
-  { name: "Bethnal Green", lat: 51.527, lng: -0.0545, weight: 4, spread: 0.015 },
-  { name: "Fitzrovia", lat: 51.5205, lng: -0.138, weight: 4, spread: 0.012 },
+  { name: "Hampstead", lat: 51.556, lng: -0.178, weight: 4, spread: 0.016 },
+  { name: "London Bridge", lat: 51.5055, lng: -0.0865, weight: 4, spread: 0.014 },
+  { name: "Bermondsey", lat: 51.4975, lng: -0.068, weight: 3, spread: 0.016 },
+  { name: "Whitechapel", lat: 51.5194, lng: -0.059, weight: 3, spread: 0.015 },
+  { name: "Islington", lat: 51.5362, lng: -0.103, weight: 4, spread: 0.015 },
+  { name: "Bethnal Green", lat: 51.527, lng: -0.0545, weight: 3, spread: 0.015 },
+  { name: "Fitzrovia", lat: 51.5205, lng: -0.138, weight: 3, spread: 0.012 },
   { name: "South Bank", lat: 51.506, lng: -0.11, weight: 4, spread: 0.014 },
-  { name: "Peckham", lat: 51.4742, lng: -0.0695, weight: 5, spread: 0.018 },
-  { name: "Angel", lat: 51.532, lng: -0.105, weight: 4, spread: 0.012 },
+  { name: "Peckham", lat: 51.4742, lng: -0.0695, weight: 4, spread: 0.018 },
+  { name: "Angel", lat: 51.532, lng: -0.105, weight: 3, spread: 0.012 },
   { name: "Spitalfields", lat: 51.5195, lng: -0.075, weight: 3, spread: 0.012 },
-  { name: "Notting Hill", lat: 51.5094, lng: -0.1965, weight: 4, spread: 0.016 },
+  { name: "Notting Hill", lat: 51.5094, lng: -0.1965, weight: 5, spread: 0.016 },
   { name: "Battersea", lat: 51.476, lng: -0.145, weight: 4, spread: 0.016 },
-  { name: "Greenwich", lat: 51.4826, lng: -0.0077, weight: 4, spread: 0.016 },
-  { name: "Fulham", lat: 51.477, lng: -0.201, weight: 3, spread: 0.016 },
-  { name: "Marylebone", lat: 51.522, lng: -0.155, weight: 3, spread: 0.012 },
-  { name: "Wimbledon", lat: 51.421, lng: -0.208, weight: 2, spread: 0.014 },
+  { name: "Greenwich", lat: 51.4826, lng: -0.0077, weight: 5, spread: 0.016 },
+  { name: "Fulham", lat: 51.477, lng: -0.201, weight: 4, spread: 0.016 },
+  { name: "Marylebone", lat: 51.522, lng: -0.155, weight: 4, spread: 0.012 },
+  { name: "Wimbledon", lat: 51.421, lng: -0.208, weight: 3, spread: 0.014 },
 ];
 
 const FIRST_NAMES_MEN = [
@@ -653,64 +656,113 @@ export function topDemoMatches(
   return rankDemoPeople(people, origin, myLive).slice(0, count);
 }
 
-/**
- * Subsample for MapLibre markers: keep self, then nearest candidates that
- * pass local density + min-gap so pins don't stack into an unreadable blob.
- */
-export function subsampleForMap(
-  people: DemoPerson[],
-  origin: { lat: number; lng: number },
-  limit = DEMO_MAP_MARKER_LIMIT
-): DemoPerson[] {
-  const self = people.filter((p) => p.isSelf);
-  const others = people
-    .filter((p) => !p.isSelf)
-    .sort(
-      (a, b) =>
-        distanceMetres(origin, {
-          lat: a.availability.lat,
-          lng: a.availability.lng,
-        }) -
-        distanceMetres(origin, {
-          lat: b.availability.lat,
-          lng: b.availability.lng,
-        })
-    );
-
-  const picked: DemoPerson[] = [];
-  const usedPhotos = new Set<string>();
-
-  for (const p of others) {
-    if (picked.length >= limit) break;
-
-    const photo = p.profile.photo_url ?? "";
-    if (photo && usedPhotos.has(photo)) continue;
-
-    const latlng = { lat: p.availability.lat, lng: p.availability.lng };
-
-    if (
-      picked.some(
-        (q) =>
-          distanceMetres(latlng, {
-            lat: q.availability.lat,
-            lng: q.availability.lng,
-          }) < MAP_MIN_GAP_M
-      )
-    ) {
-      continue;
+function nearestClusterIndex(lat: number, lng: number): number {
+  let best = 0;
+  let bestD = Infinity;
+  for (let i = 0; i < CLUSTERS.length; i++) {
+    const c = CLUSTERS[i]!;
+    const d = distanceMetres({ lat, lng }, { lat: c.lat, lng: c.lng });
+    if (d < bestD) {
+      bestD = d;
+      best = i;
     }
+  }
+  return best;
+}
 
-    const localCount = picked.filter(
+function mapPinFits(
+  candidate: DemoPerson,
+  picked: DemoPerson[],
+  usedPhotos: Set<string>
+): boolean {
+  const photo = candidate.profile.photo_url ?? "";
+  if (photo && usedPhotos.has(photo)) return false;
+
+  const latlng = {
+    lat: candidate.availability.lat,
+    lng: candidate.availability.lng,
+  };
+
+  if (
+    picked.some(
       (q) =>
         distanceMetres(latlng, {
           lat: q.availability.lat,
           lng: q.availability.lng,
-        }) < MAP_LOCAL_RADIUS_M
-    ).length;
-    if (localCount >= MAP_MAX_LOCAL) continue;
+        }) < MAP_MIN_GAP_M
+    )
+  ) {
+    return false;
+  }
 
-    picked.push(p);
-    if (photo) usedPhotos.add(photo);
+  const localCount = picked.filter(
+    (q) =>
+      distanceMetres(latlng, {
+        lat: q.availability.lat,
+        lng: q.availability.lng,
+      }) < MAP_LOCAL_RADIUS_M
+  ).length;
+  return localCount < MAP_MAX_LOCAL;
+}
+
+/**
+ * Subsample for MapLibre markers: keep self, then take a quota from every
+ * London cluster so zoomed-out city view shows pins across neighborhoods
+ * (Camden, Brixton, Greenwich, Notting Hill, …), not one Old Street blob.
+ * Within each area, min-gap + local density keep faces readable when zoomed in.
+ */
+export function subsampleForMap(
+  people: DemoPerson[],
+  _origin?: { lat: number; lng: number },
+  limit = DEMO_MAP_MARKER_LIMIT
+): DemoPerson[] {
+  const self = people.filter((p) => p.isSelf);
+  const others = people.filter((p) => !p.isSelf);
+
+  const buckets: DemoPerson[][] = CLUSTERS.map(() => []);
+  for (const p of others) {
+    const idx = nearestClusterIndex(p.availability.lat, p.availability.lng);
+    buckets[idx]!.push(p);
+  }
+
+  // Stable shuffle per bucket so which faces show isn't always the same IDs.
+  const shuffleRng = mulberry32(20260306);
+  for (const bucket of buckets) {
+    shuffleInPlace(shuffleRng, bucket);
+  }
+
+  const picked: DemoPerson[] = [];
+  const pickedIds = new Set<string>();
+  const usedPhotos = new Set<string>();
+  // Cursor into each bucket for round-robin (fair across neighborhoods).
+  const cursors = buckets.map(() => 0);
+
+  const tryNextFrom = (bucketIdx: number): boolean => {
+    if (picked.length >= limit) return false;
+    const bucket = buckets[bucketIdx]!;
+    while (cursors[bucketIdx]! < bucket.length) {
+      const p = bucket[cursors[bucketIdx]!]!;
+      cursors[bucketIdx]!++;
+      if (pickedIds.has(p.profile.id)) continue;
+      if (!mapPinFits(p, picked, usedPhotos)) continue;
+      picked.push(p);
+      pickedIds.add(p.profile.id);
+      const photo = p.profile.photo_url ?? "";
+      if (photo) usedPhotos.add(photo);
+      return true;
+    }
+    return false;
+  };
+
+  // Round-robin: 1 from each neighborhood, then another, until limit.
+  // Guarantees Greenwich / Fulham / Wimbledon etc. aren't starved by East London.
+  let progress = true;
+  while (picked.length < limit && progress) {
+    progress = false;
+    for (let i = 0; i < buckets.length; i++) {
+      if (picked.length >= limit) break;
+      if (tryNextFrom(i)) progress = true;
+    }
   }
 
   return [...picked, ...self];
