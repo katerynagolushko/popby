@@ -263,8 +263,8 @@ function MobileSwipeDeck({ people }: { people: LandingPerson[] }) {
   return (
     <div className="absolute inset-x-0 top-[12%] z-20 flex flex-col items-center gap-3 px-5 sm:hidden pointer-events-none">
       <div
-        className="relative w-[min(100%,17.5rem)] h-[9.5rem] pointer-events-auto touch-pan-y"
-        style={{ touchAction: "pan-y" }}
+        className="relative w-[min(100%,17.5rem)] h-[9.5rem] pointer-events-auto select-none"
+        style={{ touchAction: "none" }}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={endDrag}
