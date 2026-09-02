@@ -127,6 +127,32 @@ h1, h2, h3 {
   font-family: var(--font-ibm-plex), system-ui, sans-serif;
 }
 
+/* Landing hero CTAs — must beat .popby-btn base size */
+.landing-cta {
+  padding: 1.35rem 2.5rem;
+  min-height: 4.75rem; /* ~76px */
+  border-radius: 14px;
+  font-size: 1.4rem;
+  line-height: 1.15;
+  font-weight: 600;
+}
+
+@media (min-width: 640px) {
+  .landing-cta {
+    padding: 1.55rem 3rem;
+    min-height: 5.5rem; /* ~88px */
+    font-size: 1.6rem;
+  }
+}
+
+@media (min-width: 1280px) {
+  .landing-cta {
+    padding: 1.65rem 3.25rem;
+    min-height: 5.85rem;
+    font-size: 1.7rem;
+  }
+}
+
 .popby-btn-accent {
   background: var(--accent);
   color: white;

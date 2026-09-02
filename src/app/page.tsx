@@ -17,39 +17,38 @@ export default async function HomePage({
         <Logo size="md" />
 
         <div className="flex-1 flex flex-col justify-center min-h-0 py-5 sm:py-6 lg:py-4">
-          <div className="flex flex-col gap-5 sm:gap-6 max-w-xl">
+          <div className="flex flex-col max-w-xl">
             <h1 className="font-display font-extrabold text-5xl sm:text-6xl xl:text-7xl text-navy leading-[1.02] tracking-[-0.04em]">
               The <span className="hl-accent">startup</span> social network for{" "}
               <span className="hl-accent">IRL</span>
             </h1>
 
-            <div className="flex flex-col gap-1.5 sm:gap-2">
-              <p className="font-display font-semibold tracking-[-0.02em] text-[1.4rem] sm:text-[1.7rem] xl:text-[1.9rem] leading-[1.25] text-navy">
-                It&apos;s time to make it easy to meet{" "}
-                <span className="hl-accent">cool people</span> in the startup world
-              </p>
-              <p className="font-display font-semibold tracking-[-0.02em] text-[1.25rem] sm:text-[1.5rem] xl:text-[1.7rem] leading-[1.25] text-navy">
-                #spontaneous hangouts
-              </p>
-            </div>
+            <p className="mt-8 sm:mt-10 font-display font-semibold tracking-[-0.02em] text-[1.4rem] sm:text-[1.7rem] xl:text-[1.9rem] leading-[1.25] text-navy">
+              It&apos;s time to make it easy to meet{" "}
+              <span className="hl-accent">cool people</span> in the startup world
+            </p>
+
+            <p className="mt-5 sm:mt-6 font-display font-semibold tracking-[-0.02em] text-[1.05rem] sm:text-[1.2rem] xl:text-[1.3rem] leading-[1.3] text-navy">
+              spontaneous hangouts
+            </p>
 
             {softGated && (
-              <p className="text-base sm:text-lg text-navy bg-paper-2 border border-paper-3 rounded-xl px-4 py-2.5 leading-snug">
+              <p className="mt-6 text-base sm:text-lg text-navy bg-paper-2 border border-paper-3 rounded-xl px-4 py-2.5 leading-snug">
                 The live map with real accounts isn&apos;t open yet. Join the
                 waitlist or try the full demo with fake people across {APP_CITY}.
               </p>
             )}
 
-            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 shrink-0 pt-1">
+            <div className="mt-6 sm:mt-7 flex flex-col sm:flex-row gap-3 sm:gap-4 shrink-0">
               <Link
                 href="/waitlist"
-                className="popby-btn popby-btn-accent text-[1.7rem] sm:text-[2rem] xl:text-[2.15rem] px-12 sm:px-16 py-7 sm:py-8 min-h-[112px] sm:min-h-[128px] rounded-[16px]"
+                className="popby-btn popby-btn-accent landing-cta"
               >
                 Join the waitlist
               </Link>
               <Link
                 href="/demo"
-                className="popby-btn popby-btn-navy text-[1.7rem] sm:text-[2rem] xl:text-[2.15rem] px-12 sm:px-16 py-7 sm:py-8 min-h-[112px] sm:min-h-[128px] rounded-[16px]"
+                className="popby-btn popby-btn-navy landing-cta"
               >
                 Try the full demo
               </Link>
@@ -57,11 +56,11 @@ export default async function HomePage({
           </div>
         </div>
 
-        <p className="mt-auto pt-4 sm:pt-5 text-xl sm:text-2xl text-navy/80 leading-snug max-w-xl font-medium shrink-0">
+        <p className="mt-auto pt-4 sm:pt-5 text-sm sm:text-[0.95rem] text-navy/65 leading-snug max-w-xl shrink-0">
           The V1 is for London. If you want us to launch in your city,{" "}
           <Link
             href="/waitlist/city"
-            className="text-navy font-semibold underline underline-offset-2 hover:text-accent"
+            className="text-navy/80 font-medium underline underline-offset-2 hover:text-accent"
           >
             join this waitlist
           </Link>
