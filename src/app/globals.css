@@ -127,29 +127,31 @@ h1, h2, h3 {
   font-family: var(--font-ibm-plex), system-ui, sans-serif;
 }
 
-/* Landing hero CTAs — must beat .popby-btn base size */
+/* Landing hero CTAs — slightly larger than base .popby-btn, not oversized pills */
 .landing-cta {
-  padding: 1.35rem 2.5rem;
-  min-height: 4.75rem; /* ~76px */
-  border-radius: 14px;
-  font-size: 1.4rem;
-  line-height: 1.15;
+  padding: 0.85rem 1.75rem;
+  min-height: 3.25rem; /* ~52px */
+  border-radius: 12px;
+  font-size: 1.125rem;
+  line-height: 1.2;
   font-weight: 600;
+  text-align: center;
 }
 
 @media (min-width: 640px) {
   .landing-cta {
-    padding: 1.55rem 3rem;
-    min-height: 5.5rem; /* ~88px */
-    font-size: 1.6rem;
+    padding: 0.95rem 2rem;
+    min-height: 3.5rem; /* ~56px */
+    font-size: 1.2rem;
+    white-space: nowrap;
   }
 }
 
 @media (min-width: 1280px) {
   .landing-cta {
-    padding: 1.65rem 3.25rem;
-    min-height: 5.85rem;
-    font-size: 1.7rem;
+    padding: 1rem 2.25rem;
+    min-height: 3.625rem;
+    font-size: 1.25rem;
   }
 }
 
