@@ -187,8 +187,8 @@ export default function GoLiveModal({
         className="absolute inset-0 bg-ink/40 backdrop-blur-sm"
         onClick={onClose}
       />
-      <div className="relative bg-paper w-full sm:max-w-md sm:rounded-3xl rounded-t-3xl max-h-[92vh] overflow-y-auto shadow-2xl pb-[env(safe-area-inset-bottom)]">
-        <div className="p-5 border-b border-paper-3 flex items-center justify-between sticky top-0 bg-paper z-10">
+      <div className="relative bg-paper w-full sm:max-w-2xl sm:mx-4 sm:rounded-3xl rounded-t-3xl max-h-[92vh] overflow-y-auto shadow-2xl pb-[env(safe-area-inset-bottom)]">
+        <div className="p-5 sm:px-6 border-b border-paper-3 flex items-center justify-between sticky top-0 bg-paper z-10">
           <div>
             <h2 className="text-2xl text-navy font-display">Go live</h2>
             <p className="text-lg text-navy/70 mt-0.5">
@@ -200,13 +200,13 @@ export default function GoLiveModal({
           <button
             type="button"
             onClick={onClose}
-            className="w-[52px] h-[52px] rounded-xl bg-paper-2 flex items-center justify-center text-navy/70 hover:text-ink text-xl"
+            className="w-[52px] h-[52px] rounded-xl bg-paper-2 flex items-center justify-center text-navy/70 hover:text-ink text-xl shrink-0"
           >
             ✕
           </button>
         </div>
 
-        <div className="p-5 space-y-5">
+        <div className="p-5 sm:px-6 sm:pb-6 space-y-5 sm:space-y-4">
           {needsPhoto && (
             <div className="p-3 rounded-xl bg-paper-2 border border-paper-3">
               <p className="text-lg font-medium text-navy mb-2">
