@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Logo from "@/components/Logo";
 import WaitlistForm from "@/components/WaitlistForm";
-import { APP_CITY, APP_DESCRIPTION, APP_NAME, APP_TAGLINE } from "@/lib/brand";
+import { APP_CITY, APP_NAME, APP_TAGLINE } from "@/lib/brand";
 
 export default async function HomePage({
   searchParams,
@@ -13,28 +13,55 @@ export default async function HomePage({
 
   return (
     <main className="min-h-screen flex flex-col lg:flex-row">
-      <div className="flex-1 flex flex-col justify-between p-8 sm:p-12 lg:p-16 lg:max-w-xl">
+      <div className="flex-1 flex flex-col justify-between p-8 sm:p-12 lg:p-16 lg:max-w-2xl lg:overflow-y-auto">
         <Logo size="md" />
 
-        <div className="py-12 lg:py-0">
+        <div className="py-10 lg:py-8">
           <p className="text-sm font-semibold uppercase tracking-widest text-accent mb-4">
             {APP_CITY} · early access
           </p>
           <h1 className="text-4xl sm:text-5xl lg:text-[3.25rem] text-navy leading-[1.08] mb-6">
             {APP_TAGLINE}
           </h1>
-          <p className="text-lg leading-relaxed text-muted max-w-md mb-6">
-            {APP_DESCRIPTION}
+          <p className="text-lg leading-relaxed text-muted max-w-lg mb-4">
+            LinkedIn feels like a graveyard. Strangers pitch you before they know
+            you. {APP_NAME} is for human social connection among startup people in{" "}
+            {APP_CITY}: less loneliness, more hanging out in person.
+          </p>
+          <p className="text-lg leading-relaxed text-muted max-w-lg mb-8">
+            No feed, no posts, no follower counts. Go live when you&apos;re free,
+            pick a format, see who&apos;s nearby, connect, then meet. If you want
+            to pitch someone, say that up front. Cold selling strangers is the
+            thing people are already sick of. Connection comes first.
           </p>
 
           {softGated && (
-            <p className="text-sm text-navy bg-paper-2 border border-paper-3 rounded-xl px-3 py-2.5 mb-6 max-w-md leading-relaxed">
+            <p className="text-base text-navy bg-paper-2 border border-paper-3 rounded-xl px-3 py-2.5 mb-6 max-w-lg leading-relaxed">
               The live map with real accounts isn&apos;t open yet. Join the waitlist
               or try the full demo with fake people across London.
             </p>
           )}
 
-          <WaitlistForm className="mb-8 max-w-md" />
+          <div className="mb-10 max-w-lg">
+            <h2 className="text-lg font-semibold text-navy mb-3">How it works</h2>
+            <div className="space-y-3 text-base leading-relaxed text-muted">
+              <p>
+                <span className="font-medium text-navy">1. Go live.</span> Pick
+                coffee, walk, co-work, or activity, how long you&apos;re free, and
+                roughly where you are.
+              </p>
+              <p>
+                <span className="font-medium text-navy">2. See who&apos;s free.</span>{" "}
+                Live people show on the map. Rank by closest or by vibe match.
+              </p>
+              <p>
+                <span className="font-medium text-navy">3. Meet IRL.</span> Send a
+                connect, chat if they accept, hang out, then rate each other.
+              </p>
+            </div>
+          </div>
+
+          <WaitlistForm className="mb-8 max-w-lg" />
 
           <div className="flex flex-col sm:flex-row gap-3">
             <Link href="/demo" className="popby-btn popby-btn-accent">
@@ -46,10 +73,9 @@ export default async function HomePage({
           </div>
         </div>
 
-        <p className="text-sm text-muted max-w-md leading-relaxed">
-          Real city-wide hangouts are not open yet. The demo shows the whole loop
-          with fake people across {APP_CITY}. {APP_NAME} is waitlist + demo for
-          Encode.
+        <p className="text-base text-muted max-w-lg leading-relaxed pt-4">
+          City-wide live accounts are not open yet. The demo runs the whole loop
+          with fake people across {APP_CITY}. Waitlist + demo for Encode.
         </p>
       </div>
 
@@ -103,8 +129,7 @@ export default async function HomePage({
           </div>
 
           <p className="text-base text-paper-3 mt-10 max-w-sm leading-relaxed">
-            Go live, set how you want to hang, see who matches nearby, connect,
-            then meet in person.
+            Real people, free right now, a short walk away. Meet them offline.
           </p>
         </div>
       </div>

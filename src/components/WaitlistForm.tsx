@@ -192,9 +192,9 @@ export default function WaitlistForm({ className = "" }: { className?: string })
       {message && status === "error" && (
         <p className="text-sm text-red-600">{message}</p>
       )}
-      <p className="text-xs text-muted leading-relaxed">
-        London only for now. No city-wide live map yet. Leave these and try the full
-        demo below.
+      <p className="text-sm text-muted leading-relaxed">
+        London only for now. No city-wide live map yet. Or skip this and try the
+        full demo below.
       </p>
     </form>
   );
