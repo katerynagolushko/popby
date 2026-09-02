@@ -1,0 +1,180 @@
+"use client";
+
+import { hangoutLabel, roleLabel, timeRemaining } from "@/lib/constants";
+import type { Profile, Availability } from "@/lib/types";
+
+interface PersonSheetProps {
+  profile: Profile & { avg_score?: number | null; rating_count?: number };
+  availability: Availability;
+  isSelf: boolean;
+  connectionStatus?: "none" | "pending" | "accepted" | "declined";
+  onConnect: () => void;
+  onMessage: () => void;
+  onRate: () => void;
+  onClose: () => void;
+  onStopLive?: () => void;
+}
+
+export default function PersonSheet({
+  profile,
+  availability,
+  isSelf,
+  connectionStatus = "none",
+  onConnect,
+  onMessage,
+  onRate,
+  onClose,
+  onStopLive,
+}: PersonSheetProps) {
+  return (
+    <div className="fixed inset-x-0 bottom-0 z-[1050] sm:inset-auto sm:bottom-6 sm:right-6 sm:left-auto sm:w-96 pb-[env(safe-area-inset-bottom)]">
+      <div
+        className="absolute inset-0 sm:hidden bg-ink/30 -top-[100vh]"
+        onClick={onClose}
+        aria-hidden
+      />
+      <div className="relative bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl border border-paper-3 overflow-hidden">
+        <div className="p-5">
+          <div className="flex gap-4 items-start">
+            <div className="w-20 h-20 rounded-full overflow-hidden bg-paper-2 flex-shrink-0 border-2 border-paper-3">
+              {profile.photo_url ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={profile.photo_url}
+                  alt={profile.first_name}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-lg font-bold text-accent bg-paper">
+                  {profile.first_name[0]}
+                </div>
+              )}
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2">
+                <h2 className="text-xl text-navy truncate font-display">
+                  {profile.first_name}
+                </h2>
+                {availability.is_active && (
+                  <span className="flex items-center gap-1 text-xs text-mint font-semibold">
+                    <span className="live-dot" />
+                    Live
+                  </span>
+                )}
+              </div>
+              <p className="text-sm text-muted">{roleLabel(profile.role)}</p>
+              {profile.avg_score != null && profile.avg_score > 0 && (
+                <p className="text-xs text-accent mt-0.5 font-medium">
+                  ★ {profile.avg_score} ({profile.rating_count} reviews)
+                </p>
+              )}
+            </div>
+            <button
+              type="button"
+              onClick={onClose}
+              className="text-muted hover:text-ink p-1"
+            >
+              ✕
+            </button>
+          </div>
+
+          <div className="mt-4 p-3 bg-paper rounded-xl border border-paper-3">
+            <p className="text-sm font-medium text-navy">
+              {hangoutLabel(availability.hangout_type)}
+            </p>
+            {availability.hangout_note && (
+              <p className="text-sm text-muted mt-1">
+                {availability.hangout_note}
+              </p>
+            )}
+            <p className="text-xs text-muted mt-2">
+              {timeRemaining(availability.expires_at)}
+            </p>
+          </div>
+
+          {profile.bio && (
+            <p className="mt-3 text-sm text-ink leading-relaxed">{profile.bio}</p>
+          )}
+
+          <div className="flex gap-3 mt-3">
+            {profile.linkedin_url && (
+              <a
+                href={profile.linkedin_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs text-navy underline font-medium"
+              >
+                LinkedIn
+              </a>
+            )}
+            {profile.twitter_url && (
+              <a
+                href={profile.twitter_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs text-navy underline font-medium"
+              >
+                X
+              </a>
+            )}
+            {profile.luma_profile_url && (
+              <a
+                href={profile.luma_profile_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs text-navy underline font-medium"
+              >
+                Luma
+              </a>
+            )}
+          </div>
+
+          <div className="mt-5 flex flex-col gap-2">
+            {isSelf ? (
+              <button
+                type="button"
+                onClick={onStopLive}
+                className="popby-btn popby-btn-ghost w-full"
+              >
+                Stop showing on map
+              </button>
+            ) : connectionStatus === "accepted" ? (
+              <>
+                <button
+                  type="button"
+                  onClick={onMessage}
+                  className="popby-btn popby-btn-accent w-full"
+                >
+                  Message
+                </button>
+                <button
+                  type="button"
+                  onClick={onRate}
+                  className="popby-btn popby-btn-ghost w-full"
+                >
+                  Leave a rating
+                </button>
+              </>
+            ) : connectionStatus === "pending" ? (
+              <button
+                type="button"
+                disabled
+                className="popby-btn popby-btn-ghost w-full opacity-60"
+              >
+                Request sent — waiting
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={onConnect}
+                className="popby-btn popby-btn-accent w-full"
+              >
+                Connect
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
