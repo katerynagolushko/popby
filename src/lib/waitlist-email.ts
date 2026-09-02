@@ -42,11 +42,15 @@ export async function sendWaitlistConfirmationEmail(
         text: [
           greeting,
           "",
-          "Thank you for signing up for the wait list. Once we go live, we will notify you.",
+          "Thank you for joining the waitlist for hangby.me. You are one step closer to making a real human connection. Once we have enough users to go live with it, we will launch it.",
           "",
-          `Reply to this email if you want to reach me — ${replyTo}`,
+          "Would appreciate it if you could share what you think about the product, what features you'd like to see live. If you are down, reply to this email and we'll talk. Very keen on learning what you think.",
           "",
-          `${APP_NAME} · ${APP_DOMAIN}`,
+          "Stay alive and let's goo,",
+          "Kateryna",
+          "Founder of Hangby.me",
+          "",
+          "P.S. We want to solve global loneliness epidemic and make human connection much more frictionless. We will start by giving people within London's startup community an option to spontaneously hang out with people who match their preferences.",
         ].join("\n"),
       }),
     });
