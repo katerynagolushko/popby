@@ -54,6 +54,18 @@ export async function POST(request: Request) {
     if (error.code === "23505") {
       return NextResponse.json({ ok: true, duplicate: true });
     }
+    // Table not created yet (migration not run) — accept email in logs so UI works
+    if (
+      error.code === "PGRST205" ||
+      /could not find the table/i.test(error.message) ||
+      /relation .*waitlist/i.test(error.message)
+    ) {
+      console.warn(
+        "[waitlist] table missing — run supabase/migrations/20260302_waitlist.sql. Email:",
+        email
+      );
+      return NextResponse.json({ ok: true, stored: false });
+    }
     console.error("[waitlist] insert failed:", error.message);
     return NextResponse.json(
       { ok: false, error: "Could not save email. Try again." },
