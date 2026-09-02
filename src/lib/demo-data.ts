@@ -25,18 +25,24 @@ export const DEMO_PERSON_COUNT = 350;
  * MapLibre DOM markers get expensive and unreadable when stacked.
  * Ranking / Top 5 always use the full DEMO_PERSON_COUNT set;
  * the map paints a density-capped, city-wide spread subsample
- * (per-cluster quotas — never "nearest to Old Street").
+ * (coarse geographic cells — never "nearest to Old Street").
  */
-export const DEMO_MAP_MARKER_LIMIT = 72;
+export const DEMO_MAP_MARKER_LIMIT = 48;
 
 /** Min metres between any two generated pins (city-wide). */
 const MIN_PIN_GAP_M = 95;
 
-/** Map subsample: reject a pin if this many others already sit within radius. */
-const MAP_LOCAL_RADIUS_M = 280;
+/**
+ * Map subsample spacing. Coarse enough that city zoom shows separate
+ * neighborhood groups, not one overlapping East London pile.
+ */
+const MAP_LOCAL_RADIUS_M = 700;
 const MAP_MAX_LOCAL = 2;
-/** Map subsample: hard min gap between painted pins. */
-const MAP_MIN_GAP_M = 130;
+const MAP_MIN_GAP_M = 380;
+
+/** ~2.2km lat / ~2.1km lng cells for map display bucketing. */
+const MAP_CELL_LAT = 0.02;
+const MAP_CELL_LNG = 0.03;
 
 export type DemoPerson = {
   profile: Profile & { avg_score?: number | null; rating_count?: number };
@@ -656,18 +662,11 @@ export function topDemoMatches(
   return rankDemoPeople(people, origin, myLive).slice(0, count);
 }
 
-function nearestClusterIndex(lat: number, lng: number): number {
-  let best = 0;
-  let bestD = Infinity;
-  for (let i = 0; i < CLUSTERS.length; i++) {
-    const c = CLUSTERS[i]!;
-    const d = distanceMetres({ lat, lng }, { lat: c.lat, lng: c.lng });
-    if (d < bestD) {
-      bestD = d;
-      best = i;
-    }
-  }
-  return best;
+/** Coarse cell key so nearby hangout clusters share one map-display bucket. */
+function mapCellKey(lat: number, lng: number): string {
+  const r = Math.floor(lat / MAP_CELL_LAT);
+  const c = Math.floor(lng / MAP_CELL_LNG);
+  return `${r}:${c}`;
 }
 
 function mapPinFits(
@@ -706,10 +705,11 @@ function mapPinFits(
 }
 
 /**
- * Subsample for MapLibre markers: keep self, then take a quota from every
- * London cluster so zoomed-out city view shows pins across neighborhoods
+ * Subsample for MapLibre markers: keep self, then round-robin across coarse
+ * geographic cells so zoomed-out London shows pins in many neighborhoods
  * (Camden, Brixton, Greenwich, Notting Hill, …), not one Old Street blob.
- * Within each area, min-gap + local density keep faces readable when zoomed in.
+ * Fine hangout clusters still feed generation + Top 5 ranking; only the painted
+ * map uses this spread. Min-gap keeps faces readable when zoomed in.
  */
 export function subsampleForMap(
   people: DemoPerson[],
@@ -719,22 +719,30 @@ export function subsampleForMap(
   const self = people.filter((p) => p.isSelf);
   const others = people.filter((p) => !p.isSelf);
 
-  const buckets: DemoPerson[][] = CLUSTERS.map(() => []);
+  const cellMap = new Map<string, DemoPerson[]>();
   for (const p of others) {
-    const idx = nearestClusterIndex(p.availability.lat, p.availability.lng);
-    buckets[idx]!.push(p);
+    const key = mapCellKey(p.availability.lat, p.availability.lng);
+    const bucket = cellMap.get(key);
+    if (bucket) bucket.push(p);
+    else cellMap.set(key, [p]);
   }
 
-  // Stable shuffle per bucket so which faces show isn't always the same IDs.
+  // Sort cells NW→SE so the round-robin order is stable across SSR/hydration.
+  const cellKeys = [...cellMap.keys()].sort((a, b) => {
+    const [ar, ac] = a.split(":").map(Number) as [number, number];
+    const [br, bc] = b.split(":").map(Number) as [number, number];
+    return br - ar || ac - bc;
+  });
+
   const shuffleRng = mulberry32(20260306);
-  for (const bucket of buckets) {
-    shuffleInPlace(shuffleRng, bucket);
-  }
+  const buckets = cellKeys.map((key) => {
+    const bucket = cellMap.get(key)!;
+    return shuffleInPlace(shuffleRng, bucket);
+  });
 
   const picked: DemoPerson[] = [];
   const pickedIds = new Set<string>();
   const usedPhotos = new Set<string>();
-  // Cursor into each bucket for round-robin (fair across neighborhoods).
   const cursors = buckets.map(() => 0);
 
   const tryNextFrom = (bucketIdx: number): boolean => {
@@ -754,8 +762,6 @@ export function subsampleForMap(
     return false;
   };
 
-  // Round-robin: 1 from each neighborhood, then another, until limit.
-  // Guarantees Greenwich / Fulham / Wimbledon etc. aren't starved by East London.
   let progress = true;
   while (picked.length < limit && progress) {
     progress = false;

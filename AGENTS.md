@@ -45,7 +45,7 @@ Public path for Encode: **landing waitlist + `/demo`**. City-wide real accounts 
 
 - Landing: waitlist email (`POST /api/waitlist` → Supabase `waitlist` table when env is set). View signups in Supabase **Table Editor → waitlist**. Primary CTA is waitlist; secondary is "Try the full demo". Soft founder sign-in link stays.
 - Soft gate: unauthenticated `/map` (and other app routes) redirect to `/` so visitors are not pushed into real signup. Founder auth still works via `/login`.
-- **`/demo`**: ~350 fake people across London clusters (flatter weights, min pin gap, density-capped map). Zero Supabase. Go-live picks format + intent + Closest / Most my vibe; **Top 5 matches** panel is the product of matching (not an endless strip). Map paints ~72 markers via **per-cluster quotas** (city-wide spread, never nearest-to-Old-Street).
+- **`/demo`**: ~350 fake people across London clusters (flatter weights, min pin gap, density-capped map). Zero Supabase. Go-live picks format + intent + Closest / Most my vibe; **Top 5 matches** panel is the product of matching (not an endless strip). Map paints ~48 markers via **coarse geographic cells + round-robin** (city-wide spread, never nearest-to-Old-Street).
 - Waitlist schema: `supabase/migrations/20260302_waitlist.sql` (also in `schema.sql`). Run in Supabase before relying on persistence.
 - Optional waitlist confirmation email: `RESEND_API_KEY` + `WAITLIST_FROM_EMAIL` (see SETUP.md). Signup never fails if email isn’t configured.
 
