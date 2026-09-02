@@ -77,26 +77,25 @@ export default function MessagesPage() {
   }
 
   return (
-    <main className="min-h-screen bg-sand">
-      <header className="sticky top-0 bg-sand/95 backdrop-blur border-b border-cream-dark px-4 py-4 flex items-center gap-3">
-        <Link href="/map" className="text-ink-muted hover:text-ink">
+    <main className="min-h-screen bg-paper">
+      <header className="sticky top-0 bg-paper/95 backdrop-blur border-b border-paper-3 px-4 py-4 flex items-center gap-3">
+        <Link href="/map" className="text-muted hover:text-ink">
           ←
         </Link>
-        <h1 className="text-xl text-forest">Messages</h1>
+        <h1 className="text-xl text-navy font-display">Messages</h1>
       </header>
 
       <div className="p-4 max-w-lg mx-auto">
         {loading && (
-          <p className="text-sm text-ink-muted text-center py-8">Loading…</p>
+          <p className="text-sm text-muted text-center py-8">Loading…</p>
         )}
 
         {!loading && connections.length === 0 && (
           <div className="text-center py-16">
-            <div className="text-4xl mb-3">💬</div>
-            <p className="text-ink-muted text-sm">
+            <p className="text-muted text-sm">
               No connections yet. Find someone on the map and send a request.
             </p>
-            <Link href="/map" className="cony-btn cony-btn-primary mt-4 inline-flex">
+            <Link href="/map" className="popby-btn popby-btn-accent mt-4 inline-flex">
               Go to map
             </Link>
           </div>
@@ -104,9 +103,9 @@ export default function MessagesPage() {
 
         <ul className="space-y-2">
           {connections.map((c) => (
-            <li key={c.id} className="cony-card p-4">
+            <li key={c.id} className="popby-card p-4">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-full overflow-hidden bg-cream flex-shrink-0">
+                <div className="w-12 h-12 rounded-full overflow-hidden bg-paper-2 flex-shrink-0 border border-paper-3">
                   {c.other?.photo_url ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
@@ -115,30 +114,28 @@ export default function MessagesPage() {
                       className="w-full h-full object-cover"
                     />
                   ) : (
-                    <span className="flex items-center justify-center h-full">
-                      🐰
+                    <span className="flex items-center justify-center h-full text-sm font-bold text-accent">
+                      {c.other?.first_name?.[0] ?? "?"}
                     </span>
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="font-medium text-forest truncate">
+                  <p className="font-medium text-navy truncate">
                     {c.other?.first_name ?? "Unknown"}
                   </p>
-                  <p className="text-xs text-ink-muted capitalize">
-                    {c.status}
-                  </p>
+                  <p className="text-xs text-muted capitalize">{c.status}</p>
                 </div>
                 {c.status === "pending" && c.to_user_id === userId && (
                   <div className="flex gap-2">
                     <button
                       onClick={() => accept(c.id)}
-                      className="cony-btn cony-btn-forest text-xs py-1.5 px-3"
+                      className="popby-btn popby-btn-accent text-xs py-1.5 px-3"
                     >
                       Accept
                     </button>
                     <button
                       onClick={() => decline(c.id)}
-                      className="cony-btn cony-btn-secondary text-xs py-1.5 px-3"
+                      className="popby-btn popby-btn-ghost text-xs py-1.5 px-3"
                     >
                       Decline
                     </button>
@@ -147,7 +144,7 @@ export default function MessagesPage() {
                 {c.status === "accepted" && (
                   <Link
                     href={`/messages/${c.id}`}
-                    className="cony-btn cony-btn-primary text-xs py-1.5 px-3"
+                    className="popby-btn popby-btn-navy text-xs py-1.5 px-3"
                   >
                     Chat
                   </Link>

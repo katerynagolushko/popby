@@ -16,7 +16,7 @@ const ibmPlex = IBM_Plex_Sans({
 });
 
 export const metadata: Metadata = {
-  title: `${APP_NAME} — ${APP_TAGLINE}`,
+  title: `${APP_NAME}: ${APP_TAGLINE}`,
   description: APP_DESCRIPTION,
   manifest: "/manifest.json",
   appleWebApp: {

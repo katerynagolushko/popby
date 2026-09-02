@@ -5,26 +5,45 @@ export type Role =
   | "freelancer"
   | "service_provider";
 
+export type CompanyType =
+  | "early_stage"
+  | "scale_up"
+  | "corporate"
+  | "vc_fund"
+  | "agency"
+  | "independent"
+  | "student";
+
+export type SocialsVisibility = "public" | "after_hangout";
+
 export type ConnectionStatus = "pending" | "accepted" | "declined";
 
-export type HangoutType =
+/** How you hang out — orthogonal to intent */
+export type HangoutFormat = "coffee" | "walk" | "cowork" | "activity";
+
+/** Why you're free — orthogonal to format */
+export type HangoutIntent =
   | "product_feedback"
-  | "cowork"
-  | "walk"
-  | "coffee"
-  | "casual_chat"
   | "brainstorm"
+  | "casual_chat"
+  | "just_hang"
   | "other";
+
+/** Set when creating a hangout — how you want suggestions ranked while you're live */
+export type MatchPreference = "nearest" | "vibe";
 
 export interface Profile {
   id: string;
   first_name: string;
   photo_url: string | null;
   role: Role;
+  company_type: CompanyType | null;
   bio: string | null;
   linkedin_url: string | null;
   twitter_url: string | null;
   luma_profile_url: string | null;
+  socials_visibility: SocialsVisibility;
+  onboarding_completed: boolean;
   created_at: string;
 }
 
@@ -38,7 +57,9 @@ export interface Availability {
   user_id: string;
   lat: number;
   lng: number;
-  hangout_type: HangoutType;
+  hangout_format: HangoutFormat;
+  hangout_intent: HangoutIntent;
+  match_preference: MatchPreference;
   hangout_note: string | null;
   duration_minutes: 30 | 60 | 120;
   expires_at: string;

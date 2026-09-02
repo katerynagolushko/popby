@@ -1,29 +1,26 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { getSupabaseAnonKey, getSupabaseUrl } from "./env";
 
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
 
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return request.cookies.getAll();
-        },
-        setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value }) =>
-            request.cookies.set(name, value)
-          );
-          supabaseResponse = NextResponse.next({ request });
-          cookiesToSet.forEach(({ name, value, options }) =>
-            supabaseResponse.cookies.set(name, value, options)
-          );
-        },
+  const supabase = createServerClient(getSupabaseUrl(), getSupabaseAnonKey(), {
+    cookies: {
+      getAll() {
+        return request.cookies.getAll();
       },
-    }
-  );
+      setAll(cookiesToSet) {
+        cookiesToSet.forEach(({ name, value }) =>
+          request.cookies.set(name, value)
+        );
+        supabaseResponse = NextResponse.next({ request });
+        cookiesToSet.forEach(({ name, value, options }) =>
+          supabaseResponse.cookies.set(name, value, options)
+        );
+      },
+    },
+  });
 
   const {
     data: { user },
@@ -31,17 +28,30 @@ export async function updateSession(request: NextRequest) {
 
   const path = request.nextUrl.pathname;
   const isAuthPage = path === "/login" || path.startsWith("/auth");
-  const isPublic = path === "/" || path === "/demo" || isAuthPage;
+  const isPublicApi = path === "/api/waitlist" || path.startsWith("/api/waitlist/");
+  // Encode launch: landing + waitlist + /demo are the public path.
+  // Real /map stays behind auth for the founder; unauthenticated hits soft-gate to home.
+  const isPublic =
+    path === "/" || path === "/demo" || isAuthPage || isPublicApi;
+
+  if (!user && path === "/map") {
+    const url = request.nextUrl.clone();
+    url.pathname = "/";
+    url.searchParams.set("gate", "map");
+    return NextResponse.redirect(url);
+  }
 
   if (!user && !isPublic) {
     const url = request.nextUrl.clone();
-    url.pathname = "/login";
+    url.pathname = "/";
     return NextResponse.redirect(url);
   }
 
   if (user && path === "/login") {
     const url = request.nextUrl.clone();
-    url.pathname = "/map";
+    // Send people into the app; /map and /auth/callback decide onboarding vs map
+    url.pathname = "/auth/callback";
+    url.searchParams.set("next", "/map");
     return NextResponse.redirect(url);
   }
 

@@ -4,7 +4,7 @@ import "@/lib/maplibre-setup";
 import { useEffect, useRef, useState } from "react";
 import { Map, Marker, NavigationControl } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
-import { LONDON_CENTER } from "@/lib/constants";
+import { LONDON_BOUNDS, LONDON_CENTER } from "@/lib/constants";
 import {
   DEFAULT_MAP_STYLE,
   OPENFREEMAP_STYLES,
@@ -30,6 +30,17 @@ interface PopbyMapProps {
   className?: string;
 }
 
+/** Stable default — a fresh `[lat, lng]` each render would re-trigger jumpTo. */
+const DEFAULT_CENTER: [number, number] = [
+  LONDON_CENTER.lat,
+  LONDON_CENTER.lng,
+];
+
+const LONDON_MAX_BOUNDS: [[number, number], [number, number]] = [
+  [LONDON_BOUNDS.west, LONDON_BOUNDS.south],
+  [LONDON_BOUNDS.east, LONDON_BOUNDS.north],
+];
+
 function createMarkerElement(photoUrl: string | null, isSelf: boolean) {
   const el = document.createElement("div");
   el.className = `popby-marker ${isSelf ? "popby-marker-self" : ""}`;
@@ -38,6 +49,16 @@ function createMarkerElement(photoUrl: string | null, isSelf: boolean) {
     img.src = photoUrl;
     img.alt = "";
     img.loading = "lazy";
+    img.onerror = () => {
+      img.remove();
+      el.textContent = "?";
+      el.style.display = "flex";
+      el.style.alignItems = "center";
+      el.style.justifyContent = "center";
+      el.style.fontWeight = "700";
+      el.style.color = "white";
+      el.style.background = "#ff5722";
+    };
     el.appendChild(img);
   } else {
     el.textContent = "?";
@@ -51,9 +72,23 @@ function createMarkerElement(photoUrl: string | null, isSelf: boolean) {
   return el;
 }
 
+function sameView(
+  a: { lat: number; lng: number; zoom: number } | null,
+  lat: number,
+  lng: number,
+  zoom: number
+) {
+  if (!a) return false;
+  return (
+    Math.abs(a.lat - lat) < 1e-7 &&
+    Math.abs(a.lng - lng) < 1e-7 &&
+    a.zoom === zoom
+  );
+}
+
 export default function PopbyMap({
   people,
-  center = [LONDON_CENTER.lat, LONDON_CENTER.lng],
+  center = DEFAULT_CENTER,
   zoom = 14,
   pickMode = false,
   pickedLocation = null,
@@ -68,6 +103,11 @@ export default function PopbyMap({
   const onPickRef = useRef(onPickLocation);
   const onPersonClickRef = useRef(onPersonClick);
   const pickModeRef = useRef(pickMode);
+  const lastJumpRef = useRef<{ lat: number; lng: number; zoom: number } | null>(
+    null
+  );
+  /** After the user pans or places a pin, stop auto-recentering. */
+  const userTookControlRef = useRef(false);
   const [mapReady, setMapReady] = useState(false);
 
   onPickRef.current = onPickLocation;
@@ -77,12 +117,25 @@ export default function PopbyMap({
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
 
+    userTookControlRef.current = false;
+    lastJumpRef.current = {
+      lat: center[0],
+      lng: center[1],
+      zoom,
+    };
+
     const map = new Map({
       container: containerRef.current,
       style: OPENFREEMAP_STYLES[DEFAULT_MAP_STYLE],
       center: [center[1], center[0]],
       zoom,
       attributionControl: { compact: true },
+      ...(pickMode
+        ? {
+            maxBounds: LONDON_MAX_BOUNDS,
+            minZoom: 10,
+          }
+        : {}),
     });
 
     mapRef.current = map;
@@ -113,8 +166,13 @@ export default function PopbyMap({
     }, 150);
     window.setTimeout(() => window.clearInterval(readyPoll), 8000);
 
+    map.on("dragstart", () => {
+      if (pickModeRef.current) userTookControlRef.current = true;
+    });
+
     map.on("click", (e) => {
       if (pickModeRef.current && onPickRef.current) {
+        userTookControlRef.current = true;
         onPickRef.current(e.lngLat.lat, e.lngLat.lng);
       }
     });
@@ -127,6 +185,7 @@ export default function PopbyMap({
       setMapReady(false);
       peopleMarkersRef.current.forEach((m) => m.remove());
       pickMarkerRef.current?.remove();
+      pickMarkerRef.current = null;
       map.remove();
       mapRef.current = null;
     };
@@ -136,8 +195,17 @@ export default function PopbyMap({
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !mapReady) return;
-    map.jumpTo({ center: [center[1], center[0]], zoom });
-  }, [center, zoom, mapReady]);
+
+    const lat = center[0];
+    const lng = center[1];
+
+    // In pick mode, GPS may update the initial center once — but never fight the user.
+    if (pickMode && userTookControlRef.current) return;
+    if (sameView(lastJumpRef.current, lat, lng, zoom)) return;
+
+    lastJumpRef.current = { lat, lng, zoom };
+    map.jumpTo({ center: [lng, lat], zoom });
+  }, [center, zoom, mapReady, pickMode]);
 
   useEffect(() => {
     const map = mapRef.current;
@@ -166,26 +234,51 @@ export default function PopbyMap({
     const map = mapRef.current;
     if (!map || !mapReady) return;
 
-    pickMarkerRef.current?.remove();
-    pickMarkerRef.current = null;
+    if (!pickedLocation) {
+      pickMarkerRef.current?.remove();
+      pickMarkerRef.current = null;
+      return;
+    }
 
-    if (!pickedLocation) return;
+    const lngLat: [number, number] = [pickedLocation[1], pickedLocation[0]];
+
+    if (pickMarkerRef.current) {
+      pickMarkerRef.current.setLngLat(lngLat);
+      return;
+    }
 
     const el = document.createElement("div");
     el.style.cssText =
-      "width:18px;height:18px;background:#1a1f36;border:3px solid #2ecc87;border-radius:50%;box-shadow:0 2px 8px rgba(0,0,0,0.35);";
+      "width:18px;height:18px;background:#1a1f36;border:3px solid #2ecc87;border-radius:50%;box-shadow:0 2px 8px rgba(0,0,0,0.35);cursor:grab;";
 
-    pickMarkerRef.current = new Marker({ element: el, anchor: "center" })
-      .setLngLat([pickedLocation[1], pickedLocation[0]])
+    const marker = new Marker({
+      element: el,
+      anchor: "center",
+      draggable: pickMode,
+    })
+      .setLngLat(lngLat)
       .addTo(map);
-  }, [pickedLocation, mapReady]);
+
+    if (pickMode) {
+      marker.on("dragstart", () => {
+        userTookControlRef.current = true;
+      });
+      marker.on("dragend", () => {
+        const ll = marker.getLngLat();
+        userTookControlRef.current = true;
+        onPickRef.current?.(ll.lat, ll.lng);
+      });
+    }
+
+    pickMarkerRef.current = marker;
+  }, [pickedLocation, mapReady, pickMode]);
 
   return (
     <div className={`popby-map relative ${className}`}>
       <div ref={containerRef} className="h-full w-full" />
       {pickMode && (
         <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 bg-white/95 backdrop-blur px-4 py-2 rounded-lg text-sm text-muted shadow-lg border border-paper-3 pointer-events-none">
-          Tap the map to set your spot
+          Tap or drag the pin to set your spot
         </div>
       )}
     </div>

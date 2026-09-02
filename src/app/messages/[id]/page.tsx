@@ -96,33 +96,37 @@ export default function ChatPage() {
 
   if (loading) {
     return (
-      <main className="min-h-screen flex items-center justify-center text-ink-muted">
+      <main className="min-h-screen flex items-center justify-center text-muted">
         Loading chat…
       </main>
     );
   }
 
   return (
-    <main className="h-screen flex flex-col bg-sand">
-      <header className="flex items-center gap-3 px-4 py-3 border-b border-cream-dark bg-sand">
-        <Link href="/messages" className="text-ink-muted hover:text-ink">
+    <main className="h-screen flex flex-col bg-paper">
+      <header className="flex items-center gap-3 px-4 py-3 border-b border-paper-3 bg-paper">
+        <Link href="/messages" className="text-muted hover:text-ink">
           ←
         </Link>
-        <div className="w-9 h-9 rounded-full overflow-hidden bg-cream">
+        <div className="w-9 h-9 rounded-full overflow-hidden bg-paper-2 border border-paper-3">
           {other?.photo_url ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={other.photo_url} alt="" className="w-full h-full object-cover" />
           ) : (
-            <span className="flex items-center justify-center h-full text-sm">🐰</span>
+            <span className="flex items-center justify-center h-full text-sm font-bold text-accent">
+              {other?.first_name?.[0] ?? "?"}
+            </span>
           )}
         </div>
-        <h1 className="font-medium text-forest">{other?.first_name ?? "Chat"}</h1>
+        <h1 className="font-medium text-navy font-display">
+          {other?.first_name ?? "Chat"}
+        </h1>
       </header>
 
       <div className="flex-1 overflow-y-auto p-4 space-y-3">
         {messages.length === 0 && (
-          <p className="text-center text-sm text-ink-muted py-8">
-            Say hi — you&apos;re connected!
+          <p className="text-center text-sm text-muted py-8">
+            Say hi. You&apos;re connected.
           </p>
         )}
         {messages.map((m) => {
@@ -135,8 +139,8 @@ export default function ChatPage() {
               <div
                 className={`max-w-[75%] px-4 py-2.5 rounded-2xl text-sm ${
                   isMine
-                    ? "bg-forest text-white rounded-br-md"
-                    : "bg-white border border-cream-dark rounded-bl-md"
+                    ? "bg-navy text-white rounded-br-md"
+                    : "bg-white border border-paper-3 rounded-bl-md"
                 }`}
               >
                 {m.body}
@@ -149,18 +153,18 @@ export default function ChatPage() {
 
       <form
         onSubmit={send}
-        className="p-4 border-t border-cream-dark bg-white flex gap-2"
+        className="p-4 border-t border-paper-3 bg-white flex gap-2"
       >
         <input
           value={body}
           onChange={(e) => setBody(e.target.value)}
           placeholder="Type a message…"
-          className="cony-input flex-1"
+          className="popby-input flex-1"
         />
         <button
           type="submit"
           disabled={!body.trim()}
-          className="cony-btn cony-btn-primary disabled:opacity-40"
+          className="popby-btn popby-btn-accent disabled:opacity-40"
         >
           Send
         </button>

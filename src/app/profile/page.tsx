@@ -5,8 +5,8 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import EventScreenshotUpload from "@/components/EventScreenshotUpload";
-import { ROLES } from "@/lib/constants";
-import type { Role, UserEvent } from "@/lib/types";
+import { COMPANY_TYPES, ROLES } from "@/lib/constants";
+import type { CompanyType, Role, SocialsVisibility, UserEvent } from "@/lib/types";
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -15,11 +15,15 @@ export default function ProfilePage() {
   const [userId, setUserId] = useState<string | null>(null);
   const [firstName, setFirstName] = useState("");
   const [role, setRole] = useState<Role>("founder");
+  const [companyType, setCompanyType] = useState<CompanyType>("early_stage");
   const [bio, setBio] = useState("");
   const [linkedinUrl, setLinkedinUrl] = useState("");
   const [twitterUrl, setTwitterUrl] = useState("");
   const [lumaProfileUrl, setLumaProfileUrl] = useState("");
+  const [socialsVisibility, setSocialsVisibility] =
+    useState<SocialsVisibility>("public");
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
+  const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [events, setEvents] = useState<UserEvent[]>([]);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
@@ -44,10 +48,12 @@ export default function ProfilePage() {
       if (data) {
         setFirstName(data.first_name ?? "");
         setRole(data.role ?? "founder");
+        setCompanyType(data.company_type ?? "early_stage");
         setBio(data.bio ?? "");
         setLinkedinUrl(data.linkedin_url ?? "");
         setTwitterUrl(data.twitter_url ?? "");
         setLumaProfileUrl(data.luma_profile_url ?? "");
+        setSocialsVisibility(data.socials_visibility ?? "public");
         setPhotoUrl(data.photo_url);
       }
 
@@ -69,15 +75,33 @@ export default function ProfilePage() {
     } = await supabase.auth.getUser();
     if (!user) return;
 
+    let nextPhoto = photoUrl;
+    if (photoFile) {
+      const ext = photoFile.name.split(".").pop() || "jpg";
+      const path = `${user.id}/avatar.${ext}`;
+      await supabase.storage
+        .from("profile-photos")
+        .upload(path, photoFile, { upsert: true });
+      const {
+        data: { publicUrl },
+      } = supabase.storage.from("profile-photos").getPublicUrl(path);
+      nextPhoto = publicUrl;
+      setPhotoUrl(publicUrl);
+      setPhotoFile(null);
+    }
+
     await supabase
       .from("profiles")
       .update({
         first_name: firstName.trim(),
         role,
+        company_type: companyType,
         bio: bio.trim() || null,
         linkedin_url: linkedinUrl.trim() || null,
         twitter_url: twitterUrl.trim() || null,
         luma_profile_url: lumaProfileUrl.trim() || null,
+        socials_visibility: socialsVisibility,
+        photo_url: nextPhoto,
         updated_at: new Date().toISOString(),
       })
       .eq("id", user.id);
@@ -108,21 +132,31 @@ export default function ProfilePage() {
 
       <div className="p-4 max-w-lg mx-auto space-y-6">
         <form onSubmit={handleSave} className="popby-card p-5 space-y-4">
-          <div className="flex items-center gap-4">
+          <label className="flex items-center gap-4 cursor-pointer">
             <div className="w-16 h-16 rounded-full overflow-hidden bg-paper-2 border-2 border-paper-3">
               {photoUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={photoUrl} alt="" className="w-full h-full object-cover" />
               ) : (
                 <span className="flex items-center justify-center h-full text-muted text-sm">
-                  No photo
+                  Photo
                 </span>
               )}
             </div>
-            <Link href="/onboarding" className="text-sm text-accent font-medium">
-              Change photo
-            </Link>
-          </div>
+            <span className="text-sm text-accent font-medium">Change photo</span>
+            <input
+              type="file"
+              accept="image/*"
+              capture="user"
+              className="hidden"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (!file) return;
+                setPhotoFile(file);
+                setPhotoUrl(URL.createObjectURL(file));
+              }}
+            />
+          </label>
 
           <input
             value={firstName}
@@ -131,24 +165,43 @@ export default function ProfilePage() {
             placeholder="First name"
           />
 
-          <div className="flex flex-wrap gap-2">
-            {ROLES.map((r) => (
-              <button
-                key={r.value}
-                type="button"
-                onClick={() => setRole(r.value)}
-                className={`popby-chip ${role === r.value ? "popby-chip-selected" : ""}`}
-              >
-                {r.label}
-              </button>
-            ))}
+          <div>
+            <p className="text-sm font-medium mb-2 text-navy">Role</p>
+            <div className="flex flex-wrap gap-2">
+              {ROLES.map((r) => (
+                <button
+                  key={r.value}
+                  type="button"
+                  onClick={() => setRole(r.value)}
+                  className={`popby-chip ${role === r.value ? "popby-chip-selected" : ""}`}
+                >
+                  {r.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <p className="text-sm font-medium mb-2 text-navy">Kind of company</p>
+            <div className="flex flex-wrap gap-2">
+              {COMPANY_TYPES.map((c) => (
+                <button
+                  key={c.value}
+                  type="button"
+                  onClick={() => setCompanyType(c.value)}
+                  className={`popby-chip ${companyType === c.value ? "popby-chip-selected" : ""}`}
+                >
+                  {c.label}
+                </button>
+              ))}
+            </div>
           </div>
 
           <textarea
             value={bio}
             onChange={(e) => setBio(e.target.value)}
             className="popby-input min-h-[70px] resize-none"
-            placeholder="Bio"
+            placeholder="Bio (optional)"
           />
 
           <input
@@ -169,6 +222,28 @@ export default function ProfilePage() {
             className="popby-input"
             placeholder="Luma profile URL"
           />
+
+          {(linkedinUrl.trim() || twitterUrl.trim() || lumaProfileUrl.trim()) && (
+            <div>
+              <p className="text-sm font-medium mb-2 text-navy">Who can see socials?</p>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => setSocialsVisibility("public")}
+                  className={`popby-chip justify-center ${socialsVisibility === "public" ? "popby-chip-selected" : ""}`}
+                >
+                  Public
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSocialsVisibility("after_hangout")}
+                  className={`popby-chip justify-center ${socialsVisibility === "after_hangout" ? "popby-chip-selected" : ""}`}
+                >
+                  After we&apos;ve hung out
+                </button>
+              </div>
+            </div>
+          )}
 
           <button
             type="submit"

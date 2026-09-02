@@ -20,21 +20,44 @@ Make spontaneous, high-trust IRL hangouts between London startup people (founder
 
 ## Core loop (the mechanism)
 
-1. **Go live** — user toggles "I'm free to hang out", picks a hangout intent (product feedback, co-work, walk, coffee, casual chat, brainstorm, other), a duration (30 min / 1h / 2h), and an *approximate* spot on the map (never exact location; privacy by design).
-2. **Live map** — everyone currently live shows up as a marker on a London map. Availability auto-expires when the duration runs out.
+1. **Go live** — user toggles "I'm free to hang out", picks **format** (coffee / walk / co-work / activity) and **intent** (product feedback / brainstorm / casual chat / just hang / other) as two separate chip rows, a duration (30 min / 1h / 2h), and an *approximate* spot. Location is one-shot for that hangout only — never background tracking.
+2. **Live map** — everyone currently live shows up as a marker. While you're live, suggestions rank by the **match preference you set when going live**: **Closest to me** (default) or **Most my vibe** (same hangout format/intent). Preference is not a free-floating map toggle — change it by editing / going live again. Availability auto-expires when the duration runs out.
 3. **Connect** — tap a person, view their profile sheet, send a connect request. Statuses: pending / accepted / declined.
-4. **Message** — accepted connections unlock an in-app chat (Supabase realtime). No chat before acceptance.
-5. **Meet + rate** — after the hangout, users rate each other (score + optional comment). Ratings build the trust layer that makes strangers willing to meet.
+4. **Message** — accepted connections unlock in-app chat. Social links marked "After we've hung out" only appear after acceptance.
+5. **Meet + rate** — after the hangout, users rate each other. Ratings build the trust layer.
+
+## Onboarding (locked — keep short)
+
+Signup target: under ~90 seconds. Collect only:
+
+1. Auth: Google / Apple OAuth primary; email **OTP code** (not magic link) as fallback
+2. First name
+3. Role chip
+4. Company-type chip (early-stage / scale-up / corporate / VC·fund / agency / independent / student)
+5. Photo — optional; re-ask at first go-live ("so people can find you here")
+6. Optional LinkedIn / X with visibility: **Public** or **After we've hung out**
+
+Do **not** put hangout format, intent, or vibe preference on the profile — those are transient and live only at go-live. Completion is tracked via `profiles.onboarding_completed` (never infer from photo presence).
+
+## Encode demo launch (current)
+
+Public path for Encode: **landing waitlist + `/demo`**. City-wide real accounts are not open.
+
+- Landing: waitlist email (`POST /api/waitlist` → Supabase `waitlist` table when env is set). Primary CTA is waitlist; secondary is "Try the full demo". Soft founder sign-in link stays.
+- Soft gate: unauthenticated `/map` (and other app routes) redirect to `/` so visitors are not pushed into real signup. Founder auth still works via `/login`.
+- **`/demo`**: ~500 fake people across London clusters (Shoreditch, Old Street, King's Cross, Soho, Canary Wharf, Hackney, Brixton, Clapham, etc.). Zero Supabase. Go-live picks format + intent + Closest / Most my vibe; suggestion strip ranks the full set; map paints ~100 nearest markers for mobile perf.
+- Waitlist schema: `supabase/migrations/20260302_waitlist.sql` (also in `schema.sql`). Run in Supabase before relying on persistence.
 
 ## Main features
 
-- **Profiles**: first name, photo, role, short bio, optional LinkedIn / X / Luma links. Deliberately thin — the product is the meetup, not the profile.
-- **Go-live availability** with hangout type, note, duration, and map pin (`availability` table, auto-expiry via `expires_at`).
-- **Live map**: MapLibre GL JS + OpenFreeMap "bright" style (no API key needed).
+- **Profiles**: first name, photo, role, company type, short bio, optional LinkedIn / X / Luma links with visibility control. Deliberately thin.
+- **Go-live availability** with format + intent, note, duration, and map pin (`availability` table, auto-expiry via `expires_at`).
+- **Live map**: MapLibre GL JS + OpenFreeMap "bright" style (no API key needed). Suggestion strip sorted by nearest or vibe.
 - **Connect requests + realtime messaging** (`connections`, `messages` tables).
 - **Ratings v1** (`ratings` table, avg score shown on profiles).
 - **Luma event import**: user uploads a screenshot of their Luma calendar; `/api/extract-events` uses GPT-4o-mini vision to extract events (Luma has no public end-user OAuth).
-- **`/demo` route**: full interactive demo with 9 fake people around Shoreditch, works with zero Supabase config. Used for pitching; gate or remove before real launch.
+- **`/demo` route**: full interactive Encode demo (~500 people), works with zero Supabase. Landing points here after waitlist.
+- **Waitlist**: `waitlist` table + `/api/waitlist` for early access emails.
 
 ## Architecture / key decisions (don't relitigate these)
 
@@ -48,9 +71,9 @@ Make spontaneous, high-trust IRL hangouts between London startup people (founder
 
 ## Where things live
 
-- Pages: `src/app/` (`page.tsx` landing, `demo/`, `login/`, `onboarding/`, `map/`, `profile/`, `messages/`, `api/extract-events/`, `auth/callback/`)
-- Components: `src/components/` (`PopbyMap.tsx`, `PopbyMapLoader.tsx` for ssr:false dynamic import, `GoLiveModal.tsx` which supports a `demo` prop, `PersonSheet.tsx`, `RatingModal.tsx`, `EventScreenshotUpload.tsx`)
-- Lib: `src/lib/` (brand, constants, types, demo-data, map-tiles, maplibre-setup, `supabase/` clients)
+- Pages: `src/app/` (`page.tsx` landing + waitlist, `demo/`, `login/`, `onboarding/`, `map/`, `profile/`, `messages/`, `api/waitlist/`, `api/extract-events/`, `auth/callback/`)
+- Components: `src/components/` (`WaitlistForm.tsx`, `PopbyMap.tsx`, `PopbyMapLoader.tsx` for ssr:false dynamic import, `GoLiveModal.tsx` which supports a `demo` prop, `PersonSheet.tsx`, `RatingModal.tsx`, `EventScreenshotUpload.tsx`)
+- Lib: `src/lib/` (brand, constants, types, demo-data with 500-person generator + map subsample helpers, map-tiles, maplibre-setup, `supabase/` clients)
 - Human docs: `README.md` (overview + demo), `SETUP.md` (Supabase/Vercel setup)
 
 ## Dev

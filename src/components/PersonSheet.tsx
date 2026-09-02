@@ -1,6 +1,11 @@
 "use client";
 
-import { hangoutLabel, roleLabel, timeRemaining } from "@/lib/constants";
+import {
+  companyTypeLabel,
+  hangoutSummary,
+  roleLabel,
+  timeRemaining,
+} from "@/lib/constants";
 import type { Profile, Availability } from "@/lib/types";
 
 interface PersonSheetProps {
@@ -26,6 +31,18 @@ export default function PersonSheet({
   onClose,
   onStopLive,
 }: PersonSheetProps) {
+  const showSocials =
+    profile.socials_visibility === "public" ||
+    connectionStatus === "accepted" ||
+    isSelf;
+
+  const roleLine = [
+    roleLabel(profile.role),
+    companyTypeLabel(profile.company_type),
+  ]
+    .filter(Boolean)
+    .join(" · ");
+
   return (
     <div className="fixed inset-x-0 bottom-0 z-[1050] sm:inset-auto sm:bottom-6 sm:right-6 sm:left-auto sm:w-96 pb-[env(safe-area-inset-bottom)]">
       <div
@@ -62,7 +79,7 @@ export default function PersonSheet({
                   </span>
                 )}
               </div>
-              <p className="text-sm text-muted">{roleLabel(profile.role)}</p>
+              <p className="text-sm text-muted">{roleLine}</p>
               {profile.avg_score != null && profile.avg_score > 0 && (
                 <p className="text-xs text-accent mt-0.5 font-medium">
                   ★ {profile.avg_score} ({profile.rating_count} reviews)
@@ -80,7 +97,10 @@ export default function PersonSheet({
 
           <div className="mt-4 p-3 bg-paper rounded-xl border border-paper-3">
             <p className="text-sm font-medium text-navy">
-              {hangoutLabel(availability.hangout_type)}
+              {hangoutSummary(
+                availability.hangout_format,
+                availability.hangout_intent
+              )}
             </p>
             {availability.hangout_note && (
               <p className="text-sm text-muted mt-1">
@@ -96,38 +116,47 @@ export default function PersonSheet({
             <p className="mt-3 text-sm text-ink leading-relaxed">{profile.bio}</p>
           )}
 
-          <div className="flex gap-3 mt-3">
-            {profile.linkedin_url && (
-              <a
-                href={profile.linkedin_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-xs text-navy underline font-medium"
-              >
-                LinkedIn
-              </a>
+          {showSocials && (
+            <div className="flex gap-3 mt-3">
+              {profile.linkedin_url && (
+                <a
+                  href={profile.linkedin_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs text-navy underline font-medium"
+                >
+                  LinkedIn
+                </a>
+              )}
+              {profile.twitter_url && (
+                <a
+                  href={profile.twitter_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs text-navy underline font-medium"
+                >
+                  X
+                </a>
+              )}
+              {profile.luma_profile_url && (
+                <a
+                  href={profile.luma_profile_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs text-navy underline font-medium"
+                >
+                  Luma
+                </a>
+              )}
+            </div>
+          )}
+
+          {!showSocials &&
+            (profile.linkedin_url || profile.twitter_url) && (
+              <p className="mt-3 text-xs text-muted">
+                Socials show after you hang out
+              </p>
             )}
-            {profile.twitter_url && (
-              <a
-                href={profile.twitter_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-xs text-navy underline font-medium"
-              >
-                X
-              </a>
-            )}
-            {profile.luma_profile_url && (
-              <a
-                href={profile.luma_profile_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-xs text-navy underline font-medium"
-              >
-                Luma
-              </a>
-            )}
-          </div>
 
           <div className="mt-5 flex flex-col gap-2">
             {isSelf ? (
@@ -161,7 +190,7 @@ export default function PersonSheet({
                 disabled
                 className="popby-btn popby-btn-ghost w-full opacity-60"
               >
-                Request sent — waiting
+                Request sent. Waiting.
               </button>
             ) : (
               <button

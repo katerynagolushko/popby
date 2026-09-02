@@ -1,4 +1,5 @@
--- Cony database schema — run in Supabase SQL Editor
+-- Popby database schema — run in Supabase SQL Editor
+-- Source of truth. Also see supabase/migrations/ for incremental alters.
 
 create extension if not exists "uuid-ossp";
 
@@ -8,10 +9,16 @@ create table public.profiles (
   first_name text not null,
   photo_url text,
   role text not null check (role in ('founder', 'operator', 'investor', 'freelancer', 'service_provider')),
+  company_type text check (company_type in (
+    'early_stage', 'scale_up', 'corporate', 'vc_fund', 'agency', 'independent', 'student'
+  )),
   bio text,
   linkedin_url text,
   twitter_url text,
   luma_profile_url text,
+  socials_visibility text not null default 'public'
+    check (socials_visibility in ('public', 'after_hangout')),
+  onboarding_completed boolean not null default false,
   created_at timestamptz default now() not null,
   updated_at timestamptz default now() not null
 );
@@ -32,7 +39,12 @@ create table public.availability (
   user_id uuid not null references public.profiles(id) on delete cascade,
   lat double precision not null,
   lng double precision not null,
-  hangout_type text not null,
+  hangout_format text not null check (hangout_format in ('coffee', 'walk', 'cowork', 'activity')),
+  hangout_intent text not null check (hangout_intent in (
+    'product_feedback', 'brainstorm', 'casual_chat', 'just_hang', 'other'
+  )),
+  match_preference text not null default 'nearest'
+    check (match_preference in ('nearest', 'vibe')),
   hangout_note text,
   duration_minutes int not null check (duration_minutes in (30, 60, 120)),
   expires_at timestamptz not null,
@@ -66,6 +78,17 @@ create table public.messages (
 
 create index messages_connection_idx on public.messages (connection_id, created_at);
 
+-- Early access waitlist (landing signup; no auth required)
+create table public.waitlist (
+  id uuid primary key default uuid_generate_v4(),
+  email text not null,
+  source text not null default 'landing',
+  created_at timestamptz default now() not null,
+  constraint waitlist_email_unique unique (email)
+);
+
+create index waitlist_created_idx on public.waitlist (created_at desc);
+
 -- Ratings after hangouts
 create table public.ratings (
   id uuid primary key default uuid_generate_v4(),
@@ -91,8 +114,8 @@ group by to_user_id;
 create or replace function public.handle_new_user()
 returns trigger as $$
 begin
-  insert into public.profiles (id, first_name, role)
-  values (new.id, split_part(new.email, '@', 1), 'founder');
+  insert into public.profiles (id, first_name, role, onboarding_completed)
+  values (new.id, split_part(new.email, '@', 1), 'founder', false);
   return new;
 end;
 $$ language plpgsql security definer;
@@ -118,21 +141,18 @@ alter table public.availability enable row level security;
 alter table public.connections enable row level security;
 alter table public.messages enable row level security;
 alter table public.ratings enable row level security;
+alter table public.waitlist enable row level security;
 
--- Profiles: anyone authenticated can read, users edit own
 create policy "profiles_read" on public.profiles for select to authenticated using (true);
 create policy "profiles_update_own" on public.profiles for update to authenticated using (auth.uid() = id);
 create policy "profiles_insert_own" on public.profiles for insert to authenticated with check (auth.uid() = id);
 
--- User events
 create policy "events_read" on public.user_events for select to authenticated using (true);
 create policy "events_manage_own" on public.user_events for all to authenticated using (auth.uid() = user_id) with check (auth.uid() = user_id);
 
--- Availability: read active sessions, manage own
 create policy "availability_read" on public.availability for select to authenticated using (true);
 create policy "availability_manage_own" on public.availability for all to authenticated using (auth.uid() = user_id) with check (auth.uid() = user_id);
 
--- Connections
 create policy "connections_read_own" on public.connections for select to authenticated
   using (auth.uid() = from_user_id or auth.uid() = to_user_id);
 create policy "connections_insert" on public.connections for insert to authenticated
@@ -140,7 +160,6 @@ create policy "connections_insert" on public.connections for insert to authentic
 create policy "connections_update_participant" on public.connections for update to authenticated
   using (auth.uid() = from_user_id or auth.uid() = to_user_id);
 
--- Messages: only connection participants, only if accepted
 create policy "messages_read" on public.messages for select to authenticated
   using (
     exists (
@@ -161,14 +180,14 @@ create policy "messages_insert" on public.messages for insert to authenticated
     )
   );
 
--- Ratings: read all, write own once per connection
 create policy "ratings_read" on public.ratings for select to authenticated using (true);
 create policy "ratings_insert" on public.ratings for insert to authenticated with check (auth.uid() = from_user_id);
 
--- Realtime
+-- Waitlist: anyone can join; no public reads
+create policy "waitlist_insert_anon" on public.waitlist
+  for insert to anon, authenticated
+  with check (true);
+
 alter publication supabase_realtime add table public.availability;
 alter publication supabase_realtime add table public.messages;
 alter publication supabase_realtime add table public.connections;
-
--- Storage bucket for profile photos (create in dashboard: profile-photos, public read)
--- Policy: authenticated users upload to own folder
