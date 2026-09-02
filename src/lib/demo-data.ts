@@ -14,28 +14,28 @@ import {
 } from "./constants";
 import {
   LANDING_CARD_PHOTOS,
-  portraitUrl,
-  YOUNG_FEMALE_PORTRAIT_INDICES,
-  YOUNG_MALE_PORTRAIT_INDICES,
+  portraitGender,
+  WHITE_MALE_PORTRAIT_URLS,
+  YOUNG_FEMALE_PORTRAIT_URLS,
+  YOUNG_MALE_PORTRAIT_URLS,
 } from "./demo-portraits";
 
-export { LANDING_CARD_PHOTOS, portraitUrl } from "./demo-portraits";
+export { LANDING_CARD_PHOTOS } from "./demo-portraits";
 
 export const DEMO_ME_ID = "demo-me";
 
 /**
  * Full ranking pool. Kept under unique-portrait capacity so faces don't
- * obviously repeat on the map or in Top 5. Cap tracks the curated young
- * faker-js allowlist (see YOUNG_*_PORTRAIT_INDICES) minus leftovers for
- * the demo "You".
+ * obviously repeat on the map or in Top 5. Cap tracks the curated LinkedIn
+ * Unsplash allowlist (see demo-portraits.ts) minus leftovers for demo "You".
  */
-export const DEMO_PERSON_COUNT = 80;
+export const DEMO_PERSON_COUNT = 52;
 
 /**
  * MapLibre paints a city-wide geographic subsample (never nearest-to-Old-Street).
- * Target: medium-full density — ~50–100 readable face pins across London.
+ * Target: medium-full density — readable face pins across London.
  */
-export const DEMO_MAP_MARKER_LIMIT = 72;
+export const DEMO_MAP_MARKER_LIMIT = 48;
 
 /** Min metres between any two generated pins (city-wide). */
 const MIN_PIN_GAP_M = 95;
@@ -98,39 +98,27 @@ function shuffleInPlace<T>(rng: () => number, arr: T[]) {
 
 type DemoGender = "male" | "female";
 
-/** Portrait URL → gender from path (men/male vs women/female). */
+/** Portrait URL → gender from curated allowlists (see demo-portraits.ts). */
 export function genderFromPortraitUrl(url: string): DemoGender | null {
-  if (
-    /\/portraits\/men\//.test(url) ||
-    /\/avatars\/male\//.test(url) ||
-    /\/assets-person-portrait@[^/]+\/male\//.test(url)
-  ) {
-    return "male";
-  }
-  if (
-    /\/portraits\/women\//.test(url) ||
-    /\/avatars\/female\//.test(url) ||
-    /\/assets-person-portrait@[^/]+\/female\//.test(url)
-  ) {
-    return "female";
-  }
-  return null;
+  return portraitGender(url);
 }
 
 /**
- * High-res professional headshots from one CDN for consistent quality.
- * Only the curated young (~20–40) allowlist is used — see demo-portraits.ts.
- * Gender is never mixed — callers take from the matching pool only.
+ * LinkedIn-style Unsplash headshots. Male pool is white-first then other
+ * men so the crowd plurality lands on young white men. Gender never mixed.
  */
 function buildGenderedPortraitPools(rng: () => number): {
   male: string[];
   female: string[];
 } {
-  const male = YOUNG_MALE_PORTRAIT_INDICES.map((i) => portraitUrl("male", i));
-  const female = YOUNG_FEMALE_PORTRAIT_INDICES.map((i) =>
-    portraitUrl("female", i)
+  const white = [...WHITE_MALE_PORTRAIT_URLS];
+  const otherMale = YOUNG_MALE_PORTRAIT_URLS.filter(
+    (u) => !(WHITE_MALE_PORTRAIT_URLS as readonly string[]).includes(u)
   );
-  shuffleInPlace(rng, male);
+  shuffleInPlace(rng, white);
+  shuffleInPlace(rng, otherMale);
+  const male = [...white, ...otherMale];
+  const female = [...YOUNG_FEMALE_PORTRAIT_URLS];
   shuffleInPlace(rng, female);
   return { male, female };
 }
@@ -592,16 +580,16 @@ function generateSeeds(count: number): DemoSeed[] {
 
   const usedNames = new Set(seeds.map((s) => s.first_name.toLowerCase()));
 
-  // Fixed ~50/50 gender quota so we never exhaust one portrait pool.
-  // Reserve ≥1 leftover face per gender for the demo "You" avatar.
+  // Skew male (~62%) so young white men land as ~45–55%+ of the crowd
+  // (male pool is majority white). Reserve ≥1 leftover face per gender for You.
   const remaining = count - seeds.length;
   const handMale = seeds.filter((s) => s.gender === "male").length;
-  const handFemale = seeds.filter((s) => s.gender === "female").length;
-  const maxMale = pools.male.length - 1; // leave 1+ for You
+  const maxMale = pools.male.length - 1;
   const maxFemale = pools.female.length - 1;
+  const targetMaleShare = 0.62;
   let needMale = Math.min(
     maxMale,
-    Math.max(0, Math.floor(count / 2) - handMale)
+    Math.max(0, Math.round(count * targetMaleShare) - handMale)
   );
   let needFemale = remaining - needMale;
   if (needFemale > maxFemale) {
@@ -611,6 +599,10 @@ function generateSeeds(count: number): DemoSeed[] {
   if (needMale > maxMale) {
     needMale = maxMale;
     needFemale = remaining - needMale;
+  }
+  if (needFemale < 0) {
+    needFemale = 0;
+    needMale = Math.min(maxMale, remaining);
   }
   const genderQueue: DemoGender[] = [
     ...Array(needMale).fill("male"),
@@ -681,11 +673,9 @@ export function pickSessionDemoMePhoto(): string {
     const i = Math.floor(Math.random() * pool.length);
     return pool[i]!;
   }
-  const indices =
-    gender === "male"
-      ? YOUNG_MALE_PORTRAIT_INDICES
-      : YOUNG_FEMALE_PORTRAIT_INDICES;
-  return portraitUrl(gender, indices[Math.floor(Math.random() * indices.length)]!);
+  const fallback =
+    gender === "male" ? YOUNG_MALE_PORTRAIT_URLS : YOUNG_FEMALE_PORTRAIT_URLS;
+  return fallback[Math.floor(Math.random() * fallback.length)]!;
 }
 
 function seedToPerson(seed: DemoSeed): DemoPerson {
