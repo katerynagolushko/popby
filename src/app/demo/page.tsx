@@ -227,7 +227,7 @@ export default function DemoPage() {
   }
 
   function handleMessage() {
-    window.location.assign("/#waitlist");
+    window.location.assign("/waitlist");
   }
 
   function getConnectionStatus(userId: string): "none" | "pending" | "accepted" {
@@ -256,7 +256,7 @@ export default function DemoPage() {
               </button>
             )}
             <Link
-              href="/#waitlist"
+              href="/waitlist"
               className="text-sm bg-navy text-white px-4 py-2 rounded-xl font-semibold shadow-md"
             >
               Waitlist

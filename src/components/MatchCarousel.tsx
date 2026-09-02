@@ -191,7 +191,7 @@ export default function MatchCarousel({
                     </div>
                   ) : (
                     <Link
-                      href="/#waitlist"
+                      href="/waitlist"
                       className="w-full text-center text-sm font-semibold bg-navy text-white rounded-xl px-3 py-3 hover:bg-navy-soft shadow-sm"
                     >
                       Join waitlist to message

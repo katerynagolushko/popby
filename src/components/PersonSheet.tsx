@@ -216,7 +216,7 @@ export default function PersonSheet({
                 </div>
                 {demo ? (
                   <Link
-                    href="/#waitlist"
+                    href="/waitlist"
                     className="popby-btn popby-btn-accent w-full text-center"
                   >
                     Join waitlist to message

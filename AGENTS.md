@@ -43,7 +43,7 @@ Do **not** put hangout format, intent, or vibe preference on the profile — tho
 
 Public path for Encode: **landing waitlist + `/demo`**. City-wide real accounts are not open.
 
-- Landing: waitlist email (`POST /api/waitlist` → Supabase `waitlist` table when env is set). View signups in Supabase **Table Editor → waitlist**. Primary CTA is waitlist; secondary is "Try the full demo". Soft founder sign-in link stays.
+- Landing: product story + two CTAs (Join waitlist → `/waitlist`, Try the full demo → `/demo`). Waitlist form lives on `/waitlist` (`POST /api/waitlist` → Supabase `waitlist`). Soft founder sign-in stays in the footer.
 - Soft gate: unauthenticated `/map` (and other app routes) redirect to `/` so visitors are not pushed into real signup. Founder auth still works via `/login`.
 - **`/demo`**: ~350 fake people across London clusters (flatter weights, min pin gap, density-capped map). Zero Supabase. Go-live picks format + intent + Closest / Most my vibe; **Top 5 matches** panel is the product of matching (not an endless strip). Map paints ~28 markers via **coarse geographic cells + ~2km gaps** (city-wide spread readable at zoom ~11, never nearest-to-Old-Street).
 - Waitlist schema: `supabase/migrations/20260302_waitlist.sql` (also in `schema.sql`). Run in Supabase before relying on persistence.
@@ -72,8 +72,8 @@ Public path for Encode: **landing waitlist + `/demo`**. City-wide real accounts 
 
 ## Where things live
 
-- Pages: `src/app/` (`page.tsx` landing + waitlist, `demo/`, `login/`, `onboarding/`, `map/`, `profile/`, `messages/`, `api/waitlist/`, `api/extract-events/`, `auth/callback/`)
-- Components: `src/components/` (`WaitlistForm.tsx`, `PopbyMap.tsx`, `PopbyMapLoader.tsx` for ssr:false dynamic import, `GoLiveModal.tsx` which supports a `demo` prop, `PersonSheet.tsx`, `RatingModal.tsx`, `EventScreenshotUpload.tsx`)
+- Pages: `src/app/` (`page.tsx` landing, `waitlist/`, `demo/`, `login/`, `onboarding/`, `map/`, `profile/`, `messages/`, `api/waitlist/`, `api/extract-events/`, `auth/callback/`)
+- Components: `src/components/` (`WaitlistForm.tsx`, `LandingHeroMap.tsx` + loader, `PopbyMap.tsx`, `PopbyMapLoader.tsx` for ssr:false dynamic import, `GoLiveModal.tsx` which supports a `demo` prop, `PersonSheet.tsx`, `RatingModal.tsx`, `EventScreenshotUpload.tsx`)
 - Lib: `src/lib/` (brand, constants, types, demo-data with crowd generator + density-capped map subsample + Top 5 ranking, waitlist-email, map-tiles, maplibre-setup, `supabase/` clients)
 - Human docs: `README.md` (overview + demo), `SETUP.md` (Supabase/Vercel setup)
 

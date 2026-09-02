@@ -33,6 +33,7 @@ export async function updateSession(request: NextRequest) {
   // Real /map stays behind auth for the founder; unauthenticated hits soft-gate to home.
   const isPublic =
     path === "/" ||
+    path === "/waitlist" ||
     path === "/demo" ||
     path.startsWith("/demo/") ||
     isAuthPage ||

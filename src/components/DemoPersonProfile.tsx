@@ -222,7 +222,7 @@ export default function DemoPersonProfile({
                 </p>
               </div>
               <Link
-                href="/#waitlist"
+                href="/waitlist"
                 className="popby-btn popby-btn-accent w-full text-center"
               >
                 Join waitlist to message

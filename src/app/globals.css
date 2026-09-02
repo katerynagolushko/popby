@@ -244,4 +244,31 @@ h1, h2, h3 {
   animation: tour-rise 0.28s ease-out;
 }
 
+@keyframes landing-card-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.landing-card-in {
+  animation: landing-card-in 0.55s ease-out both;
+}
+
+.landing-card-delay-1 {
+  animation-delay: 0.12s;
+}
+
+.landing-card-delay-2 {
+  animation-delay: 0.24s;
+}
+
+.landing-card-delay-3 {
+  animation-delay: 0.36s;
+}
+
 /* Legacy class aliases — old cony-* still work via duplicate rules above */
