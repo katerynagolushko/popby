@@ -42,10 +42,7 @@ export async function sendWaitlistConfirmationEmail(
         text: [
           greeting,
           "",
-          `You're on the ${APP_NAME} waitlist.`,
-          "",
-          "We'll email again when early access opens in London.",
-          "No spam. No drip sequence.",
+          "Thank you for signing up for the wait list. Once we go live, we will notify you.",
           "",
           `Reply to this email if you want to reach me — ${replyTo}`,
           "",
