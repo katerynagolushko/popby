@@ -7,7 +7,7 @@ interface LogoProps {
 }
 
 const sizes = {
-  sm: { icon: 28, text: "text-base" },
+  sm: { icon: 28, text: "text-lg" },
   md: { icon: 36, text: "text-xl" },
   lg: { icon: 48, text: "text-2xl" },
 };

@@ -103,7 +103,7 @@ export default function WaitlistForm({ className = "" }: { className?: string })
       <div>
         <label
           htmlFor="waitlist-name"
-          className="block text-base font-medium text-navy mb-2"
+          className="block text-lg font-medium text-navy mb-2.5"
         >
           Name
         </label>
@@ -119,7 +119,7 @@ export default function WaitlistForm({ className = "" }: { className?: string })
             if (status === "error") setStatus("idle");
           }}
           placeholder="Your first name"
-          className="popby-input w-full text-base"
+          className="popby-input w-full text-lg min-h-[54px]"
           disabled={status === "loading"}
           maxLength={80}
         />
@@ -128,7 +128,7 @@ export default function WaitlistForm({ className = "" }: { className?: string })
       <div>
         <label
           htmlFor="waitlist-email"
-          className="block text-base font-medium text-navy mb-2"
+          className="block text-lg font-medium text-navy mb-2.5"
         >
           Email
         </label>
@@ -144,13 +144,13 @@ export default function WaitlistForm({ className = "" }: { className?: string })
             if (status === "error") setStatus("idle");
           }}
           placeholder="you@company.com"
-          className="popby-input w-full text-base"
+          className="popby-input w-full text-lg min-h-[54px]"
           disabled={status === "loading"}
         />
       </div>
 
       <div>
-        <p className="text-base font-medium text-navy mb-2.5">I am a…</p>
+        <p className="text-lg font-medium text-navy mb-2.5">I am a…</p>
         <div className="flex flex-wrap gap-2.5">
           {ROLES.map((r) => (
             <button
@@ -161,7 +161,7 @@ export default function WaitlistForm({ className = "" }: { className?: string })
                 setRole(r.value);
                 if (status === "error") setStatus("idle");
               }}
-              className={`popby-chip text-sm sm:text-base py-2.5 px-3.5 ${
+              className={`popby-chip ${
                 role === r.value ? "popby-chip-selected" : ""
               }`}
             >
@@ -172,7 +172,7 @@ export default function WaitlistForm({ className = "" }: { className?: string })
       </div>
 
       <div>
-        <p className="text-base font-medium text-navy mb-2.5">Kind of company</p>
+        <p className="text-lg font-medium text-navy mb-2.5">Kind of company</p>
         <div className="flex flex-wrap gap-2.5">
           {COMPANY_TYPES.map((c) => (
             <button
@@ -183,7 +183,7 @@ export default function WaitlistForm({ className = "" }: { className?: string })
                 setCompanyType(c.value);
                 if (status === "error") setStatus("idle");
               }}
-              className={`popby-chip text-sm sm:text-base py-2.5 px-3.5 ${
+              className={`popby-chip ${
                 companyType === c.value ? "popby-chip-selected" : ""
               }`}
             >
@@ -196,15 +196,15 @@ export default function WaitlistForm({ className = "" }: { className?: string })
       <button
         type="submit"
         disabled={status === "loading"}
-        className="popby-btn popby-btn-accent w-full sm:w-auto text-base px-6 py-3.5 disabled:opacity-50"
+        className="popby-btn popby-btn-accent w-full sm:w-auto text-xl px-8 min-h-[56px] disabled:opacity-50"
       >
         {status === "loading" ? "Joining…" : "Join waitlist"}
       </button>
 
       {message && status === "error" && (
-        <p className="text-base text-red-600">{message}</p>
+        <p className="text-lg text-red-600">{message}</p>
       )}
-      <p className="text-base text-muted leading-relaxed">
+      <p className="text-lg text-navy/70 leading-relaxed">
         London only for now. No city-wide live map yet.
       </p>
     </form>

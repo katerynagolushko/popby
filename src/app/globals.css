@@ -10,8 +10,8 @@
   --accent-dark: #e64a19;
   --mint: #2ecc87;
   --ink: #12141c;
-  /* Dark enough for secondary UI at text-sm on cream paper */
-  --muted: #524f5c;
+  /* Strong secondary contrast on cream paper (no washed microcopy) */
+  --muted: #3d3a48;
 }
 
 @theme inline {
@@ -116,10 +116,11 @@ h1, h2, h3 {
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  padding: 0.8rem 1.35rem;
-  border-radius: 10px;
+  padding: 0.95rem 1.5rem;
+  min-height: 3.375rem; /* ~54px — big mobile consumer tap target */
+  border-radius: 12px;
   font-weight: 600;
-  font-size: 0.9375rem;
+  font-size: 1.125rem; /* 18px */
   transition: all 0.15s ease;
   cursor: pointer;
   border: none;
@@ -157,11 +158,12 @@ h1, h2, h3 {
 
 .popby-input {
   width: 100%;
-  padding: 0.8rem 1rem;
-  border-radius: 10px;
+  padding: 0.95rem 1.15rem;
+  min-height: 3.375rem; /* ~54px */
+  border-radius: 12px;
   border: 1.5px solid var(--paper-3);
   background: white;
-  font-size: 0.9375rem;
+  font-size: 1.125rem; /* 18px */
   color: var(--ink);
   outline: none;
   transition: border-color 0.15s, box-shadow 0.15s;
@@ -183,11 +185,11 @@ h1, h2, h3 {
 .popby-chip {
   display: inline-flex;
   align-items: center;
-  gap: 0.35rem;
-  padding: 0.6rem 1rem;
-  min-height: 2.5rem;
-  border-radius: 8px;
-  font-size: 0.9375rem; /* 15px — readable chip labels on mobile */
+  gap: 0.4rem;
+  padding: 0.8rem 1.15rem;
+  min-height: 3.125rem; /* ~50px */
+  border-radius: 10px;
+  font-size: 1.125rem; /* 18px — consumer-app chip labels */
   font-weight: 500;
   background: var(--paper);
   color: var(--ink);
@@ -212,8 +214,8 @@ h1, h2, h3 {
 }
 
 .live-dot {
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
   background: var(--mint);
   animation: pulse-live 2s ease-in-out infinite;

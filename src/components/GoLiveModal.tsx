@@ -190,8 +190,8 @@ export default function GoLiveModal({
       <div className="relative bg-paper w-full sm:max-w-md sm:rounded-3xl rounded-t-3xl max-h-[92vh] overflow-y-auto shadow-2xl pb-[env(safe-area-inset-bottom)]">
         <div className="p-5 border-b border-paper-3 flex items-center justify-between sticky top-0 bg-paper z-10">
           <div>
-            <h2 className="text-xl text-navy font-display">Go live</h2>
-            <p className="text-sm text-navy/70 mt-0.5">
+            <h2 className="text-2xl text-navy font-display">Go live</h2>
+            <p className="text-lg text-navy/70 mt-0.5">
               {demo
                 ? "Demo: matches rank against your picks"
                 : "People nearby can see you while you're live"}
@@ -200,7 +200,7 @@ export default function GoLiveModal({
           <button
             type="button"
             onClick={onClose}
-            className="w-11 h-11 rounded-lg bg-paper-2 flex items-center justify-center text-muted hover:text-ink"
+            className="w-[52px] h-[52px] rounded-xl bg-paper-2 flex items-center justify-center text-navy/70 hover:text-ink text-xl"
           >
             ✕
           </button>
@@ -209,7 +209,7 @@ export default function GoLiveModal({
         <div className="p-5 space-y-5">
           {needsPhoto && (
             <div className="p-3 rounded-xl bg-paper-2 border border-paper-3">
-              <p className="text-base font-medium text-navy mb-2">
+              <p className="text-lg font-medium text-navy mb-2">
                 Add a photo so people can find you here
               </p>
               <label className="flex items-center gap-3 cursor-pointer">
@@ -218,10 +218,10 @@ export default function GoLiveModal({
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={photoPreview} alt="" className="w-full h-full object-cover" />
                   ) : (
-                    <span className="text-sm text-navy/70">Photo</span>
+                    <span className="text-lg text-navy/70">Photo</span>
                   )}
                 </div>
-                <span className="text-base text-navy/70">Tap to take or upload</span>
+                <span className="text-lg text-navy/70">Tap to take or upload</span>
                 <input
                   type="file"
                   accept="image/*"
@@ -239,7 +239,7 @@ export default function GoLiveModal({
           )}
 
           <div>
-            <label className="block text-base font-medium mb-2 text-navy">
+            <label className="block text-lg font-semibold mb-2.5 text-navy">
               How?
             </label>
             <div className="flex flex-wrap gap-2">
@@ -257,7 +257,7 @@ export default function GoLiveModal({
           </div>
 
           <div>
-            <label className="block text-base font-medium mb-2 text-navy">
+            <label className="block text-lg font-semibold mb-2.5 text-navy">
               Why?
             </label>
             <div className="flex flex-wrap gap-2">
@@ -275,7 +275,7 @@ export default function GoLiveModal({
           </div>
 
           <div>
-            <label className="block text-base font-medium mb-2 text-navy">
+            <label className="block text-lg font-semibold mb-2.5 text-navy">
               Show me
             </label>
             <div className="grid grid-cols-2 gap-2">
@@ -294,7 +294,7 @@ export default function GoLiveModal({
                 Most my vibe
               </button>
             </div>
-            <p className="text-sm text-navy/70 mt-2 leading-relaxed">
+            <p className="text-lg text-navy/70 mt-2 leading-relaxed">
               {matchPreference === "nearest"
                 ? "Closest pins first."
                 : "Same format and intent first (coffee + product feedback, etc.), then distance."}
@@ -302,7 +302,7 @@ export default function GoLiveModal({
           </div>
 
           <div>
-            <label className="block text-base font-medium mb-1.5 text-navy">
+            <label className="block text-lg font-semibold mb-2 text-navy">
               Note <span className="text-navy/70 font-normal">(optional)</span>
             </label>
             <input
@@ -315,7 +315,7 @@ export default function GoLiveModal({
           </div>
 
           <div>
-            <label className="block text-base font-medium mb-2 text-navy">
+            <label className="block text-lg font-semibold mb-2.5 text-navy">
               How long?
             </label>
             <div className="flex gap-2">
@@ -333,10 +333,10 @@ export default function GoLiveModal({
           </div>
 
           <div>
-            <label className="block text-base font-medium mb-1.5 text-navy">
+            <label className="block text-lg font-semibold mb-2 text-navy">
               Approximate spot
             </label>
-            <p className="text-sm text-navy/70 mb-2 leading-relaxed">
+            <p className="text-lg text-navy/70 mb-2 leading-relaxed">
               Rough pin for this hangout only. Location turns off when you stop.
               No background tracking.
               {locStatus === "asking" && " Getting your spot…"}
@@ -357,7 +357,7 @@ export default function GoLiveModal({
             </div>
           </div>
 
-          {error && <p className="text-sm text-red-600">{error}</p>}
+          {error && <p className="text-lg text-red-600">{error}</p>}
 
           <button
             type="button"

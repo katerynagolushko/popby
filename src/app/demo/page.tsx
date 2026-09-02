@@ -250,14 +250,14 @@ export default function DemoPage() {
               <button
                 type="button"
                 onClick={handleReplayTour}
-                className="text-sm bg-white/95 text-navy px-3.5 py-2 rounded-xl font-semibold border-2 border-navy/20 shadow-md"
+                className="text-lg bg-white/95 text-navy px-4 min-h-[52px] inline-flex items-center rounded-xl font-semibold border-2 border-navy/20 shadow-md"
               >
                 Replay tour
               </button>
             )}
             <Link
               href="/waitlist"
-              className="text-sm bg-navy text-white px-4 py-2 rounded-xl font-semibold shadow-md"
+              className="text-lg bg-navy text-white px-5 min-h-[52px] inline-flex items-center rounded-xl font-semibold shadow-md"
             >
               Waitlist
             </Link>
@@ -293,7 +293,7 @@ export default function DemoPage() {
                 >
                   Simulated London crowd
                 </p>
-                <p className="text-sm text-white/85 mt-1 leading-snug">
+                <p className="text-lg text-white/85 mt-1 leading-snug">
                   Go live, and we pick {DEMO_TOP_MATCH_COUNT} people you should
                   meet.
                 </p>
@@ -308,27 +308,27 @@ export default function DemoPage() {
           className="absolute inset-x-0 bottom-0 z-[1000] p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] flex flex-col items-center gap-2.5 pointer-events-none"
         >
           {myLive ? (
-            <div className="pointer-events-auto flex items-center gap-2.5 bg-navy text-white rounded-xl px-4 py-2.5 min-h-12 shadow-xl w-full max-w-sm">
+            <div className="pointer-events-auto flex items-center gap-2.5 bg-navy text-white rounded-xl px-4 py-3.5 min-h-[56px] shadow-xl w-full max-w-md">
               <span className="live-dot" />
-              <span className="text-base font-medium flex-1">You&apos;re live</span>
+              <span className="text-xl font-semibold flex-1">You&apos;re live</span>
               <button
                 type="button"
                 onClick={() => setShowMatches(true)}
-                className="text-sm bg-accent rounded-lg px-3.5 min-h-10 font-semibold"
+                className="text-lg bg-accent rounded-lg px-3.5 min-h-[52px] font-semibold inline-flex items-center"
               >
                 See matches
               </button>
               <button
                 type="button"
                 onClick={() => setShowGoLive(true)}
-                className="text-base font-medium underline underline-offset-2 px-2 min-h-10"
+                className="text-lg font-semibold underline underline-offset-2 px-2.5 min-h-[52px] inline-flex items-center"
               >
                 Edit
               </button>
               <button
                 type="button"
                 onClick={handleStopLive}
-                className="text-base font-semibold bg-white/20 rounded-lg px-3.5 min-h-10"
+                className="text-lg font-semibold bg-white/20 rounded-lg px-3.5 min-h-[52px] inline-flex items-center"
               >
                 Stop
               </button>
@@ -338,7 +338,7 @@ export default function DemoPage() {
               ref={goLiveBtnRef}
               type="button"
               onClick={() => setShowGoLive(true)}
-              className="pointer-events-auto popby-btn popby-btn-accent shadow-xl text-base px-8 py-3.5 w-full max-w-sm"
+              className="pointer-events-auto popby-btn popby-btn-accent shadow-xl text-xl px-8 min-h-[56px] w-full max-w-sm"
             >
               <span className="live-dot" />
               I&apos;m free to hang out
@@ -419,7 +419,7 @@ export default function DemoPage() {
 
       {toast && (
         <div className="absolute top-16 inset-x-4 z-[1200] flex justify-center pointer-events-none">
-          <div className="bg-navy text-white text-sm px-4 py-2.5 rounded-xl shadow-lg max-w-xs text-center">
+          <div className="bg-navy text-white text-lg px-4 py-3.5 rounded-xl shadow-lg max-w-xs text-center">
             {toast}
           </div>
         </div>

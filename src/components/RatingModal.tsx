@@ -68,8 +68,8 @@ export default function RatingModal({
         onSubmit={handleSubmit}
         className="relative popby-card p-6 w-full max-w-sm space-y-4"
       >
-        <h2 className="text-xl text-navy font-display">Rate {toUserName}</h2>
-        <p className="text-base text-navy/70">
+        <h2 className="text-2xl text-navy font-display">Rate {toUserName}</h2>
+        <p className="text-lg text-navy/70">
           How was the hangout? Helps everyone feel safe.
         </p>
 
@@ -79,7 +79,7 @@ export default function RatingModal({
               key={n}
               type="button"
               onClick={() => setScore(n)}
-              className={`text-2xl transition-transform ${n <= score ? "scale-110 text-accent" : "opacity-30 grayscale"}`}
+              className={`text-4xl transition-transform ${n <= score ? "scale-110 text-accent" : "opacity-30 grayscale"}`}
             >
               ★
             </button>
@@ -89,12 +89,12 @@ export default function RatingModal({
         <textarea
           value={comment}
           onChange={(e) => setComment(e.target.value)}
-          className="popby-input min-h-[70px] resize-none"
+          className="popby-input min-h-[88px] text-lg resize-none"
           placeholder="Optional comment"
           maxLength={200}
         />
 
-        {error && <p className="text-sm text-red-600">{error}</p>}
+        {error && <p className="text-lg text-red-600">{error}</p>}
 
         <div className="flex gap-2">
           <button

@@ -277,7 +277,7 @@ export default function PopbyMap({
     <div className={`popby-map relative ${className}`}>
       <div ref={containerRef} className="h-full w-full" />
       {pickMode && (
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 bg-white/95 backdrop-blur px-4 py-2 rounded-lg text-sm text-muted shadow-lg border border-paper-3 pointer-events-none">
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 bg-white/95 backdrop-blur px-4 py-2 rounded-lg text-lg text-muted shadow-lg border border-paper-3 pointer-events-none">
           Tap or drag the pin to set your spot
         </div>
       )}

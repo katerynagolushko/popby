@@ -219,13 +219,13 @@ export default function DemoOnboardingTour({
           <div className="max-w-sm mx-auto relative">
             <div className="bg-white border-2 border-navy rounded-2xl shadow-xl px-4 py-4">
               <div className="flex items-center justify-between gap-2 mb-2">
-                <p className="text-sm font-semibold text-muted tabular-nums">
+                <p className="text-lg font-semibold text-muted tabular-nums">
                   {TOTAL_STEPS} / {TOTAL_STEPS}
                 </p>
                 <button
                   type="button"
                   onClick={onCoachDone}
-                  className="text-sm text-muted font-medium hover:text-navy"
+                  className="text-lg text-muted font-medium hover:text-navy"
                 >
                   Got it
                 </button>
@@ -237,7 +237,7 @@ export default function DemoOnboardingTour({
               >
                 You&apos;re in
               </h2>
-              <p className="text-base text-ink/80 mt-1.5 leading-snug">
+              <p className="text-lg text-ink/80 mt-1.5 leading-snug">
                 Tap <span className="font-semibold text-navy">I&apos;m free to hang out</span>.
                 Pick format, intent, and how long. We&apos;ll show your top 5.
               </p>
@@ -266,13 +266,13 @@ export default function DemoOnboardingTour({
           <div className="bg-navy text-white px-5 py-3.5 flex items-center justify-between gap-3 shrink-0">
             <Logo size="sm" />
             <div className="flex items-center gap-3">
-              <span className="text-sm font-semibold tracking-wide text-white/85 tabular-nums">
+              <span className="text-lg font-semibold tracking-wide text-white/85 tabular-nums">
                 {stepIndex(step)} / {TOTAL_STEPS}
               </span>
               <button
                 type="button"
                 onClick={onSkipAll}
-                className="text-sm font-medium text-white/90 hover:text-white underline underline-offset-2"
+                className="text-lg font-medium text-white/90 hover:text-white underline underline-offset-2"
               >
                 Skip
               </button>
@@ -291,11 +291,11 @@ export default function DemoOnboardingTour({
                 >
                   Simulated London crowd
                 </h2>
-                <p className="text-base text-ink/80 leading-relaxed">
+                <p className="text-lg text-ink/80 leading-relaxed">
                   Create your profile and open a hangout. See who else is close
                   by and get matched with your top 5 by vibe or location.
                 </p>
-                <p className="text-base text-muted leading-relaxed">
+                <p className="text-lg text-muted leading-relaxed">
                   Nothing is saved. About a minute.
                 </p>
               </div>
@@ -312,7 +312,7 @@ export default function DemoOnboardingTour({
                 >
                   First name
                 </h2>
-                <p className="text-base text-muted leading-snug">
+                <p className="text-lg text-muted leading-snug">
                   First name only. People see this on the map.
                 </p>
                 <input
@@ -396,7 +396,7 @@ export default function DemoOnboardingTour({
                 >
                   Your face here
                 </h2>
-                <p className="text-base text-muted leading-snug">
+                <p className="text-lg text-muted leading-snug">
                   Demo picks one at random. Real accounts upload theirs.
                 </p>
                 <div className="flex flex-col items-center gap-3 pt-1">
@@ -409,7 +409,7 @@ export default function DemoOnboardingTour({
                         className="w-full h-full object-cover"
                       />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center text-sm text-muted">
+                      <div className="w-full h-full flex items-center justify-center text-lg text-muted">
                         Loading…
                       </div>
                     )}
@@ -419,7 +419,7 @@ export default function DemoOnboardingTour({
                     onClick={() =>
                       patch({ photo_url: pickSessionDemoMePhoto() })
                     }
-                    className="text-base font-medium text-accent hover:text-accent-dark"
+                    className="text-lg font-medium text-accent hover:text-accent-dark"
                   >
                     Shuffle face
                   </button>
@@ -438,7 +438,7 @@ export default function DemoOnboardingTour({
                 >
                   Socials (optional)
                 </h2>
-                <p className="text-base text-muted leading-snug">
+                <p className="text-lg text-muted leading-snug">
                   LinkedIn or X. Pick who can see them.
                 </p>
                 <input
@@ -456,7 +456,7 @@ export default function DemoOnboardingTour({
                   inputMode="url"
                 />
                 <div>
-                  <p className="text-base font-medium mb-2 text-navy">
+                  <p className="text-lg font-medium mb-2 text-navy">
                     Who can see them?
                   </p>
                   <div className="grid grid-cols-2 gap-2">
@@ -499,7 +499,7 @@ export default function DemoOnboardingTour({
                 >
                   After you hang
                 </h2>
-                <p className="text-base text-ink/80 leading-snug">
+                <p className="text-lg text-ink/80 leading-snug">
                   Keeps the map for people who show up and don&apos;t get weird.
                 </p>
                 <div
@@ -542,7 +542,7 @@ export default function DemoOnboardingTour({
                     );
                   })}
                 </div>
-                <p className="text-sm text-muted text-center tabular-nums">
+                <p className="text-lg text-muted text-center tabular-nums">
                   {previewRating > 0
                     ? `${previewRating} / 5 · demo only, not saved`
                     : "Tap a star to try it · demo only"}
@@ -556,7 +556,7 @@ export default function DemoOnboardingTour({
               <button
                 type="button"
                 onClick={goBack}
-                className="popby-btn popby-btn-ghost text-sm px-4 py-2.5"
+                className="popby-btn popby-btn-ghost text-lg px-4 py-3.5"
               >
                 Back
               </button>
@@ -567,7 +567,7 @@ export default function DemoOnboardingTour({
               type="button"
               onClick={goNext}
               disabled={!canAdvance}
-              className="popby-btn popby-btn-accent flex-1 disabled:opacity-50 text-sm py-2.5"
+              className="popby-btn popby-btn-accent flex-1 disabled:opacity-50 text-lg py-3.5"
             >
               {step === "reviews" ? "See the map" : "Next"}
             </button>

@@ -105,7 +105,7 @@ export default function ChatPage() {
   return (
     <main className="h-screen flex flex-col bg-paper">
       <header className="flex items-center gap-3 px-4 py-3 border-b border-paper-3 bg-paper">
-        <Link href="/messages" className="text-muted hover:text-ink">
+        <Link href="/messages" className="text-navy/70 hover:text-ink text-lg font-medium min-h-[52px] inline-flex items-center px-1">
           ←
         </Link>
         <div className="w-9 h-9 rounded-full overflow-hidden bg-paper-2 border border-paper-3">
@@ -113,7 +113,7 @@ export default function ChatPage() {
             // eslint-disable-next-line @next/next/no-img-element
             <img src={other.photo_url} alt="" className="w-full h-full object-cover" />
           ) : (
-            <span className="flex items-center justify-center h-full text-sm font-bold text-accent">
+            <span className="flex items-center justify-center h-full text-lg font-bold text-accent">
               {other?.first_name?.[0] ?? "?"}
             </span>
           )}
@@ -125,7 +125,7 @@ export default function ChatPage() {
 
       <div className="flex-1 overflow-y-auto p-4 space-y-3">
         {messages.length === 0 && (
-          <p className="text-center text-sm text-muted py-8">
+          <p className="text-center text-lg text-navy/70 py-8">
             Say hi. You&apos;re connected.
           </p>
         )}
@@ -137,7 +137,7 @@ export default function ChatPage() {
               className={`flex ${isMine ? "justify-end" : "justify-start"}`}
             >
               <div
-                className={`max-w-[75%] px-4 py-2.5 rounded-2xl text-sm ${
+                className={`max-w-[75%] px-4 py-3.5 rounded-2xl text-lg ${
                   isMine
                     ? "bg-navy text-white rounded-br-md"
                     : "bg-white border border-paper-3 rounded-bl-md"

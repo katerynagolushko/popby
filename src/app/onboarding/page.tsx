@@ -130,7 +130,7 @@ export default function OnboardingPage() {
       <div className="mb-8">
         <Logo size="sm" />
         <h1 className="text-3xl text-navy mt-6 font-display">Almost there</h1>
-        <p className="text-sm text-muted mt-2 leading-relaxed">
+        <p className="text-lg text-navy/70 mt-2 leading-relaxed">
           Name, role, and what you&apos;re building. Photo helps people find you
           — skip if you want, we&apos;ll ask again when you go live.
         </p>
@@ -148,7 +148,7 @@ export default function OnboardingPage() {
                   className="w-full h-full object-cover"
                 />
               ) : (
-                <span className="text-sm text-muted group-hover:text-navy transition-colors">
+                <span className="text-lg text-navy/70 group-hover:text-navy transition-colors">
                   Add photo
                 </span>
               )}
@@ -161,11 +161,11 @@ export default function OnboardingPage() {
               className="hidden"
             />
           </label>
-          <span className="text-sm text-navy/70">Optional — skip for now</span>
+          <span className="text-lg text-navy/70">Optional — skip for now</span>
         </div>
 
         <div>
-          <label className="block text-base font-medium mb-1.5 text-navy">
+          <label className="block text-lg font-medium mb-1.5 text-navy">
             First name
           </label>
           <input
@@ -179,7 +179,7 @@ export default function OnboardingPage() {
         </div>
 
         <div>
-          <label className="block text-base font-medium mb-2 text-navy">
+          <label className="block text-lg font-medium mb-2 text-navy">
             I am a…
           </label>
           <div className="flex flex-wrap gap-2">
@@ -197,7 +197,7 @@ export default function OnboardingPage() {
         </div>
 
         <div>
-          <label className="block text-base font-medium mb-2 text-navy">
+          <label className="block text-lg font-medium mb-2 text-navy">
             Kind of company
           </label>
           <div className="flex flex-wrap gap-2">
@@ -215,7 +215,7 @@ export default function OnboardingPage() {
         </div>
 
         <div className="space-y-3 pt-2 border-t border-paper-3">
-          <p className="text-sm text-navy/70 font-medium uppercase tracking-wide">
+          <p className="text-lg text-navy/70 font-medium uppercase tracking-wide">
             Socials <span className="normal-case font-normal">(optional)</span>
           </p>
           <input
@@ -235,7 +235,7 @@ export default function OnboardingPage() {
 
           {(linkedinUrl.trim() || twitterUrl.trim()) && (
             <div>
-              <p className="text-sm font-medium mb-2 text-navy">Who can see them?</p>
+              <p className="text-lg font-medium mb-2 text-navy">Who can see them?</p>
               <div className="grid grid-cols-2 gap-2">
                 <button
                   type="button"
@@ -256,7 +256,7 @@ export default function OnboardingPage() {
           )}
         </div>
 
-        {error && <p className="text-sm text-red-600">{error}</p>}
+        {error && <p className="text-lg text-red-600">{error}</p>}
 
         <button
           type="submit"

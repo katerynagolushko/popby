@@ -24,7 +24,7 @@ export default async function HomePage({
             The startup social network for IRL.
           </p>
 
-          <div className="space-y-4 text-lg leading-relaxed text-muted max-w-xl mb-10">
+          <div className="space-y-4 text-xl leading-relaxed text-navy/80 max-w-xl mb-10">
             <p>
               See who&apos;s free to{" "}
               <span className="text-navy font-medium">spontaneously</span> hang
@@ -40,37 +40,37 @@ export default async function HomePage({
               advance. You&apos;re here to make friends with people in the
               startup world.
             </p>
-            <p className="text-base text-muted/90">
+            <p className="text-lg text-navy/70">
               No feed. No posts. No follower counts. Toggle live, pick a format,
               meet in person.
             </p>
           </div>
 
           {softGated && (
-            <p className="text-base text-navy bg-paper-2 border border-paper-3 rounded-xl px-4 py-3 mb-8 max-w-xl leading-relaxed">
+            <p className="text-lg text-navy bg-paper-2 border border-paper-3 rounded-xl px-4 py-3 mb-8 max-w-xl leading-relaxed">
               The live map with real accounts isn&apos;t open yet. Join the
               waitlist or try the full demo with fake people across {APP_CITY}.
             </p>
           )}
 
           <div className="flex flex-col sm:flex-row gap-3 mb-8">
-            <Link href="/waitlist" className="popby-btn popby-btn-accent text-base px-6 py-3.5">
+            <Link href="/waitlist" className="popby-btn popby-btn-accent text-xl px-8 min-h-[56px]">
               Join the waitlist
             </Link>
-            <Link href="/demo" className="popby-btn popby-btn-navy text-base px-6 py-3.5">
+            <Link href="/demo" className="popby-btn popby-btn-navy text-xl px-8 min-h-[56px]">
               Try the full demo
             </Link>
           </div>
         </div>
 
         <footer className="pt-2 space-y-2">
-          <p className="text-sm sm:text-base text-muted leading-relaxed max-w-xl">
+          <p className="text-lg text-navy/70 leading-relaxed max-w-xl">
             {APP_NAME} starts in {APP_CITY}. City-wide live accounts aren&apos;t
             open yet. The demo runs the full loop with fake people.
           </p>
           <Link
             href="/login"
-            className="inline-block text-sm text-muted/80 underline underline-offset-2 hover:text-navy transition-colors"
+            className="inline-block text-lg text-navy/70 underline underline-offset-2 hover:text-navy transition-colors"
           >
             Founder sign-in
           </Link>

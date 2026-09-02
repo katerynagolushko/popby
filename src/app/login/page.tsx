@@ -98,7 +98,7 @@ export default function LoginPage() {
       <div className="flex-1 flex items-center justify-center px-6 pb-16">
         <div className="max-w-sm w-full">
           <h1 className="text-3xl text-navy mb-2 font-display">Sign in</h1>
-          <p className="text-sm text-muted mb-8">
+          <p className="text-lg text-navy/70 mb-8">
             Founder access for the real app. Everyone else: join the waitlist or
             try the demo from the home page. {APP_CITY} early access only.
           </p>
@@ -115,7 +115,7 @@ export default function LoginPage() {
               </button>
               <div className="flex items-center gap-3 py-1">
                 <div className="h-px flex-1 bg-paper-3" />
-                <span className="text-sm text-navy/70">or</span>
+                <span className="text-lg text-navy/70">or</span>
                 <div className="h-px flex-1 bg-paper-3" />
               </div>
               <button
@@ -128,7 +128,7 @@ export default function LoginPage() {
               >
                 Continue with email
               </button>
-              {error && <p className="text-sm text-red-600">{error}</p>}
+              {error && <p className="text-lg text-red-600">{error}</p>}
             </div>
           )}
 
@@ -140,12 +140,12 @@ export default function LoginPage() {
                   setStep("choose");
                   setError(null);
                 }}
-                className="text-sm text-navy/70 hover:text-navy min-h-10"
+                className="text-lg text-navy/70 hover:text-navy min-h-[52px]"
               >
                 ← Back
               </button>
               <div>
-                <label htmlFor="email" className="block text-base font-medium mb-1.5 text-navy">
+                <label htmlFor="email" className="block text-lg font-medium mb-1.5 text-navy">
                   Email
                 </label>
                 <input
@@ -159,7 +159,7 @@ export default function LoginPage() {
                   className="popby-input"
                 />
               </div>
-              {error && <p className="text-sm text-red-600">{error}</p>}
+              {error && <p className="text-lg text-red-600">{error}</p>}
               <button
                 type="submit"
                 disabled={loading}
@@ -167,7 +167,7 @@ export default function LoginPage() {
               >
                 {loading ? "Sending…" : "Send code"}
               </button>
-              <p className="text-sm text-navy/70 leading-relaxed">
+              <p className="text-lg text-navy/70 leading-relaxed">
                 We email a 6-digit code. Stay on this screen; no link hopping.
               </p>
             </form>
@@ -183,16 +183,16 @@ export default function LoginPage() {
                   setError(null);
                   setInfo(null);
                 }}
-                className="text-sm text-navy/70 hover:text-navy min-h-10"
+                className="text-lg text-navy/70 hover:text-navy min-h-[52px]"
               >
                 ← Back
               </button>
               <div>
-                <p className="text-base text-navy/70 mb-3">
+                <p className="text-lg text-navy/70 mb-3">
                   Code sent to <strong className="text-ink">{email}</strong>
                 </p>
-                {info && <p className="text-sm text-navy/70 mb-3 leading-relaxed">{info}</p>}
-                <label htmlFor="code" className="block text-base font-medium mb-1.5 text-navy">
+                {info && <p className="text-lg text-navy/70 mb-3 leading-relaxed">{info}</p>}
+                <label htmlFor="code" className="block text-lg font-medium mb-1.5 text-navy">
                   6-digit code
                 </label>
                 <input
@@ -207,7 +207,7 @@ export default function LoginPage() {
                   className="popby-input tracking-[0.3em] text-center text-lg font-medium"
                 />
               </div>
-              {error && <p className="text-sm text-red-600">{error}</p>}
+              {error && <p className="text-lg text-red-600">{error}</p>}
               <button
                 type="submit"
                 disabled={loading || code.length < 6}

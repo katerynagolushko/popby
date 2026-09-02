@@ -249,18 +249,18 @@ export default function MapPage() {
         <div className="pointer-events-auto flex items-center gap-2">
           <Link
             href="/messages"
-            className="relative bg-white/95 backdrop-blur rounded-full px-4 py-2 shadow-lg border border-paper-3 text-sm font-medium hover:bg-white"
+            className="relative bg-white/95 backdrop-blur rounded-full px-5 min-h-[52px] inline-flex items-center shadow-lg border border-paper-3 text-lg font-medium hover:bg-white"
           >
             Messages
             {pendingCount > 0 && (
-              <span className="absolute -top-1 -right-1 w-5 h-5 bg-accent text-white text-xs rounded-full flex items-center justify-center">
+              <span className="absolute -top-1.5 -right-1.5 w-7 h-7 bg-accent text-white text-base font-bold rounded-full flex items-center justify-center">
                 {pendingCount}
               </span>
             )}
           </Link>
           <Link
             href="/profile"
-            className="bg-white/95 backdrop-blur rounded-full w-10 h-10 shadow-lg border border-paper-3 overflow-hidden"
+            className="bg-white/95 backdrop-blur rounded-full w-[52px] h-[52px] shadow-lg border border-paper-3 overflow-hidden"
           >
             {myProfile?.photo_url ? (
               // eslint-disable-next-line @next/next/no-img-element
@@ -270,7 +270,7 @@ export default function MapPage() {
                 className="w-full h-full object-cover"
               />
             ) : (
-              <span className="flex items-center justify-center h-full text-sm font-bold text-navy bg-paper">
+              <span className="flex items-center justify-center h-full text-lg font-bold text-navy bg-paper">
                 {myProfile?.first_name?.[0] ?? "?"}
               </span>
             )}
@@ -281,7 +281,7 @@ export default function MapPage() {
       <div className="absolute top-16 inset-x-3 z-[900] pointer-events-none">
         <div className="pointer-events-auto max-w-md mx-auto space-y-2">
           {myLiveSession && (
-            <p className="text-center text-sm text-navy/70 bg-white/95 backdrop-blur rounded-xl px-3.5 py-2.5 border border-paper-3">
+            <p className="text-center text-lg text-navy/70 bg-white/95 backdrop-blur rounded-xl px-3.5 py-3.5 border border-paper-3">
               {myLiveSession.match_preference === "vibe"
                 ? "Sorted by hangout vibe · edit when you go live again"
                 : "Sorted by closest · edit when you go live again"}
@@ -299,7 +299,7 @@ export default function MapPage() {
                     key={p.profile.id}
                     type="button"
                     onClick={() => setSelected(p)}
-                    className="flex-shrink-0 flex items-center gap-2.5 bg-white/95 backdrop-blur border border-paper-3 rounded-xl px-3 py-2.5 min-h-12 shadow text-left"
+                    className="flex-shrink-0 flex items-center gap-2.5 bg-white/95 backdrop-blur border border-paper-3 rounded-xl px-3 py-3.5 min-h-[56px] shadow text-left"
                   >
                     <div className="w-9 h-9 rounded-full overflow-hidden bg-paper-2 flex-shrink-0">
                       {p.profile.photo_url ? (
@@ -310,16 +310,16 @@ export default function MapPage() {
                           className="w-full h-full object-cover"
                         />
                       ) : (
-                        <span className="flex h-full items-center justify-center text-sm font-bold text-accent">
+                        <span className="flex h-full items-center justify-center text-lg font-bold text-accent">
                           {p.profile.first_name[0]}
                         </span>
                       )}
                     </div>
                     <div className="min-w-0">
-                      <p className="text-sm font-semibold text-navy truncate">
+                      <p className="text-lg font-semibold text-navy truncate">
                         {p.profile.first_name}
                       </p>
-                      <p className="text-sm text-navy/70 truncate max-w-[140px]">
+                      <p className="text-lg text-navy/70 truncate max-w-[140px]">
                         {formatDistance(metres)} ·{" "}
                         {hangoutSummary(
                           p.availability.hangout_format,
@@ -345,18 +345,18 @@ export default function MapPage() {
 
       <div className="absolute bottom-6 inset-x-0 flex justify-center z-[1000] px-4">
         {myLiveSession ? (
-          <div className="flex items-center gap-2.5 bg-navy text-white rounded-xl px-4 py-2.5 min-h-12 shadow-xl">
+          <div className="flex items-center gap-3 bg-navy text-white rounded-xl px-5 py-3.5 min-h-[56px] shadow-xl">
             <span className="live-dot" />
-            <span className="text-base font-medium">You&apos;re live</span>
+            <span className="text-xl font-semibold">You&apos;re live</span>
             <button
               onClick={() => setShowGoLive(true)}
-              className="text-base font-medium underline underline-offset-2 px-2 min-h-10"
+              className="text-lg font-semibold underline underline-offset-2 px-3 min-h-[52px] inline-flex items-center"
             >
               Edit
             </button>
             <button
               onClick={handleStopLive}
-              className="text-base font-semibold bg-white/20 rounded-lg px-3.5 min-h-10"
+              className="text-lg font-semibold bg-white/20 rounded-lg px-4 min-h-[52px] inline-flex items-center"
             >
               Stop
             </button>
@@ -364,7 +364,7 @@ export default function MapPage() {
         ) : (
           <button
             onClick={() => setShowGoLive(true)}
-            className="popby-btn popby-btn-accent shadow-xl text-base px-8 py-3.5"
+            className="popby-btn popby-btn-accent shadow-xl text-xl px-8 min-h-[56px]"
           >
             <span
               className="live-dot bg-white"
@@ -382,17 +382,17 @@ export default function MapPage() {
               key={c.id}
               className="popby-card p-3 flex items-center justify-between gap-3"
             >
-              <p className="text-base">Someone wants to connect!</p>
+              <p className="text-lg">Someone wants to connect!</p>
               <div className="flex gap-2">
                 <button
                   onClick={() => acceptPending(c.id)}
-                  className="popby-btn popby-btn-accent text-sm py-2.5 px-3.5 min-h-10"
+                  className="popby-btn popby-btn-accent text-lg py-3.5 px-5 min-h-[52px]"
                 >
                   Accept
                 </button>
                 <Link
                   href="/messages"
-                  className="popby-btn popby-btn-ghost text-sm py-2.5 px-3.5 min-h-10"
+                  className="popby-btn popby-btn-ghost text-lg py-3.5 px-5 min-h-[52px]"
                 >
                   View
                 </Link>
@@ -464,7 +464,7 @@ export default function MapPage() {
 
       {people.length === 0 && !myLiveSession && (
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[500] pointer-events-none text-center px-6">
-          <p className="text-muted text-sm bg-white/80 backdrop-blur rounded-2xl px-5 py-3 shadow">
+          <p className="text-navy/80 text-lg bg-white/80 backdrop-blur rounded-2xl px-5 py-3 shadow">
             No one live right now. Be the first: tap the button below.
           </p>
         </div>

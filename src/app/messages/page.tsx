@@ -79,7 +79,7 @@ export default function MessagesPage() {
   return (
     <main className="min-h-screen bg-paper">
       <header className="sticky top-0 bg-paper/95 backdrop-blur border-b border-paper-3 px-4 py-4 flex items-center gap-3">
-        <Link href="/map" className="text-muted hover:text-ink">
+        <Link href="/map" className="text-navy/70 hover:text-ink text-lg font-medium min-h-[52px] inline-flex items-center">
           ←
         </Link>
         <h1 className="text-xl text-navy font-display">Messages</h1>
@@ -87,12 +87,12 @@ export default function MessagesPage() {
 
       <div className="p-4 max-w-lg mx-auto">
         {loading && (
-          <p className="text-sm text-muted text-center py-8">Loading…</p>
+          <p className="text-lg text-navy/70 text-center py-8">Loading…</p>
         )}
 
         {!loading && connections.length === 0 && (
           <div className="text-center py-16">
-            <p className="text-muted text-sm">
+            <p className="text-navy/70 text-lg">
               No connections yet. Find someone on the map and send a request.
             </p>
             <Link href="/map" className="popby-btn popby-btn-accent mt-4 inline-flex">
@@ -114,7 +114,7 @@ export default function MessagesPage() {
                       className="w-full h-full object-cover"
                     />
                   ) : (
-                    <span className="flex items-center justify-center h-full text-sm font-bold text-accent">
+                    <span className="flex items-center justify-center h-full text-lg font-bold text-accent">
                       {c.other?.first_name?.[0] ?? "?"}
                     </span>
                   )}
@@ -123,19 +123,19 @@ export default function MessagesPage() {
                   <p className="font-medium text-navy truncate">
                     {c.other?.first_name ?? "Unknown"}
                   </p>
-                  <p className="text-sm text-navy/70 capitalize">{c.status}</p>
+                  <p className="text-lg text-navy/70 capitalize">{c.status}</p>
                 </div>
                 {c.status === "pending" && c.to_user_id === userId && (
                   <div className="flex gap-2">
                     <button
                       onClick={() => accept(c.id)}
-                      className="popby-btn popby-btn-accent text-sm py-2.5 px-3.5 min-h-10"
+                      className="popby-btn popby-btn-accent text-lg py-3.5 px-5 min-h-[52px]"
                     >
                       Accept
                     </button>
                     <button
                       onClick={() => decline(c.id)}
-                      className="popby-btn popby-btn-ghost text-sm py-2.5 px-3.5 min-h-10"
+                      className="popby-btn popby-btn-ghost text-lg py-3.5 px-5 min-h-[52px]"
                     >
                       Decline
                     </button>
@@ -144,7 +144,7 @@ export default function MessagesPage() {
                 {c.status === "accepted" && (
                   <Link
                     href={`/messages/${c.id}`}
-                    className="popby-btn popby-btn-navy text-sm py-2.5 px-3.5 min-h-10"
+                    className="popby-btn popby-btn-navy text-lg py-3.5 px-5 min-h-[52px]"
                   >
                     Chat
                   </Link>

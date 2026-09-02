@@ -124,7 +124,7 @@ export default function ProfilePage() {
   return (
     <main className="min-h-screen bg-paper pb-12">
       <header className="sticky top-0 bg-paper/95 backdrop-blur border-b border-paper-3 px-4 py-4 flex items-center gap-3">
-        <Link href="/map" className="text-muted hover:text-ink">
+        <Link href="/map" className="text-navy/70 hover:text-ink text-lg font-medium min-h-[52px] inline-flex items-center">
           ←
         </Link>
         <h1 className="text-xl text-navy font-display">Your profile</h1>
@@ -138,12 +138,12 @@ export default function ProfilePage() {
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={photoUrl} alt="" className="w-full h-full object-cover" />
               ) : (
-                <span className="flex items-center justify-center h-full text-muted text-sm">
+                <span className="flex items-center justify-center h-full text-muted text-lg">
                   Photo
                 </span>
               )}
             </div>
-            <span className="text-sm text-accent font-medium">Change photo</span>
+            <span className="text-lg text-accent font-medium">Change photo</span>
             <input
               type="file"
               accept="image/*"
@@ -166,7 +166,7 @@ export default function ProfilePage() {
           />
 
           <div>
-            <p className="text-sm font-medium mb-2 text-navy">Role</p>
+            <p className="text-lg font-medium mb-2 text-navy">Role</p>
             <div className="flex flex-wrap gap-2">
               {ROLES.map((r) => (
                 <button
@@ -182,7 +182,7 @@ export default function ProfilePage() {
           </div>
 
           <div>
-            <p className="text-sm font-medium mb-2 text-navy">Kind of company</p>
+            <p className="text-lg font-medium mb-2 text-navy">Kind of company</p>
             <div className="flex flex-wrap gap-2">
               {COMPANY_TYPES.map((c) => (
                 <button
@@ -225,7 +225,7 @@ export default function ProfilePage() {
 
           {(linkedinUrl.trim() || twitterUrl.trim() || lumaProfileUrl.trim()) && (
             <div>
-              <p className="text-sm font-medium mb-2 text-navy">Who can see socials?</p>
+              <p className="text-lg font-medium mb-2 text-navy">Who can see socials?</p>
               <div className="grid grid-cols-2 gap-2">
                 <button
                   type="button"
@@ -253,13 +253,13 @@ export default function ProfilePage() {
             {saving ? "Saving…" : "Save profile"}
           </button>
           {message && (
-            <p className="text-sm text-green-700 text-center">{message}</p>
+            <p className="text-lg text-green-700 text-center">{message}</p>
           )}
         </form>
 
         <section className="popby-card p-5">
           <h2 className="text-lg text-navy mb-1 font-display">Events I&apos;m going to</h2>
-          <p className="text-sm text-navy/70 mb-4 leading-relaxed">
+          <p className="text-lg text-navy/70 mb-4 leading-relaxed">
             Screenshot your Luma calendar — we extract the events automatically.
           </p>
 
@@ -277,9 +277,9 @@ export default function ProfilePage() {
                 className="flex items-center justify-between gap-2 p-3 bg-paper rounded-xl border border-paper-3"
               >
                 <div className="min-w-0">
-                  <p className="text-base font-medium truncate text-navy">{ev.title}</p>
+                  <p className="text-lg font-medium truncate text-navy">{ev.title}</p>
                   {ev.event_date && (
-                    <p className="text-sm text-navy/70">
+                    <p className="text-lg text-navy/70">
                       {new Date(ev.event_date).toLocaleString("en-GB", {
                         weekday: "short",
                         day: "numeric",
@@ -294,7 +294,7 @@ export default function ProfilePage() {
                       href={ev.event_url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-sm text-accent underline"
+                      className="text-lg text-accent underline"
                     >
                       View on Luma
                     </a>
@@ -302,14 +302,14 @@ export default function ProfilePage() {
                 </div>
                 <button
                   onClick={() => removeEvent(ev.id)}
-                  className="text-muted hover:text-ink text-base px-2 min-h-11 min-w-11"
+                  className="text-muted hover:text-ink text-lg px-2 min-h-[52px] min-w-11"
                 >
                   ✕
                 </button>
               </li>
             ))}
             {events.length === 0 && (
-              <p className="text-base text-navy/70 text-center py-4">
+              <p className="text-lg text-navy/70 text-center py-4">
                 No events yet — upload a Luma screenshot above.
               </p>
             )}

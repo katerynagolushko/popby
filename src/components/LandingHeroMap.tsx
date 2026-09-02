@@ -118,17 +118,17 @@ function ProfileCard({ person }: { person: LandingPerson }) {
             className="w-10 h-10 rounded-full object-cover bg-paper-2"
           />
           <div className="min-w-0">
-            <p className="text-base font-semibold text-navy truncate">
+            <p className="text-lg font-semibold text-navy truncate">
               {person.name}
             </p>
-            <p className="text-sm text-muted truncate">
+            <p className="text-lg text-navy/70 truncate">
               {person.role} · {person.timeLeft}
             </p>
           </div>
           <span className="ml-auto live-dot shrink-0" />
         </div>
-        <p className="text-sm font-medium text-navy">{person.formatIntent}</p>
-        <p className="text-sm text-muted mt-0.5">{person.area}</p>
+        <p className="text-lg font-medium text-navy">{person.formatIntent}</p>
+        <p className="text-lg text-navy/70 mt-0.5">{person.area}</p>
       </div>
     </div>
   );
@@ -203,7 +203,7 @@ export default function LandingHeroMap({ className = "" }: { className?: string 
         <ProfileCard key={person.name} person={person} />
       ))}
 
-      <p className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 text-center text-sm sm:text-base text-navy/80 bg-paper/85 backdrop-blur-sm px-4 py-2 rounded-lg max-w-[90%] leading-snug landing-card-in landing-card-delay-3">
+      <p className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 text-center text-lg text-navy/80 bg-paper/85 backdrop-blur-sm px-4 py-2 rounded-lg max-w-[90%] leading-snug landing-card-in landing-card-delay-3">
         Go live, see who matches nearby, meet in person.
       </p>
     </div>

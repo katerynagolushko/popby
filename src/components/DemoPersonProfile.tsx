@@ -96,7 +96,7 @@ export default function DemoPersonProfile({
         <div className="max-w-lg mx-auto px-4 py-3 flex items-center justify-between gap-3">
           <Link
             href="/demo"
-            className="text-base font-semibold text-navy bg-white border-2 border-navy/20 rounded-xl px-4 min-h-11 inline-flex items-center shadow-sm hover:border-navy/40"
+            className="text-lg font-semibold text-navy bg-white border-2 border-navy/20 rounded-xl px-5 min-h-[56px] inline-flex items-center shadow-sm hover:border-navy/40"
           >
             ← Back to map
           </Link>
@@ -129,15 +129,15 @@ export default function DemoPersonProfile({
                 {profile.first_name}
               </h1>
               {availability.is_active && (
-                <span className="flex items-center gap-1.5 text-sm text-mint font-semibold">
+                <span className="flex items-center gap-1.5 text-lg text-mint font-semibold">
                   <span className="live-dot" />
                   Live
                 </span>
               )}
             </div>
-            <p className="text-base text-navy/70 mt-1">{roleLine}</p>
+            <p className="text-lg text-navy/70 mt-1">{roleLine}</p>
             {hasRatings && (
-              <p className="text-base text-accent mt-1.5 font-semibold">
+              <p className="text-lg text-accent mt-1.5 font-semibold">
                 ★ {avg} · {ratingCount}{" "}
                 {ratingCount === 1 ? "review" : "reviews"}
               </p>
@@ -147,28 +147,28 @@ export default function DemoPersonProfile({
 
         {availability.is_active && (
           <div className="mt-5 p-3.5 bg-white rounded-xl border border-paper-3">
-            <p className="text-sm font-semibold uppercase tracking-wide text-navy/70">
+            <p className="text-lg font-semibold uppercase tracking-wide text-navy/70">
               Right now
             </p>
-            <p className="text-base font-medium text-navy mt-1.5">
+            <p className="text-lg font-medium text-navy mt-1.5">
               {hangoutSummary(
                 availability.hangout_format,
                 availability.hangout_intent
               )}
             </p>
             {availability.hangout_note && (
-              <p className="text-base text-navy/70 mt-1">
+              <p className="text-lg text-navy/70 mt-1">
                 {availability.hangout_note}
               </p>
             )}
-            <p className="text-sm text-navy/70 mt-2">
+            <p className="text-lg text-navy/70 mt-2">
               {timeRemaining(availability.expires_at)}
             </p>
           </div>
         )}
 
         {profile.bio && (
-          <p className="mt-5 text-base text-ink leading-relaxed">{profile.bio}</p>
+          <p className="mt-5 text-lg text-ink leading-relaxed">{profile.bio}</p>
         )}
 
         {showSocials ? (
@@ -178,7 +178,7 @@ export default function DemoPersonProfile({
                 href={profile.linkedin_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-base text-navy underline font-medium"
+                className="text-lg text-navy underline font-medium"
               >
                 LinkedIn
               </a>
@@ -188,7 +188,7 @@ export default function DemoPersonProfile({
                 href={profile.twitter_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-base text-navy underline font-medium"
+                className="text-lg text-navy underline font-medium"
               >
                 X
               </a>
@@ -198,7 +198,7 @@ export default function DemoPersonProfile({
                 href={profile.luma_profile_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-base text-navy underline font-medium"
+                className="text-lg text-navy underline font-medium"
               >
                 Luma
               </a>
@@ -206,7 +206,7 @@ export default function DemoPersonProfile({
           </div>
         ) : (
           (profile.linkedin_url || profile.twitter_url) && (
-            <p className="mt-4 text-sm text-navy/70">
+            <p className="mt-4 text-lg text-navy/70">
               Socials show after you hang out
             </p>
           )
@@ -216,8 +216,8 @@ export default function DemoPersonProfile({
           {status === "accepted" ? (
             <>
               <div className="rounded-xl bg-mint/20 border border-mint/40 px-3.5 py-3">
-                <p className="text-base font-bold text-navy">You&apos;re a pair</p>
-                <p className="text-sm text-navy/80 mt-1 leading-snug">
+                <p className="text-lg font-bold text-navy">You&apos;re a pair</p>
+                <p className="text-lg text-navy/80 mt-1 leading-snug">
                   They connected back. Messaging needs a real account.
                 </p>
               </div>
@@ -241,7 +241,7 @@ export default function DemoPersonProfile({
             </button>
           ) : (
             <>
-              <p className="text-sm text-navy/70 text-center leading-snug mb-1">
+              <p className="text-lg text-navy/70 text-center leading-snug mb-1">
                 If they connect back, you&apos;re a pair and can message.
               </p>
               <button
@@ -264,14 +264,14 @@ export default function DemoPersonProfile({
               Reviews
             </h2>
             {hasRatings && reviews.length < ratingCount && (
-              <p className="text-sm text-navy/70">
+              <p className="text-lg text-navy/70">
                 Recent {reviews.length} of {ratingCount}
               </p>
             )}
           </div>
 
           {!hasRatings || reviews.length === 0 ? (
-            <p className="text-base text-navy/70 py-4">No reviews yet.</p>
+            <p className="text-lg text-navy/70 py-4">No reviews yet.</p>
           ) : (
             <ul className="flex flex-col gap-3">
               {reviews.map((r) => (
@@ -280,14 +280,14 @@ export default function DemoPersonProfile({
                   className="bg-white border border-paper-3 rounded-xl px-4 py-3.5"
                 >
                   <div className="flex items-center justify-between gap-2">
-                    <p className="text-base font-semibold text-navy">
+                    <p className="text-lg font-semibold text-navy">
                       {r.reviewerName}
                     </p>
-                    <p className="text-sm text-navy/70 flex-shrink-0">
+                    <p className="text-lg text-navy/70 flex-shrink-0">
                       {formatReviewWhen(r.daysAgo)}
                     </p>
                   </div>
-                  <p className="text-base text-accent font-semibold mt-1 tabular-nums">
+                  <p className="text-lg text-accent font-semibold mt-1 tabular-nums">
                     {"★".repeat(r.score)}
                     <span className="text-paper-3">
                       {"★".repeat(5 - r.score)}
@@ -296,7 +296,7 @@ export default function DemoPersonProfile({
                       {r.score}/5
                     </span>
                   </p>
-                  <p className="text-base text-ink mt-1.5 leading-snug">
+                  <p className="text-lg text-ink mt-1.5 leading-snug">
                     {r.comment}
                   </p>
                 </li>
@@ -305,14 +305,14 @@ export default function DemoPersonProfile({
           )}
         </section>
 
-        <p className="mt-8 text-center text-sm text-navy/70">
+        <p className="mt-8 text-center text-lg text-navy/70">
           Demo profile · simulated reviews
         </p>
       </main>
 
       {toast && (
         <div className="fixed top-16 inset-x-4 z-[1200] flex justify-center pointer-events-none">
-          <div className="bg-navy text-white text-sm px-4 py-2.5 rounded-xl shadow-lg max-w-xs text-center">
+          <div className="bg-navy text-white text-lg px-4 py-3.5 rounded-xl shadow-lg max-w-xs text-center">
             {toast}
           </div>
         </div>

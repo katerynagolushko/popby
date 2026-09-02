@@ -120,7 +120,7 @@ export default function EventScreenshotUpload({
               className="max-h-40 mx-auto rounded-lg border border-paper-3 object-contain"
             />
             {loading && (
-              <p className="text-sm text-muted animate-pulse">Reading your calendar…</p>
+              <p className="text-lg text-muted animate-pulse">Reading your calendar…</p>
             )}
           </div>
         ) : (
@@ -132,8 +132,8 @@ export default function EventScreenshotUpload({
                 <path d="M12 15l2-2 3 3" stroke="#ff5722" strokeWidth="1.5" strokeLinecap="round" />
               </svg>
             </div>
-            <p className="text-base font-medium text-navy">Upload Luma screenshot</p>
-            <p className="text-sm text-navy/70 mt-1.5 max-w-xs mx-auto leading-relaxed">
+            <p className="text-lg font-medium text-navy">Upload Luma screenshot</p>
+            <p className="text-lg text-navy/70 mt-1.5 max-w-xs mx-auto leading-relaxed">
               Screenshot your upcoming events in Luma. We&apos;ll pull out names, dates, and links.
             </p>
           </>
@@ -142,15 +142,15 @@ export default function EventScreenshotUpload({
 
       {extracted && extracted.length > 0 && (
         <div className="popby-card p-4 space-y-3">
-          <p className="text-base font-medium text-navy">
+          <p className="text-lg font-medium text-navy">
             Found {extracted.length} event{extracted.length !== 1 ? "s" : ""}
           </p>
           <ul className="space-y-2 max-h-48 overflow-y-auto">
             {extracted.map((e, i) => (
-              <li key={i} className="text-base p-2.5 bg-paper-2 rounded-xl border border-paper-3">
+              <li key={i} className="text-lg p-2.5 bg-paper-2 rounded-xl border border-paper-3">
                 <p className="font-medium">{e.title}</p>
                 {e.event_date && (
-                  <p className="text-sm text-navy/70 mt-0.5">
+                  <p className="text-lg text-navy/70 mt-0.5">
                     {new Date(e.event_date).toLocaleString("en-GB", {
                       weekday: "short",
                       day: "numeric",
@@ -184,8 +184,8 @@ export default function EventScreenshotUpload({
         </div>
       )}
 
-      {error && <p className="text-sm text-red-600">{error}</p>}
-      {success && <p className="text-sm text-green-700 font-medium">{success}</p>}
+      {error && <p className="text-lg text-red-600">{error}</p>}
+      {success && <p className="text-lg text-green-700 font-medium">{success}</p>}
     </div>
   );
 }

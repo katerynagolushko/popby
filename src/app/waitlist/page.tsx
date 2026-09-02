@@ -10,7 +10,7 @@ export default function WaitlistPage() {
         <Logo size="md" />
         <Link
           href="/"
-          className="text-base text-muted hover:text-navy transition-colors"
+          className="text-lg font-medium text-navy/70 hover:text-navy transition-colors min-h-[52px] inline-flex items-center"
         >
           Back
         </Link>
@@ -20,14 +20,14 @@ export default function WaitlistPage() {
         <h1 className="text-3xl sm:text-4xl text-navy leading-tight mb-3">
           Join the {APP_NAME} waitlist
         </h1>
-        <p className="text-lg leading-relaxed text-muted mb-10">
+        <p className="text-xl leading-relaxed text-navy/80 mb-10">
           Early access for startup people in {APP_CITY}. We&apos;ll email when
           the live map opens.
         </p>
 
         <WaitlistForm />
 
-        <p className="mt-10 text-base text-muted leading-relaxed">
+        <p className="mt-10 text-lg text-navy/70 leading-relaxed">
           Want to see the product first?{" "}
           <Link
             href="/demo"
