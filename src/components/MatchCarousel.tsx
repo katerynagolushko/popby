@@ -52,31 +52,35 @@ export default function MatchCarousel({
       <header
         className="flex-shrink-0 px-4 pt-[max(0.75rem,env(safe-area-inset-top))] pb-2"
       >
-        <div className="flex items-center justify-between gap-3">
+        <div className="flex flex-col gap-2.5 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
           <button
             type="button"
             onClick={onBackToMap}
-            className="text-lg font-semibold text-navy bg-white border-2 border-navy/20 rounded-xl px-5 min-h-[56px] shadow-sm hover:border-navy/40"
+            className="text-base sm:text-lg font-semibold text-navy bg-white border-2 border-navy/20 rounded-xl px-4 sm:px-5 min-h-[48px] sm:min-h-[56px] shadow-sm hover:border-navy/40 self-start"
           >
             ← Back to map
           </button>
-          <div className="flex items-center gap-3 bg-navy text-white rounded-xl px-4 py-1.5 min-h-[56px] shadow-sm">
-            <span className="live-dot" />
-            <span className="text-xl font-semibold">You&apos;re live</span>
-            <button
-              type="button"
-              onClick={onEdit}
-              className="text-lg font-semibold underline underline-offset-2 px-3 min-h-[52px] inline-flex items-center"
-            >
-              Edit
-            </button>
-            <button
-              type="button"
-              onClick={onStop}
-              className="text-lg font-semibold bg-white/20 rounded-lg px-4 min-h-[52px] inline-flex items-center"
-            >
-              Stop
-            </button>
+          <div className="flex items-center gap-2 sm:gap-3 bg-navy text-white rounded-xl px-3 sm:px-4 py-1.5 min-h-[48px] sm:min-h-[56px] shadow-sm w-full sm:w-auto justify-between sm:justify-start">
+            <span className="live-dot shrink-0" />
+            <span className="text-lg sm:text-xl font-semibold shrink-0">
+              You&apos;re live
+            </span>
+            <div className="flex items-center gap-1.5 sm:gap-2 ml-auto">
+              <button
+                type="button"
+                onClick={onEdit}
+                className="text-base sm:text-lg font-semibold underline underline-offset-2 px-2.5 sm:px-3 min-h-[44px] sm:min-h-[52px] inline-flex items-center"
+              >
+                Edit
+              </button>
+              <button
+                type="button"
+                onClick={onStop}
+                className="text-base sm:text-lg font-semibold bg-white/20 rounded-lg px-3 sm:px-4 min-h-[44px] sm:min-h-[52px] inline-flex items-center"
+              >
+                Stop
+              </button>
+            </div>
           </div>
         </div>
 
