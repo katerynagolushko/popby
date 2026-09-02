@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import Link from "next/link";
 import Logo from "@/components/Logo";
 import { APP_CITY, APP_NAME } from "@/lib/brand";
 
@@ -91,9 +90,7 @@ export default function LoginPage() {
   return (
     <main className="min-h-screen flex flex-col bg-paper">
       <header className="p-6">
-        <Link href="/">
-          <Logo size="sm" />
-        </Link>
+        <Logo size="sm" />
       </header>
       <div className="flex-1 flex items-center justify-center px-6 pb-16">
         <div className="max-w-sm w-full">

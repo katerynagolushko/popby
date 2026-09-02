@@ -1,4 +1,5 @@
-import { APP_NAME_LEAD, APP_NAME_TAIL } from "@/lib/brand";
+import Link from "next/link";
+import { APP_NAME, APP_NAME_LEAD, APP_NAME_TAIL } from "@/lib/brand";
 
 export type WordmarkTone = "onLight" | "onDark";
 
@@ -80,6 +81,7 @@ export function LogoMark({
   );
 }
 
+/** Brand mark + wordmark — always links to landing `/` */
 export default function Logo({
   size = "md",
   showWordmark = true,
@@ -88,9 +90,13 @@ export default function Logo({
 }: LogoProps) {
   const s = sizes[size];
   return (
-    <div className={`flex items-center gap-2.5 ${className}`}>
+    <Link
+      href="/"
+      aria-label={`${APP_NAME} home`}
+      className={`inline-flex items-center gap-2.5 ${className}`}
+    >
       <LogoMark size={s.icon} tone={tone} />
       {showWordmark && <AppWordmark className={s.text} tone={tone} />}
-    </div>
+    </Link>
   );
 }

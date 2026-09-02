@@ -6,7 +6,6 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import PopbyMapLoader, { type MapPerson } from "@/components/PopbyMapLoader";
 import Logo from "@/components/Logo";
-import { APP_NAME } from "@/lib/brand";
 import GoLiveModal from "@/components/GoLiveModal";
 import PersonSheet from "@/components/PersonSheet";
 import RatingModal from "@/components/RatingModal";
@@ -244,13 +243,10 @@ export default function MapPage() {
   return (
     <div className="h-screen flex flex-col relative">
       <header className="absolute top-0 inset-x-0 z-[1000] p-4 flex items-center justify-between pointer-events-none">
-        <Link
-          href="/"
-          aria-label={`${APP_NAME} home`}
+        <Logo
+          size="sm"
           className="pointer-events-auto bg-white/95 backdrop-blur rounded-xl px-3 py-2 shadow-lg border border-paper-3 cursor-pointer"
-        >
-          <Logo size="sm" />
-        </Link>
+        />
         <div className="pointer-events-auto flex items-center gap-2">
           <Link
             href="/messages"

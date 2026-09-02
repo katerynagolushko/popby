@@ -4,7 +4,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import Logo from "@/components/Logo";
 import PopbyMapLoader, { type MapPerson } from "@/components/PopbyMapLoader";
-import { APP_NAME } from "@/lib/brand";
 import GoLiveModal, { type GoLivePayload } from "@/components/GoLiveModal";
 import MatchCarousel from "@/components/MatchCarousel";
 import PersonSheet from "@/components/PersonSheet";
@@ -249,13 +248,10 @@ export default function DemoPage() {
     <div className="h-[100dvh] flex flex-col relative bg-paper overflow-hidden">
       {!matchesOpen && (
         <header className="absolute top-0 inset-x-0 z-[1000] p-3 flex items-center justify-between pointer-events-none">
-          <Link
-            href="/"
-            aria-label={`${APP_NAME} home`}
+          <Logo
+            size="sm"
             className="pointer-events-auto bg-white/95 backdrop-blur rounded-xl px-3 py-2 shadow-lg border border-paper-3 cursor-pointer"
-          >
-            <Logo size="sm" />
-          </Link>
+          />
           <div className="pointer-events-auto flex items-center gap-2">
             {tourHydrated && !tourBlocking && (
               <button
