@@ -17,12 +17,12 @@ export default async function HomePage({
         <Logo size="md" />
 
         <div className="flex-1 flex flex-col justify-center gap-5 sm:gap-6 lg:gap-7 min-h-0 py-4 sm:py-5">
-          <hgroup className="max-w-[18ch]">
-            <h1 className="font-display font-extrabold text-[2.35rem] sm:text-[3.15rem] xl:text-[3.85rem] text-navy leading-[0.98] tracking-[-0.04em]">
+          <hgroup className="max-w-xl">
+            <h1 className="font-display font-extrabold text-[2.35rem] sm:text-[3.15rem] xl:text-[3.85rem] text-navy leading-[1.05] tracking-[-0.04em]">
               The <span className="hl-accent">startup</span> social network for{" "}
               <span className="hl-accent">IRL</span>
             </h1>
-            <p className="mt-2 sm:mt-3 font-display font-bold text-[1.35rem] sm:text-[1.85rem] xl:text-[2.35rem] text-accent leading-[1.05] tracking-[-0.03em]">
+            <p className="mt-2 sm:mt-2.5 font-display font-semibold text-xl sm:text-2xl text-navy/55 tracking-[-0.02em]">
               London Edition
             </p>
           </hgroup>
