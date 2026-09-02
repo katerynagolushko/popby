@@ -1,15 +1,19 @@
 /**
- * Curated LinkedIn-style business-casual headshots for Encode demo + landing.
+ * Curated YC / founder-casual portraits for Encode demo + landing.
  *
- * Hosted locally under /demo-portraits (512² JPEG). Visually audited:
- * professional / corporate headshots only, age ~20–40, business-casual dress,
- * neutral/office-ish backgrounds, no hijabs, no vacation/beach/shirtless/
- * tourist selfies, no elderly faces.
+ * Hosted locally under /demo-portraits (512² JPEG face-crops from Unsplash).
+ * Visually audited for: age ~20–35, casual-tech dress (hoodies, tees, light
+ * jackets, relaxed knits) — not suits, ties, or stiff bank-corp blazers.
+ * Natural / office / cafe / plain-wall backgrounds OK. Portrait quality faces
+ * only; no hijabs, vacation/beach/shirtless chaos, or elderly faces.
  *
  * Mix targets (of the pool):
  * - Young white men ~50%+ (plurality)
- * - Other men ~15%
- * - Women ~35% (≤1 Black woman)
+ * - Other men ~15–20%
+ * - Women ~35% (few Black women; none in this set)
+ *
+ * Source: Unsplash face crops (images.unsplash.com), curated locally so the
+ * map never depends on live CDN allowlists.
  */
 
 export type DemoPortraitGender = "male" | "female";
@@ -20,13 +24,13 @@ function localUrl(path: string): string {
   return `${BASE}/${path}`;
 }
 
-/** Young white men — LinkedIn / business-casual. */
+/** Young white men — YC / founder casual. */
 export const WHITE_MALE_PORTRAIT_URLS: readonly string[] = Array.from(
-  { length: 24 },
+  { length: 20 },
   (_, i) => localUrl(`male/white/${String(i).padStart(2, "0")}.jpg`)
 );
 
-/** Other young men — same professional bar. */
+/** Other young men — same casual-tech bar. */
 export const OTHER_MALE_PORTRAIT_URLS: readonly string[] = Array.from(
   { length: 8 },
   (_, i) => localUrl(`male/other/${String(i).padStart(2, "0")}.jpg`)
@@ -37,9 +41,9 @@ export const YOUNG_MALE_PORTRAIT_URLS: readonly string[] = [
   ...OTHER_MALE_PORTRAIT_URLS,
 ];
 
-/** Young women — LinkedIn / business-casual; ≤1 Black woman; no hijabs. */
+/** Young women — founder casual; no hijabs. */
 export const YOUNG_FEMALE_PORTRAIT_URLS: readonly string[] = Array.from(
-  { length: 17 },
+  { length: 15 },
   (_, i) => localUrl(`female/${String(i).padStart(2, "0")}.jpg`)
 );
 
@@ -66,7 +70,7 @@ export function portraitGender(url: string): DemoPortraitGender | null {
   return null;
 }
 
-/** Landing hero cards — same LinkedIn pool as demo seeds. */
+/** Landing hero cards — same YC-casual pool as demo seeds. */
 export const LANDING_CARD_PHOTOS = {
   Adam: WHITE_MALE_PORTRAIT_URLS[0]!,
   Sara: YOUNG_FEMALE_PORTRAIT_URLS[0]!,

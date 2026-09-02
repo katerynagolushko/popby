@@ -27,15 +27,15 @@ export const DEMO_ME_ID = "demo-me";
 /**
  * Full ranking pool. Kept under unique-portrait capacity so faces don't
  * obviously repeat on the map or in Top 5. Cap tracks the curated local
- * LinkedIn pool (see demo-portraits.ts) minus leftovers for demo "You".
+ * YC-casual pool (see demo-portraits.ts) minus leftovers for demo "You".
  */
-export const DEMO_PERSON_COUNT = 46;
+export const DEMO_PERSON_COUNT = 40;
 
 /**
  * MapLibre paints a city-wide geographic subsample (never nearest-to-Old-Street).
  * Target: medium-full density — readable face pins across London.
  */
-export const DEMO_MAP_MARKER_LIMIT = 48;
+export const DEMO_MAP_MARKER_LIMIT = 40;
 
 /** Min metres between any two generated pins (city-wide). */
 const MIN_PIN_GAP_M = 95;
@@ -104,7 +104,7 @@ export function genderFromPortraitUrl(url: string): DemoGender | null {
 }
 
 /**
- * LinkedIn-style Unsplash headshots. Male pool is white-first then other
+ * YC / founder-casual local portraits. Male pool is white-first then other
  * men so the crowd plurality lands on young white men. Gender never mixed.
  */
 function buildGenderedPortraitPools(rng: () => number): {
