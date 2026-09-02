@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { Map, Marker } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { LONDON_CENTER } from "@/lib/constants";
+import { LANDING_CARD_PHOTOS } from "@/lib/demo-portraits";
 import {
   DEFAULT_MAP_STYLE,
   OPENFREEMAP_STYLES,
@@ -31,8 +32,7 @@ const PEOPLE: LandingPerson[] = [
     timeLeft: "45m left",
     formatIntent: "Coffee · product feedback",
     area: "Near Old Street",
-    photo:
-      "https://cdn.jsdelivr.net/gh/faker-js/assets-person-portrait@main/male/512/32.jpg",
+    photo: LANDING_CARD_PHOTOS.Adam,
     lat: 51.5256,
     lng: -0.0877,
     positionClass: "top-[8%] left-[6%] sm:left-[8%]",
@@ -45,8 +45,7 @@ const PEOPLE: LandingPerson[] = [
     timeLeft: "1h left",
     formatIntent: "Walk · brainstorm",
     area: "Shoreditch",
-    photo:
-      "https://cdn.jsdelivr.net/gh/faker-js/assets-person-portrait@main/female/512/65.jpg",
+    photo: LANDING_CARD_PHOTOS.Sara,
     lat: 51.5225,
     lng: -0.078,
     positionClass: "top-[12%] right-[5%] sm:right-[8%]",
@@ -59,8 +58,7 @@ const PEOPLE: LandingPerson[] = [
     timeLeft: "30m left",
     formatIntent: "Co-work · casual chat",
     area: "King's Cross",
-    photo:
-      "https://cdn.jsdelivr.net/gh/faker-js/assets-person-portrait@main/female/512/44.jpg",
+    photo: LANDING_CARD_PHOTOS.Maya,
     lat: 51.5308,
     lng: -0.1238,
     positionClass: "bottom-[22%] left-[4%] sm:left-[10%] hidden sm:block",
@@ -73,8 +71,7 @@ const PEOPLE: LandingPerson[] = [
     timeLeft: "2h left",
     formatIntent: "Activity · just hang",
     area: "London Bridge",
-    photo:
-      "https://cdn.jsdelivr.net/gh/faker-js/assets-person-portrait@main/male/512/75.jpg",
+    photo: LANDING_CARD_PHOTOS.Leo,
     lat: 51.5055,
     lng: -0.0865,
     positionClass: "bottom-[14%] right-[4%] sm:right-[7%] hidden md:block",
