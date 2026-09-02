@@ -17,9 +17,10 @@ export const DEMO_ME_ID = "demo-me";
 
 /**
  * Full ranking pool. Kept under unique-portrait capacity so faces don't
- * obviously repeat on the map or in Top 5.
+ * obviously repeat on the map or in Top 5. Cap tracks the gendered
+ * faker-js portrait pool (100 each) minus leftovers for the demo "You".
  */
-export const DEMO_PERSON_COUNT = 350;
+export const DEMO_PERSON_COUNT = 198;
 
 /**
  * MapLibre paints a city-wide geographic subsample (never nearest-to-Old-Street).
@@ -92,13 +93,15 @@ type DemoGender = "male" | "female";
 export function genderFromPortraitUrl(url: string): DemoGender | null {
   if (
     /\/portraits\/men\//.test(url) ||
-    /\/avatars\/male\//.test(url)
+    /\/avatars\/male\//.test(url) ||
+    /\/assets-person-portrait@[^/]+\/male\//.test(url)
   ) {
     return "male";
   }
   if (
     /\/portraits\/women\//.test(url) ||
-    /\/avatars\/female\//.test(url)
+    /\/avatars\/female\//.test(url) ||
+    /\/assets-person-portrait@[^/]+\/female\//.test(url)
   ) {
     return "female";
   }
@@ -106,10 +109,18 @@ export function genderFromPortraitUrl(url: string): DemoGender | null {
 }
 
 /**
- * Separate male/female portrait pools. randomuser has 100 each; xsgames adds
- * 79 more each so we can fill DEMO_PERSON_COUNT without obvious clones.
+ * High-res professional headshots from one CDN for consistent quality.
+ * faker-js person portraits via jsDelivr: 1024×1024 JPEG, 100 unique each
+ * gender (indices 0–99). Path segment `512` is the set name; files are 1024px.
  * Gender is never mixed — callers take from the matching pool only.
  */
+const FAKER_PORTRAIT_BASE =
+  "https://cdn.jsdelivr.net/gh/faker-js/assets-person-portrait@main";
+
+function portraitUrl(gender: DemoGender, index: number): string {
+  return `${FAKER_PORTRAIT_BASE}/${gender}/512/${index}.jpg`;
+}
+
 function buildGenderedPortraitPools(rng: () => number): {
   male: string[];
   female: string[];
@@ -117,16 +128,8 @@ function buildGenderedPortraitPools(rng: () => number): {
   const male: string[] = [];
   const female: string[] = [];
   for (let i = 0; i < 100; i++) {
-    male.push(`https://randomuser.me/api/portraits/men/${i}.jpg`);
-    female.push(`https://randomuser.me/api/portraits/women/${i}.jpg`);
-  }
-  for (let i = 0; i <= 78; i++) {
-    male.push(
-      `https://xsgames.co/randomusers/assets/avatars/male/${i}.jpg`
-    );
-    female.push(
-      `https://xsgames.co/randomusers/assets/avatars/female/${i}.jpg`
-    );
+    male.push(portraitUrl("male", i));
+    female.push(portraitUrl("female", i));
   }
   shuffleInPlace(rng, male);
   shuffleInPlace(rng, female);
@@ -460,8 +463,8 @@ const HAND_SEED_BASE: Omit<DemoSeed, "photo_url">[] = [
 
 /** Landing-page faces — reserved so demo people match those cards. */
 const PINNED_HAND_PHOTOS: Record<string, string> = {
-  "1": "https://randomuser.me/api/portraits/men/32.jpg",
-  "2": "https://randomuser.me/api/portraits/women/65.jpg",
+  "1": portraitUrl("male", 32),
+  "2": portraitUrl("female", 65),
 };
 
 function weightedCluster(rng: () => number) {
@@ -678,10 +681,7 @@ export function pickSessionDemoMePhoto(): string {
     const i = Math.floor(Math.random() * pool.length);
     return pool[i]!;
   }
-  const n = Math.floor(Math.random() * 100);
-  return gender === "male"
-    ? `https://randomuser.me/api/portraits/men/${n}.jpg`
-    : `https://randomuser.me/api/portraits/women/${n}.jpg`;
+  return portraitUrl(gender, Math.floor(Math.random() * 100));
 }
 
 function seedToPerson(seed: DemoSeed): DemoPerson {
