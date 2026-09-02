@@ -82,11 +82,15 @@ export default function DemoOnboardingTour({
   const titleId = useId();
   const [step, setStep] = useState<ProfileStep>("welcome");
   const [hole, setHole] = useState<DOMRect | null>(null);
+  const [previewRating, setPreviewRating] = useState(0);
   const nameInputRef = useRef<HTMLInputElement>(null);
 
   // Reset to welcome when replaying
   useEffect(() => {
-    if (profileOpen) setStep("welcome");
+    if (profileOpen) {
+      setStep("welcome");
+      setPreviewRating(0);
+    }
   }, [profileOpen]);
 
   useEffect(() => {
@@ -215,13 +219,13 @@ export default function DemoOnboardingTour({
           <div className="max-w-sm mx-auto relative">
             <div className="bg-white border-2 border-navy rounded-2xl shadow-xl px-4 py-4">
               <div className="flex items-center justify-between gap-2 mb-2">
-                <p className="text-[11px] font-semibold uppercase tracking-wide text-muted">
-                  Step {TOTAL_STEPS} of {TOTAL_STEPS}
+                <p className="text-sm font-semibold text-muted tabular-nums">
+                  {TOTAL_STEPS} / {TOTAL_STEPS}
                 </p>
                 <button
                   type="button"
                   onClick={onCoachDone}
-                  className="text-xs text-muted font-medium hover:text-navy"
+                  className="text-sm text-muted font-medium hover:text-navy"
                 >
                   Got it
                 </button>
@@ -233,7 +237,7 @@ export default function DemoOnboardingTour({
               >
                 You&apos;re in
               </h2>
-              <p className="text-sm text-ink/80 mt-1.5 leading-snug">
+              <p className="text-base text-ink/80 mt-1.5 leading-snug">
                 Tap <span className="font-semibold text-navy">I&apos;m free to hang out</span>.
                 Pick format, intent, and how long. We&apos;ll show your top 5.
               </p>
@@ -258,26 +262,26 @@ export default function DemoOnboardingTour({
       aria-labelledby={titleId}
     >
       <div className="flex-1 flex flex-col justify-end sm:justify-center p-2 sm:p-4 pb-[max(0.5rem,env(safe-area-inset-bottom))]">
-        <div className="w-full max-w-lg sm:max-w-xl mx-auto bg-paper rounded-2xl border-2 border-navy shadow-2xl overflow-hidden flex flex-col min-h-[min(78dvh,680px)] max-h-[min(94dvh,760px)] demo-tour-sheet">
+        <div className="w-full max-w-lg sm:max-w-xl mx-auto bg-paper rounded-2xl border-2 border-navy shadow-2xl overflow-hidden flex flex-col max-h-[min(94dvh,760px)] demo-tour-sheet">
           <div className="bg-navy text-white px-5 py-3.5 flex items-center justify-between gap-3 shrink-0">
             <Logo size="sm" />
             <div className="flex items-center gap-3">
-              <span className="text-[11px] font-semibold tracking-wide text-white/70">
+              <span className="text-sm font-semibold tracking-wide text-white/85 tabular-nums">
                 {stepIndex(step)} / {TOTAL_STEPS}
               </span>
               <button
                 type="button"
                 onClick={onSkipAll}
-                className="text-xs font-medium text-white/80 hover:text-white underline underline-offset-2"
+                className="text-sm font-medium text-white/90 hover:text-white underline underline-offset-2"
               >
                 Skip
               </button>
             </div>
           </div>
 
-          <div className="px-5 pt-6 pb-3 overflow-y-auto flex-1 min-h-0">
+          <div className="px-5 pt-5 pb-3 overflow-y-auto">
             {step === "welcome" && (
-              <div className="space-y-4 pb-2 flex flex-col justify-center min-h-[min(42dvh,320px)]">
+              <div className="space-y-3 pb-1">
                 <h2
                   id={titleId}
                   className="text-3xl sm:text-4xl text-navy font-bold tracking-tight leading-tight"
@@ -289,17 +293,16 @@ export default function DemoOnboardingTour({
                 </h2>
                 <p className="text-base text-ink/80 leading-relaxed">
                   Create your profile and open a hangout. See who else is close
-                  by and get instantly matched with top 5 people by vibe or
-                  location.
+                  by and get matched with your top 5 by vibe or location.
                 </p>
-                <p className="text-sm text-muted leading-relaxed">
+                <p className="text-base text-muted leading-relaxed">
                   Nothing is saved. About a minute.
                 </p>
               </div>
             )}
 
             {step === "name" && (
-              <div className="space-y-3 pb-2">
+              <div className="space-y-3 pb-1">
                 <h2
                   id={titleId}
                   className="text-xl text-navy font-bold tracking-tight"
@@ -309,8 +312,8 @@ export default function DemoOnboardingTour({
                 >
                   First name
                 </h2>
-                <p className="text-sm text-muted leading-snug">
-                  People see this on the map. First name only.
+                <p className="text-base text-muted leading-snug">
+                  First name only. People see this on the map.
                 </p>
                 <input
                   ref={nameInputRef}
@@ -325,7 +328,7 @@ export default function DemoOnboardingTour({
             )}
 
             {step === "role" && (
-              <div className="space-y-3 pb-2">
+              <div className="space-y-3 pb-1">
                 <h2
                   id={titleId}
                   className="text-xl text-navy font-bold tracking-tight"
@@ -335,9 +338,6 @@ export default function DemoOnboardingTour({
                 >
                   I am a…
                 </h2>
-                <p className="text-sm text-muted leading-snug">
-                  One chip. Keep it simple.
-                </p>
                 <div className="flex flex-wrap gap-2">
                   {ROLES.map((r) => (
                     <button
@@ -356,7 +356,7 @@ export default function DemoOnboardingTour({
             )}
 
             {step === "company" && (
-              <div className="space-y-3 pb-2">
+              <div className="space-y-3 pb-1">
                 <h2
                   id={titleId}
                   className="text-xl text-navy font-bold tracking-tight"
@@ -366,9 +366,6 @@ export default function DemoOnboardingTour({
                 >
                   Kind of company
                 </h2>
-                <p className="text-sm text-muted leading-snug">
-                  Where you sit in the ecosystem.
-                </p>
                 <div className="flex flex-wrap gap-2">
                   {COMPANY_TYPES.map((c) => (
                     <button
@@ -389,7 +386,7 @@ export default function DemoOnboardingTour({
             )}
 
             {step === "photo" && (
-              <div className="space-y-3 pb-2">
+              <div className="space-y-3 pb-1">
                 <h2
                   id={titleId}
                   className="text-xl text-navy font-bold tracking-tight"
@@ -399,9 +396,8 @@ export default function DemoOnboardingTour({
                 >
                   Your face here
                 </h2>
-                <p className="text-sm text-muted leading-snug">
-                  Demo picks a portrait at random (half the time male, half
-                  female). Real accounts upload their own.
+                <p className="text-base text-muted leading-snug">
+                  Demo picks one at random. Real accounts upload theirs.
                 </p>
                 <div className="flex flex-col items-center gap-3 pt-1">
                   <div className="w-28 h-28 rounded-full overflow-hidden border-2 border-navy bg-paper-2 shadow-md">
@@ -413,7 +409,7 @@ export default function DemoOnboardingTour({
                         className="w-full h-full object-cover"
                       />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center text-xs text-muted">
+                      <div className="w-full h-full flex items-center justify-center text-sm text-muted">
                         Loading…
                       </div>
                     )}
@@ -423,7 +419,7 @@ export default function DemoOnboardingTour({
                     onClick={() =>
                       patch({ photo_url: pickSessionDemoMePhoto() })
                     }
-                    className="text-sm font-medium text-accent hover:text-accent-dark"
+                    className="text-base font-medium text-accent hover:text-accent-dark"
                   >
                     Shuffle face
                   </button>
@@ -432,7 +428,7 @@ export default function DemoOnboardingTour({
             )}
 
             {step === "socials" && (
-              <div className="space-y-3 pb-2">
+              <div className="space-y-3 pb-1">
                 <h2
                   id={titleId}
                   className="text-xl text-navy font-bold tracking-tight"
@@ -442,8 +438,8 @@ export default function DemoOnboardingTour({
                 >
                   Socials (optional)
                 </h2>
-                <p className="text-sm text-muted leading-snug">
-                  LinkedIn or X. Skip if you want. Pick who can see them.
+                <p className="text-base text-muted leading-snug">
+                  LinkedIn or X. Pick who can see them.
                 </p>
                 <input
                   value={draft.linkedin_url}
@@ -460,7 +456,7 @@ export default function DemoOnboardingTour({
                   inputMode="url"
                 />
                 <div>
-                  <p className="text-sm font-medium mb-2 text-navy">
+                  <p className="text-base font-medium mb-2 text-navy">
                     Who can see them?
                   </p>
                   <div className="grid grid-cols-2 gap-2">
@@ -493,7 +489,7 @@ export default function DemoOnboardingTour({
               </div>
             )}
             {step === "reviews" && (
-              <div className="space-y-3 pb-2">
+              <div className="space-y-4 pb-1">
                 <h2
                   id={titleId}
                   className="text-xl text-navy font-bold tracking-tight"
@@ -503,8 +499,53 @@ export default function DemoOnboardingTour({
                 >
                   After you hang
                 </h2>
-                <p className="text-sm text-ink/80 leading-relaxed">
-                  Leave a useful review. Be decent.
+                <p className="text-base text-ink/80 leading-snug">
+                  Keeps the map for people who show up and don&apos;t get weird.
+                </p>
+                <div
+                  className="flex items-center justify-center gap-1.5 pt-1"
+                  role="group"
+                  aria-label="Preview rating from 1 to 5"
+                >
+                  {[1, 2, 3, 4, 5].map((n) => {
+                    const filled = previewRating >= n;
+                    return (
+                      <button
+                        key={n}
+                        type="button"
+                        onClick={() =>
+                          setPreviewRating((prev) => (prev === n ? 0 : n))
+                        }
+                        className="p-1 rounded-lg hover:bg-paper-2 transition-colors"
+                        aria-label={`${n} star${n === 1 ? "" : "s"}`}
+                        aria-pressed={filled}
+                      >
+                        <svg
+                          width="36"
+                          height="36"
+                          viewBox="0 0 24 24"
+                          aria-hidden
+                          className={
+                            filled
+                              ? "text-accent fill-accent"
+                              : "text-navy/25 fill-transparent"
+                          }
+                        >
+                          <path
+                            stroke="currentColor"
+                            strokeWidth="1.5"
+                            strokeLinejoin="round"
+                            d="M12 2.5l2.9 5.88 6.5.95-4.7 4.58 1.11 6.47L12 17.27l-5.81 3.06 1.11-6.47-4.7-4.58 6.5-.95L12 2.5z"
+                          />
+                        </svg>
+                      </button>
+                    );
+                  })}
+                </div>
+                <p className="text-sm text-muted text-center tabular-nums">
+                  {previewRating > 0
+                    ? `${previewRating} / 5 · demo only, not saved`
+                    : "Tap a star to try it · demo only"}
                 </p>
               </div>
             )}
