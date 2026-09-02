@@ -20,7 +20,7 @@ export default async function HomePage({
           <h1 className="font-display font-extrabold text-[2.65rem] sm:text-[3.5rem] xl:text-[4.35rem] text-navy leading-[0.98] tracking-[-0.04em] mb-10 max-w-[14ch]">
             The{" "}
             <span className="hl-accent">startup</span> social network for{" "}
-            <span className="hl-accent">IRL!!!!</span>
+            <span className="hl-accent">IRL</span>
           </h1>
 
           <ul className="space-y-7 sm:space-y-8 text-xl sm:text-2xl leading-snug text-navy/85 max-w-xl mb-10 font-display font-semibold tracking-[-0.02em] list-none pl-0">
@@ -30,15 +30,16 @@ export default async function HomePage({
             </li>
             <li className="relative pl-5 before:absolute before:left-0 before:top-[0.55em] before:h-1.5 before:w-1.5 before:rounded-full before:bg-navy/35">
               Connect the startup ecosystem with{" "}
-              <span className="hl-mint">human-first</span> connections.
+              <span className="hl-accent">human-first</span> connections.
             </li>
             <li className="relative pl-5 before:absolute before:left-0 before:top-[0.55em] before:h-1.5 before:w-1.5 before:rounded-full before:bg-navy/35">
               Don&apos;t pitch unless asked. You&apos;re here to make{" "}
               <span className="hl-accent">friends</span>.
             </li>
             <li className="relative pl-5 before:absolute before:left-0 before:top-[0.55em] before:h-1.5 before:w-1.5 before:rounded-full before:bg-navy/35">
-              No feed. No posts. No followers. Toggle{" "}
-              <span className="hl-mint">live</span>, meet in person.
+              It&apos;s time to make it easy to meet{" "}
+              <span className="hl-accent">cool people</span> when you are up for
+              it
             </li>
           </ul>
 

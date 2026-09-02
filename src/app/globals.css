@@ -275,7 +275,7 @@ h1, h2, h3 {
   animation-delay: 0.36s;
 }
 
-/* Landing hero word highlights — orange + mint, soft shadow (no neon glow) */
+/* Landing hero word highlights — brand orange only, soft shadow (no neon glow) */
 .hl-accent {
   color: var(--accent);
   text-shadow:
