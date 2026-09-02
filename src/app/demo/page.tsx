@@ -14,6 +14,7 @@ import {
   DEMO_PERSON_COUNT,
   DEMO_TOP_MATCH_COUNT,
   INITIAL_DEMO_PEOPLE,
+  pickSessionDemoMePhoto,
   subsampleForMap,
   toMapPeople,
   topDemoMatches,
@@ -86,7 +87,12 @@ export default function DemoPage() {
 
   function handleGoLive(payload: GoLivePayload) {
     const session: DemoPerson = {
-      profile: { ...DEMO_ME_PROFILE, avg_score: null, rating_count: 0 },
+      profile: {
+        ...DEMO_ME_PROFILE,
+        photo_url: pickSessionDemoMePhoto(),
+        avg_score: null,
+        rating_count: 0,
+      },
       isSelf: true,
       availability: {
         id: `me-${Date.now()}`,

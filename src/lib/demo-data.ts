@@ -32,11 +32,11 @@ const MIN_PIN_GAP_M = 95;
 
 /**
  * Map subsample: lively neighborhood clusters without full face stacks.
- * ~700m gaps keep pins separable at city zoom; allow 2 per local pocket.
+ * ~550m gaps keep pins separable at city zoom; allow 3 per local pocket.
  */
-const MAP_LOCAL_RADIUS_M = 1600;
-const MAP_MAX_LOCAL = 2;
-const MAP_MIN_GAP_M = 700;
+const MAP_LOCAL_RADIUS_M = 1400;
+const MAP_MAX_LOCAL = 3;
+const MAP_MIN_GAP_M = 550;
 
 /** ~2.2km lat / ~2.8km lng cells for map display bucketing. */
 const MAP_CELL_LAT = 0.02;
@@ -165,20 +165,20 @@ const CLUSTERS: {
   { name: "Wimbledon", lat: 51.421, lng: -0.208, weight: 3, spread: 0.014 },
 ];
 
-/** Male-coded first names only — paired exclusively with male portraits. */
+/** Clearly male-coded names — paired exclusively with male portraits. */
 const FIRST_NAMES_MEN = [
-  "Alex", "Jordan", "Tom", "Chris", "Marcus", "Leo", "Omar", "Noah", "Ryan", "James",
+  "Adam", "Jake", "Tom", "Chris", "Marcus", "Leo", "Omar", "Noah", "Ryan", "James",
   "Ben", "Daniel", "Mateo", "Samir", "Hugo", "Felix", "Owen", "Louis", "Adrian", "Ibrahim",
   "Theo", "Nate", "Ravi", "Seb", "Callum", "Miles", "Ethan", "Jasper", "Anil", "Finn",
   "Reuben", "Arjun", "Luca", "Harvey", "Zach", "Idris", "Niko", "Pascal", "Will", "Yusuf",
 ] as const;
 
-/** Female-coded first names only — paired exclusively with female portraits. */
+/** Clearly female-coded names — paired exclusively with female portraits. */
 const FIRST_NAMES_WOMEN = [
-  "Sam", "Priya", "Maya", "Elena", "Zara", "Aisha", "Nina", "Sofia", "Amelia", "Lara",
+  "Sara", "Priya", "Maya", "Elena", "Zara", "Aisha", "Nina", "Sofia", "Amelia", "Lara",
   "Chloe", "Yasmin", "Freya", "Ivy", "Mei", "Hannah", "Rosa", "Anya", "Leila", "Grace",
   "Tara", "Nadia", "Cara", "Lucia", "Esme", "Fatima", "Julia", "Rina", "Nora", "Ava",
-  "Ines", "Sloane", "Kira", "Noor", "Bella", "Uma", "Celine", "Dalia", "Hana", "Pearl",
+  "Ines", "Sophie", "Kira", "Noor", "Bella", "Uma", "Celine", "Dalia", "Hana", "Pearl",
 ] as const;
 
 const MALE_NAME_SET = new Set(
@@ -285,13 +285,13 @@ type DemoSeed = {
 
 /**
  * Hand-authored people. `gender` drives both name coding and portrait pool.
- * Alex/Sam portraits match the landing page cards.
+ * Adam/Sara portraits match the landing page cards.
  */
 const HAND_SEED_BASE: Omit<DemoSeed, "photo_url">[] = [
   {
     id: "1",
     gender: "male",
-    first_name: "Alex",
+    first_name: "Adam",
     role: "founder",
     company_type: "early_stage",
     bio: "Building in fintech. Always up for product feedback over coffee.",
@@ -309,7 +309,7 @@ const HAND_SEED_BASE: Omit<DemoSeed, "photo_url">[] = [
   {
     id: "2",
     gender: "female",
-    first_name: "Sam",
+    first_name: "Sara",
     role: "operator",
     company_type: "scale_up",
     bio: "Ex-Stripe ops. Here for walks and brainstorms.",
@@ -346,7 +346,7 @@ const HAND_SEED_BASE: Omit<DemoSeed, "photo_url">[] = [
   {
     id: "4",
     gender: "male",
-    first_name: "Jordan",
+    first_name: "Jake",
     role: "freelancer",
     company_type: "independent",
     bio: "Product designer between gigs. Down to co-work somewhere quiet.",
@@ -525,42 +525,89 @@ function placeNear(
   return point;
 }
 
-let demoMePhotoUrl =
-  "https://randomuser.me/api/portraits/women/47.jpg";
+/** Leftover gendered portraits for the demo "You" go-live avatar. */
+let demoMeMalePool: string[] = [];
+let demoMeFemalePool: string[] = [];
 
 function generateSeeds(count: number): DemoSeed[] {
   const rng = mulberry32(20260305);
   const pools = buildGenderedPortraitPools(rng);
-  let maleIdx = 0;
-  let femaleIdx = 0;
-  const nextPhoto = (gender: DemoGender) => {
-    if (gender === "male") {
-      return pools.male[maleIdx++] ?? pools.female[femaleIdx++]!;
+  const usedPhotos = new Set<string>();
+
+  const claimPhoto = (gender: DemoGender, preferred?: string): string => {
+    if (preferred) {
+      const prefGender = genderFromPortraitUrl(preferred);
+      if (prefGender !== gender) {
+        throw new Error(`Pinned photo gender mismatch: ${preferred}`);
+      }
+      const list = pools[gender];
+      const at = list.indexOf(preferred);
+      if (at >= 0) list.splice(at, 1);
+      usedPhotos.add(preferred);
+      return preferred;
     }
-    return pools.female[femaleIdx++] ?? pools.male[maleIdx++]!;
+    while (pools[gender].length > 0) {
+      const url = pools[gender].shift()!;
+      if (!usedPhotos.has(url)) {
+        usedPhotos.add(url);
+        return url;
+      }
+    }
+    throw new Error(`Ran out of ${gender} portraits for demo crowd`);
   };
 
   const placed: { lat: number; lng: number }[] = [];
   const seeds: DemoSeed[] = HAND_SEED_BASE.map((base) => {
-    // Re-place hand seeds with min-gap so they don't sit on top of each other.
+    if (nameGender(base.first_name) !== base.gender) {
+      throw new Error(
+        `Hand seed ${base.id} name/gender mismatch: ${base.first_name}`
+      );
+    }
     const cluster =
       CLUSTERS.find(
         (c) =>
           Math.abs(c.lat - base.lat) < 0.01 && Math.abs(c.lng - base.lng) < 0.01
       ) ?? weightedCluster(rng);
     const point = placeNear(cluster, placed, rng);
+    const photo_url = claimPhoto(base.gender, PINNED_HAND_PHOTOS[base.id]);
     return {
       ...base,
       lat: point.lat,
       lng: point.lng,
-      photo_url: nextPhoto(base.gender),
+      photo_url,
     };
   });
 
   const usedNames = new Set(seeds.map((s) => s.first_name.toLowerCase()));
 
-  for (let i = seeds.length; i < count; i++) {
-    const gender: DemoGender = rng() < 0.5 ? "male" : "female";
+  // Fixed ~50/50 gender quota so we never exhaust one portrait pool.
+  // Reserve ≥1 leftover face per gender for the demo "You" avatar.
+  const remaining = count - seeds.length;
+  const handMale = seeds.filter((s) => s.gender === "male").length;
+  const handFemale = seeds.filter((s) => s.gender === "female").length;
+  const maxMale = pools.male.length - 1; // leave 1+ for You
+  const maxFemale = pools.female.length - 1;
+  let needMale = Math.min(
+    maxMale,
+    Math.max(0, Math.floor(count / 2) - handMale)
+  );
+  let needFemale = remaining - needMale;
+  if (needFemale > maxFemale) {
+    needFemale = maxFemale;
+    needMale = remaining - needFemale;
+  }
+  if (needMale > maxMale) {
+    needMale = maxMale;
+    needFemale = remaining - needMale;
+  }
+  const genderQueue: DemoGender[] = [
+    ...Array(needMale).fill("male"),
+    ...Array(needFemale).fill("female"),
+  ];
+  shuffleInPlace(rng, genderQueue);
+
+  for (let qi = 0; qi < genderQueue.length; qi++) {
+    const gender = genderQueue[qi]!;
     const names = gender === "male" ? FIRST_NAMES_MEN : FIRST_NAMES_WOMEN;
     let first = pick(rng, names);
     let tries = 0;
@@ -570,6 +617,7 @@ function generateSeeds(count: number): DemoSeed[] {
     }
     usedNames.add(first.toLowerCase());
 
+    const photo_url = claimPhoto(gender);
     const cluster = weightedCluster(rng);
     const point = placeNear(cluster, placed, rng);
     const { role, company_type } = roleCompany(rng);
@@ -582,10 +630,10 @@ function generateSeeds(count: number): DemoSeed[] {
     );
 
     seeds.push({
-      id: String(i + 1),
+      id: String(seeds.length + 1),
       gender,
       first_name: first,
-      photo_url: nextPhoto(gender),
+      photo_url,
       role,
       company_type,
       bio: pick(rng, BIOS[role]),
@@ -604,8 +652,26 @@ function generateSeeds(count: number): DemoSeed[] {
     });
   }
 
-  demoMePhotoUrl = nextPhoto("female");
+  demoMeMalePool = pools.male.filter((u) => !usedPhotos.has(u));
+  demoMeFemalePool = pools.female.filter((u) => !usedPhotos.has(u));
   return seeds;
+}
+
+/**
+ * Pick the demo "You" face once per go-live: ~50% male / ~50% female.
+ * Uses leftover unique portraits when available; stable for that session.
+ */
+export function pickSessionDemoMePhoto(): string {
+  const gender: DemoGender = Math.random() < 0.5 ? "male" : "female";
+  const pool = gender === "male" ? demoMeMalePool : demoMeFemalePool;
+  if (pool.length > 0) {
+    const i = Math.floor(Math.random() * pool.length);
+    return pool[i]!;
+  }
+  const n = Math.floor(Math.random() * 100);
+  return gender === "male"
+    ? `https://randomuser.me/api/portraits/men/${n}.jpg`
+    : `https://randomuser.me/api/portraits/women/${n}.jpg`;
 }
 
 function seedToPerson(seed: DemoSeed): DemoPerson {
@@ -649,7 +715,8 @@ export const INITIAL_DEMO_PEOPLE: DemoPerson[] =
 export const DEMO_ME_PROFILE: Profile = {
   id: DEMO_ME_ID,
   first_name: "You",
-  photo_url: demoMePhotoUrl,
+  // Photo is assigned 50/50 male/female at each go-live via pickSessionDemoMePhoto().
+  photo_url: null,
   role: "founder",
   company_type: "early_stage",
   bio: "Demo profile. Sign in later if we open real accounts.",

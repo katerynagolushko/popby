@@ -71,11 +71,11 @@ export default async function HomePage({
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src="https://randomuser.me/api/portraits/men/32.jpg"
-                alt="Alex"
+                alt="Adam"
                 className="w-10 h-10 rounded-full object-cover bg-paper-2"
               />
               <div>
-                <p className="text-base font-semibold text-navy">Alex</p>
+                <p className="text-base font-semibold text-navy">Adam</p>
                 <p className="text-base text-muted">Founder · 45m left</p>
               </div>
               <span className="ml-auto live-dot" />
@@ -89,11 +89,11 @@ export default async function HomePage({
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src="https://randomuser.me/api/portraits/women/65.jpg"
-                alt="Sam"
+                alt="Sara"
                 className="w-10 h-10 rounded-full object-cover bg-paper-2"
               />
               <div>
-                <p className="text-base font-semibold text-navy">Sam</p>
+                <p className="text-base font-semibold text-navy">Sara</p>
                 <p className="text-base text-muted">Operator · 1h left</p>
               </div>
               <span className="ml-auto live-dot" />
