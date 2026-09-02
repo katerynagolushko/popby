@@ -16,7 +16,7 @@ export default async function HomePage({
       <section className="relative z-10 flex flex-col w-full min-h-svh lg:h-full lg:min-h-0 lg:w-[44%] xl:w-[40%] px-5 pt-3 pb-4 sm:px-8 sm:pt-4 sm:pb-5 lg:px-10 lg:pt-5 lg:pb-6 xl:px-12">
         <Logo size="md" />
 
-        <div className="mt-4 sm:mt-5 lg:mt-6 flex flex-col gap-5 sm:gap-6 min-h-0">
+        <div className="flex-1 flex flex-col justify-evenly gap-6 sm:gap-8 min-h-0 py-4 sm:py-6 lg:py-2">
           <hgroup className="max-w-xl">
             <h1 className="font-display font-extrabold text-4xl sm:text-5xl xl:text-6xl text-navy leading-[1.05] tracking-[-0.04em]">
               The <span className="hl-accent">startup</span> social network for{" "}
@@ -28,11 +28,8 @@ export default async function HomePage({
           </hgroup>
 
           <p className="max-w-xl font-display font-semibold tracking-[-0.02em] text-[1.4rem] sm:text-[1.7rem] xl:text-[1.9rem] leading-[1.25] text-navy">
-            It&apos;s time to make it easy to meet cool people
-            <br />
-            in the startup world
-            <br />
-            when you are up for it
+            It&apos;s time to make it easy to meet{" "}
+            <span className="hl-accent">cool people</span> in the startup world
           </p>
 
           {softGated && (
@@ -42,27 +39,29 @@ export default async function HomePage({
             </p>
           )}
 
-          <p className="max-w-xl font-display font-semibold tracking-[-0.02em] text-[1.4rem] sm:text-[1.7rem] xl:text-[1.9rem] leading-[1.25] text-navy">
-            #spontaneous hangouts
-          </p>
+          <div className="flex flex-col gap-5 sm:gap-6">
+            <p className="max-w-xl font-display font-semibold tracking-[-0.02em] text-[1.4rem] sm:text-[1.7rem] xl:text-[1.9rem] leading-[1.25] text-navy">
+              #spontaneous hangouts
+            </p>
 
-          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 shrink-0">
-            <Link
-              href="/waitlist"
-              className="popby-btn popby-btn-accent text-[1.55rem] sm:text-[1.85rem] px-12 sm:px-16 py-6 sm:py-7 min-h-[104px] sm:min-h-[116px] rounded-[16px]"
-            >
-              Join the waitlist
-            </Link>
-            <Link
-              href="/demo"
-              className="popby-btn popby-btn-navy text-[1.55rem] sm:text-[1.85rem] px-12 sm:px-16 py-6 sm:py-7 min-h-[104px] sm:min-h-[116px] rounded-[16px]"
-            >
-              Try the full demo
-            </Link>
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 shrink-0">
+              <Link
+                href="/waitlist"
+                className="popby-btn popby-btn-accent text-[1.55rem] sm:text-[1.85rem] px-12 sm:px-16 py-6 sm:py-7 min-h-[104px] sm:min-h-[116px] rounded-[16px]"
+              >
+                Join the waitlist
+              </Link>
+              <Link
+                href="/demo"
+                className="popby-btn popby-btn-navy text-[1.55rem] sm:text-[1.85rem] px-12 sm:px-16 py-6 sm:py-7 min-h-[104px] sm:min-h-[116px] rounded-[16px]"
+              >
+                Try the full demo
+              </Link>
+            </div>
           </div>
         </div>
 
-        <p className="mt-auto pt-6 sm:pt-8 text-xl sm:text-2xl text-navy/80 leading-snug max-w-xl font-medium">
+        <p className="mt-auto pt-4 sm:pt-5 text-xl sm:text-2xl text-navy/80 leading-snug max-w-xl font-medium shrink-0">
           The V1 is for London. If you want us to launch in your city,{" "}
           <Link
             href="/waitlist/city"
