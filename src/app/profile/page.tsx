@@ -259,7 +259,7 @@ export default function ProfilePage() {
 
         <section className="popby-card p-5">
           <h2 className="text-lg text-navy mb-1 font-display">Events I&apos;m going to</h2>
-          <p className="text-xs text-muted mb-4 leading-relaxed">
+          <p className="text-sm text-navy/70 mb-4 leading-relaxed">
             Screenshot your Luma calendar — we extract the events automatically.
           </p>
 
@@ -277,9 +277,9 @@ export default function ProfilePage() {
                 className="flex items-center justify-between gap-2 p-3 bg-paper rounded-xl border border-paper-3"
               >
                 <div className="min-w-0">
-                  <p className="text-sm font-medium truncate text-navy">{ev.title}</p>
+                  <p className="text-base font-medium truncate text-navy">{ev.title}</p>
                   {ev.event_date && (
-                    <p className="text-xs text-muted">
+                    <p className="text-sm text-navy/70">
                       {new Date(ev.event_date).toLocaleString("en-GB", {
                         weekday: "short",
                         day: "numeric",
@@ -294,7 +294,7 @@ export default function ProfilePage() {
                       href={ev.event_url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-xs text-accent underline"
+                      className="text-sm text-accent underline"
                     >
                       View on Luma
                     </a>
@@ -302,14 +302,14 @@ export default function ProfilePage() {
                 </div>
                 <button
                   onClick={() => removeEvent(ev.id)}
-                  className="text-muted hover:text-ink text-sm px-2"
+                  className="text-muted hover:text-ink text-base px-2 min-h-11 min-w-11"
                 >
                   ✕
                 </button>
               </li>
             ))}
             {events.length === 0 && (
-              <p className="text-sm text-muted text-center py-4">
+              <p className="text-base text-navy/70 text-center py-4">
                 No events yet — upload a Luma screenshot above.
               </p>
             )}

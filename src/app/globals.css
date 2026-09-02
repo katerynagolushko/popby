@@ -10,7 +10,8 @@
   --accent-dark: #e64a19;
   --mint: #2ecc87;
   --ink: #12141c;
-  --muted: #6b6874;
+  /* Dark enough for secondary UI at text-sm on cream paper */
+  --muted: #524f5c;
 }
 
 @theme inline {
@@ -183,9 +184,10 @@ h1, h2, h3 {
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
-  padding: 0.45rem 0.9rem;
+  padding: 0.6rem 1rem;
+  min-height: 2.5rem;
   border-radius: 8px;
-  font-size: 0.8125rem;
+  font-size: 0.9375rem; /* 15px — readable chip labels on mobile */
   font-weight: 500;
   background: var(--paper);
   color: var(--ink);

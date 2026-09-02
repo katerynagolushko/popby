@@ -281,7 +281,7 @@ export default function MapPage() {
       <div className="absolute top-16 inset-x-3 z-[900] pointer-events-none">
         <div className="pointer-events-auto max-w-md mx-auto space-y-2">
           {myLiveSession && (
-            <p className="text-center text-[11px] text-muted bg-white/90 backdrop-blur rounded-lg px-3 py-1.5 border border-paper-3">
+            <p className="text-center text-sm text-navy/70 bg-white/95 backdrop-blur rounded-xl px-3.5 py-2.5 border border-paper-3">
               {myLiveSession.match_preference === "vibe"
                 ? "Sorted by hangout vibe · edit when you go live again"
                 : "Sorted by closest · edit when you go live again"}
@@ -299,9 +299,9 @@ export default function MapPage() {
                     key={p.profile.id}
                     type="button"
                     onClick={() => setSelected(p)}
-                    className="flex-shrink-0 flex items-center gap-2 bg-white/95 backdrop-blur border border-paper-3 rounded-xl px-2.5 py-2 shadow text-left"
+                    className="flex-shrink-0 flex items-center gap-2.5 bg-white/95 backdrop-blur border border-paper-3 rounded-xl px-3 py-2.5 min-h-12 shadow text-left"
                   >
-                    <div className="w-8 h-8 rounded-full overflow-hidden bg-paper-2 flex-shrink-0">
+                    <div className="w-9 h-9 rounded-full overflow-hidden bg-paper-2 flex-shrink-0">
                       {p.profile.photo_url ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img
@@ -310,16 +310,16 @@ export default function MapPage() {
                           className="w-full h-full object-cover"
                         />
                       ) : (
-                        <span className="flex h-full items-center justify-center text-xs font-bold text-accent">
+                        <span className="flex h-full items-center justify-center text-sm font-bold text-accent">
                           {p.profile.first_name[0]}
                         </span>
                       )}
                     </div>
                     <div className="min-w-0">
-                      <p className="text-xs font-semibold text-navy truncate">
+                      <p className="text-sm font-semibold text-navy truncate">
                         {p.profile.first_name}
                       </p>
-                      <p className="text-[10px] text-muted truncate max-w-[110px]">
+                      <p className="text-sm text-navy/70 truncate max-w-[140px]">
                         {formatDistance(metres)} ·{" "}
                         {hangoutSummary(
                           p.availability.hangout_format,
@@ -345,18 +345,18 @@ export default function MapPage() {
 
       <div className="absolute bottom-6 inset-x-0 flex justify-center z-[1000] px-4">
         {myLiveSession ? (
-          <div className="flex items-center gap-3 bg-navy text-white rounded-xl px-5 py-3 shadow-xl">
+          <div className="flex items-center gap-2.5 bg-navy text-white rounded-xl px-4 py-2.5 min-h-12 shadow-xl">
             <span className="live-dot" />
-            <span className="text-sm font-medium">You&apos;re live</span>
+            <span className="text-base font-medium">You&apos;re live</span>
             <button
               onClick={() => setShowGoLive(true)}
-              className="text-xs underline opacity-80"
+              className="text-base font-medium underline underline-offset-2 px-2 min-h-10"
             >
               Edit
             </button>
             <button
               onClick={handleStopLive}
-              className="text-xs bg-white/20 rounded-full px-3 py-1"
+              className="text-base font-semibold bg-white/20 rounded-lg px-3.5 min-h-10"
             >
               Stop
             </button>
@@ -382,17 +382,17 @@ export default function MapPage() {
               key={c.id}
               className="popby-card p-3 flex items-center justify-between gap-3"
             >
-              <p className="text-sm">Someone wants to connect!</p>
+              <p className="text-base">Someone wants to connect!</p>
               <div className="flex gap-2">
                 <button
                   onClick={() => acceptPending(c.id)}
-                  className="popby-btn popby-btn-accent text-xs py-1.5 px-3"
+                  className="popby-btn popby-btn-accent text-sm py-2.5 px-3.5 min-h-10"
                 >
                   Accept
                 </button>
                 <Link
                   href="/messages"
-                  className="popby-btn popby-btn-ghost text-xs py-1.5 px-3"
+                  className="popby-btn popby-btn-ghost text-sm py-2.5 px-3.5 min-h-10"
                 >
                   View
                 </Link>

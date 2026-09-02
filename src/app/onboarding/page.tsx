@@ -161,11 +161,11 @@ export default function OnboardingPage() {
               className="hidden"
             />
           </label>
-          <span className="text-xs text-muted">Optional — skip for now</span>
+          <span className="text-sm text-navy/70">Optional — skip for now</span>
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-1.5 text-navy">
+          <label className="block text-base font-medium mb-1.5 text-navy">
             First name
           </label>
           <input
@@ -179,7 +179,7 @@ export default function OnboardingPage() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-2 text-navy">
+          <label className="block text-base font-medium mb-2 text-navy">
             I am a…
           </label>
           <div className="flex flex-wrap gap-2">
@@ -197,7 +197,7 @@ export default function OnboardingPage() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-2 text-navy">
+          <label className="block text-base font-medium mb-2 text-navy">
             Kind of company
           </label>
           <div className="flex flex-wrap gap-2">
@@ -215,7 +215,7 @@ export default function OnboardingPage() {
         </div>
 
         <div className="space-y-3 pt-2 border-t border-paper-3">
-          <p className="text-xs text-muted font-medium uppercase tracking-wide">
+          <p className="text-sm text-navy/70 font-medium uppercase tracking-wide">
             Socials <span className="normal-case font-normal">(optional)</span>
           </p>
           <input

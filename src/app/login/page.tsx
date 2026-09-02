@@ -115,7 +115,7 @@ export default function LoginPage() {
               </button>
               <div className="flex items-center gap-3 py-1">
                 <div className="h-px flex-1 bg-paper-3" />
-                <span className="text-xs text-muted">or</span>
+                <span className="text-sm text-navy/70">or</span>
                 <div className="h-px flex-1 bg-paper-3" />
               </div>
               <button
@@ -140,12 +140,12 @@ export default function LoginPage() {
                   setStep("choose");
                   setError(null);
                 }}
-                className="text-xs text-muted hover:text-navy"
+                className="text-sm text-navy/70 hover:text-navy min-h-10"
               >
                 ← Back
               </button>
               <div>
-                <label htmlFor="email" className="block text-sm font-medium mb-1.5 text-navy">
+                <label htmlFor="email" className="block text-base font-medium mb-1.5 text-navy">
                   Email
                 </label>
                 <input
@@ -167,7 +167,7 @@ export default function LoginPage() {
               >
                 {loading ? "Sending…" : "Send code"}
               </button>
-              <p className="text-xs text-muted leading-relaxed">
+              <p className="text-sm text-navy/70 leading-relaxed">
                 We email a 6-digit code. Stay on this screen; no link hopping.
               </p>
             </form>
@@ -183,16 +183,16 @@ export default function LoginPage() {
                   setError(null);
                   setInfo(null);
                 }}
-                className="text-xs text-muted hover:text-navy"
+                className="text-sm text-navy/70 hover:text-navy min-h-10"
               >
                 ← Back
               </button>
               <div>
-                <p className="text-sm text-muted mb-3">
+                <p className="text-base text-navy/70 mb-3">
                   Code sent to <strong className="text-ink">{email}</strong>
                 </p>
-                {info && <p className="text-xs text-muted mb-3 leading-relaxed">{info}</p>}
-                <label htmlFor="code" className="block text-sm font-medium mb-1.5 text-navy">
+                {info && <p className="text-sm text-navy/70 mb-3 leading-relaxed">{info}</p>}
+                <label htmlFor="code" className="block text-base font-medium mb-1.5 text-navy">
                   6-digit code
                 </label>
                 <input

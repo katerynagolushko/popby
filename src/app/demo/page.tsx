@@ -308,27 +308,27 @@ export default function DemoPage() {
           className="absolute inset-x-0 bottom-0 z-[1000] p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] flex flex-col items-center gap-2.5 pointer-events-none"
         >
           {myLive ? (
-            <div className="pointer-events-auto flex items-center gap-3 bg-navy text-white rounded-xl px-4 py-3 shadow-xl w-full max-w-sm">
+            <div className="pointer-events-auto flex items-center gap-2.5 bg-navy text-white rounded-xl px-4 py-2.5 min-h-12 shadow-xl w-full max-w-sm">
               <span className="live-dot" />
-              <span className="text-sm font-medium flex-1">You&apos;re live</span>
+              <span className="text-base font-medium flex-1">You&apos;re live</span>
               <button
                 type="button"
                 onClick={() => setShowMatches(true)}
-                className="text-xs bg-accent rounded-lg px-3 py-1.5 font-semibold"
+                className="text-sm bg-accent rounded-lg px-3.5 min-h-10 font-semibold"
               >
                 See matches
               </button>
               <button
                 type="button"
                 onClick={() => setShowGoLive(true)}
-                className="text-xs underline opacity-90"
+                className="text-base font-medium underline underline-offset-2 px-2 min-h-10"
               >
                 Edit
               </button>
               <button
                 type="button"
                 onClick={handleStopLive}
-                className="text-xs bg-white/15 rounded-lg px-3 py-1"
+                className="text-base font-semibold bg-white/20 rounded-lg px-3.5 min-h-10"
               >
                 Stop
               </button>

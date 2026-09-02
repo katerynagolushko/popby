@@ -123,19 +123,19 @@ export default function MessagesPage() {
                   <p className="font-medium text-navy truncate">
                     {c.other?.first_name ?? "Unknown"}
                   </p>
-                  <p className="text-xs text-muted capitalize">{c.status}</p>
+                  <p className="text-sm text-navy/70 capitalize">{c.status}</p>
                 </div>
                 {c.status === "pending" && c.to_user_id === userId && (
                   <div className="flex gap-2">
                     <button
                       onClick={() => accept(c.id)}
-                      className="popby-btn popby-btn-accent text-xs py-1.5 px-3"
+                      className="popby-btn popby-btn-accent text-sm py-2.5 px-3.5 min-h-10"
                     >
                       Accept
                     </button>
                     <button
                       onClick={() => decline(c.id)}
-                      className="popby-btn popby-btn-ghost text-xs py-1.5 px-3"
+                      className="popby-btn popby-btn-ghost text-sm py-2.5 px-3.5 min-h-10"
                     >
                       Decline
                     </button>
@@ -144,7 +144,7 @@ export default function MessagesPage() {
                 {c.status === "accepted" && (
                   <Link
                     href={`/messages/${c.id}`}
-                    className="popby-btn popby-btn-navy text-xs py-1.5 px-3"
+                    className="popby-btn popby-btn-navy text-sm py-2.5 px-3.5 min-h-10"
                   >
                     Chat
                   </Link>

@@ -132,8 +132,8 @@ export default function EventScreenshotUpload({
                 <path d="M12 15l2-2 3 3" stroke="#ff5722" strokeWidth="1.5" strokeLinecap="round" />
               </svg>
             </div>
-            <p className="text-sm font-medium text-navy">Upload Luma screenshot</p>
-            <p className="text-xs text-muted mt-1 max-w-xs mx-auto leading-relaxed">
+            <p className="text-base font-medium text-navy">Upload Luma screenshot</p>
+            <p className="text-sm text-navy/70 mt-1.5 max-w-xs mx-auto leading-relaxed">
               Screenshot your upcoming events in Luma. We&apos;ll pull out names, dates, and links.
             </p>
           </>
@@ -142,15 +142,15 @@ export default function EventScreenshotUpload({
 
       {extracted && extracted.length > 0 && (
         <div className="popby-card p-4 space-y-3">
-          <p className="text-sm font-medium text-navy">
+          <p className="text-base font-medium text-navy">
             Found {extracted.length} event{extracted.length !== 1 ? "s" : ""}
           </p>
           <ul className="space-y-2 max-h-48 overflow-y-auto">
             {extracted.map((e, i) => (
-              <li key={i} className="text-sm p-2.5 bg-paper-2 rounded-xl border border-paper-3">
+              <li key={i} className="text-base p-2.5 bg-paper-2 rounded-xl border border-paper-3">
                 <p className="font-medium">{e.title}</p>
                 {e.event_date && (
-                  <p className="text-xs text-muted mt-0.5">
+                  <p className="text-sm text-navy/70 mt-0.5">
                     {new Date(e.event_date).toLocaleString("en-GB", {
                       weekday: "short",
                       day: "numeric",

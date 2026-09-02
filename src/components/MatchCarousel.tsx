@@ -56,24 +56,24 @@ export default function MatchCarousel({
           <button
             type="button"
             onClick={onBackToMap}
-            className="text-sm font-semibold text-navy bg-white border-2 border-navy/15 rounded-xl px-3.5 py-2 shadow-sm hover:border-navy/40"
+            className="text-base font-semibold text-navy bg-white border-2 border-navy/20 rounded-xl px-4 min-h-11 shadow-sm hover:border-navy/40"
           >
             ← Back to map
           </button>
-          <div className="flex items-center gap-2 bg-navy text-white rounded-xl px-3 py-2 shadow-sm">
+          <div className="flex items-center gap-2.5 bg-navy text-white rounded-xl px-3.5 min-h-11 shadow-sm">
             <span className="live-dot" />
-            <span className="text-xs font-medium">You&apos;re live</span>
+            <span className="text-base font-medium">You&apos;re live</span>
             <button
               type="button"
               onClick={onEdit}
-              className="text-xs underline opacity-90 ml-1"
+              className="text-base font-medium underline underline-offset-2 px-2 min-h-11"
             >
               Edit
             </button>
             <button
               type="button"
               onClick={onStop}
-              className="text-xs bg-white/15 rounded-lg px-2.5 py-1"
+              className="text-base font-semibold bg-white/20 rounded-lg px-3.5 min-h-9"
             >
               Stop
             </button>
@@ -87,7 +87,7 @@ export default function MatchCarousel({
           >
             {title}
           </p>
-          <p className="text-sm text-muted mt-1.5 leading-snug">
+          <p className="text-base text-navy/70 mt-2 leading-snug">
             Connect. If they connect back, you&apos;re a pair. Swipe sideways.
             Tap a card for more.
           </p>
@@ -141,11 +141,11 @@ export default function MatchCarousel({
                         {p.profile.first_name[0]}
                       </div>
                     )}
-                    <span className="absolute top-3 left-3 bg-navy/90 text-white text-xs font-bold px-2.5 py-1 rounded-lg tabular-nums">
+                    <span className="absolute top-3 left-3 bg-navy/90 text-white text-sm font-bold px-2.5 py-1.5 rounded-lg tabular-nums">
                       {i + 1}/{count}
                     </span>
                     {status === "accepted" && (
-                      <span className="absolute top-3 right-3 bg-mint text-navy text-xs font-bold px-2.5 py-1 rounded-lg">
+                      <span className="absolute top-3 right-3 bg-mint text-navy text-sm font-bold px-2.5 py-1.5 rounded-lg">
                         Pair
                       </span>
                     )}
@@ -160,17 +160,17 @@ export default function MatchCarousel({
                     >
                       {p.profile.first_name}
                     </p>
-                    <p className="text-sm text-muted mt-0.5 truncate">
+                    <p className="text-base text-navy/70 mt-1 truncate">
                       {roleLabel(p.profile.role)}
                       {company ? ` · ${company}` : ""}
                     </p>
-                    <p className="text-sm text-navy font-medium mt-2 truncate">
+                    <p className="text-base text-navy font-medium mt-2.5 truncate">
                       {hangoutSummary(
                         p.availability.hangout_format,
                         p.availability.hangout_intent
                       )}
                     </p>
-                    <p className="text-xs text-accent font-semibold mt-1.5 truncate">
+                    <p className="text-base text-accent font-semibold mt-2 truncate">
                       {preferVibe ? `${why} · ${formatDistance(metres)}` : why}
                     </p>
                   </div>
@@ -181,25 +181,25 @@ export default function MatchCarousel({
                     <button
                       type="button"
                       onClick={() => onConnect(p.profile.id)}
-                      className="w-full text-sm font-semibold bg-accent text-white rounded-xl px-3 py-3 hover:bg-accent-dark shadow-sm"
+                      className="w-full text-base font-semibold bg-accent text-white rounded-xl px-3 py-3.5 min-h-11 hover:bg-accent-dark shadow-sm"
                     >
                       Connect
                     </button>
                   ) : status === "pending" ? (
-                    <div className="w-full text-center text-sm text-muted font-medium py-3 rounded-xl bg-paper-2 border border-paper-3">
+                    <div className="w-full text-center text-base text-navy/70 font-medium py-3.5 min-h-11 rounded-xl bg-paper-2 border border-paper-3">
                       Waiting on them…
                     </div>
                   ) : (
                     <Link
                       href="/waitlist"
-                      className="w-full text-center text-sm font-semibold bg-navy text-white rounded-xl px-3 py-3 hover:bg-navy-soft shadow-sm"
+                      className="w-full text-center text-base font-semibold bg-navy text-white rounded-xl px-3 py-3.5 min-h-11 hover:bg-navy-soft shadow-sm"
                     >
                       Join waitlist to message
                     </Link>
                   )}
                   <Link
                     href={`/demo/person/${p.profile.id}`}
-                    className="w-full text-center text-sm font-semibold text-navy py-2.5 rounded-xl border-2 border-navy/15 bg-white hover:border-navy/40"
+                    className="w-full text-center text-base font-semibold text-navy py-3 min-h-11 rounded-xl border-2 border-navy/15 bg-white hover:border-navy/40"
                   >
                     View profile
                   </Link>
@@ -213,7 +213,7 @@ export default function MatchCarousel({
       </div>
 
       <div className="flex-shrink-0 px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-1 text-center">
-        <p className="text-xs text-muted">
+        <p className="text-sm text-navy/70">
           {count} matches · swipe for the rest
         </p>
       </div>

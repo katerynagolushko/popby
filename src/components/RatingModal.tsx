@@ -69,7 +69,7 @@ export default function RatingModal({
         className="relative popby-card p-6 w-full max-w-sm space-y-4"
       >
         <h2 className="text-xl text-navy font-display">Rate {toUserName}</h2>
-        <p className="text-sm text-muted">
+        <p className="text-base text-navy/70">
           How was the hangout? Helps everyone feel safe.
         </p>
 
