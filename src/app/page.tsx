@@ -56,7 +56,7 @@ export default async function HomePage({
           </div>
         </div>
 
-        <p className="mt-auto pt-4 sm:pt-5 text-sm sm:text-[0.95rem] text-navy/65 leading-snug max-w-xl shrink-0">
+        <p className="mt-auto pt-4 sm:pt-5 text-base sm:text-lg text-navy/65 leading-snug max-w-xl shrink-0">
           The V1 is for London. If you want us to launch in your city,{" "}
           <Link
             href="/waitlist/city"
