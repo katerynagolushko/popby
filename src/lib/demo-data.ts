@@ -22,31 +22,25 @@ export const DEMO_ME_ID = "demo-me";
 export const DEMO_PERSON_COUNT = 350;
 
 /**
- * MapLibre DOM markers get expensive and unreadable when stacked.
- * Ranking / Top 5 always use the full DEMO_PERSON_COUNT set;
- * the map paints a density-capped, city-wide spread subsample
- * (coarse geographic cells — never "nearest to Old Street").
- *
- * Gaps are large on purpose: at zoom ~11 a face pin is ~40px, and
- * ~50m/px means sub-km gaps still read as one overlapping blob.
+ * MapLibre paints a city-wide geographic subsample (never nearest-to-Old-Street).
+ * Target: medium-full density — ~50–100 readable face pins across London.
  */
-export const DEMO_MAP_MARKER_LIMIT = 28;
+export const DEMO_MAP_MARKER_LIMIT = 72;
 
 /** Min metres between any two generated pins (city-wide). */
 const MIN_PIN_GAP_M = 95;
 
 /**
- * Map subsample spacing sized for city zoom readability.
- * Neighborhood groups stay distinct; zoom in and faces are still clear.
- * (~60m/px at z10.7, 42px faces → need ~2km+ between pins)
+ * Map subsample: lively neighborhood clusters without full face stacks.
+ * ~700m gaps keep pins separable at city zoom; allow 2 per local pocket.
  */
-const MAP_LOCAL_RADIUS_M = 2400;
-const MAP_MAX_LOCAL = 1;
-const MAP_MIN_GAP_M = 2000;
+const MAP_LOCAL_RADIUS_M = 1600;
+const MAP_MAX_LOCAL = 2;
+const MAP_MIN_GAP_M = 700;
 
-/** ~3.3km lat / ~3.5km lng cells for map display bucketing. */
-const MAP_CELL_LAT = 0.03;
-const MAP_CELL_LNG = 0.05;
+/** ~2.2km lat / ~2.8km lng cells for map display bucketing. */
+const MAP_CELL_LAT = 0.02;
+const MAP_CELL_LNG = 0.04;
 
 export type DemoPerson = {
   profile: Profile & { avg_score?: number | null; rating_count?: number };
@@ -83,34 +77,51 @@ function shuffleInPlace<T>(rng: () => number, arr: T[]) {
   return arr;
 }
 
+type DemoGender = "male" | "female";
+
+/** Portrait URL → gender from path (men/male vs women/female). */
+export function genderFromPortraitUrl(url: string): DemoGender | null {
+  if (
+    /\/portraits\/men\//.test(url) ||
+    /\/avatars\/male\//.test(url)
+  ) {
+    return "male";
+  }
+  if (
+    /\/portraits\/women\//.test(url) ||
+    /\/avatars\/female\//.test(url)
+  ) {
+    return "female";
+  }
+  return null;
+}
+
 /**
- * Unique portrait URLs. randomuser has 100 men + 100 women; xsgames adds more
- * photo faces so we can fill DEMO_PERSON_COUNT without obvious clones.
+ * Separate male/female portrait pools. randomuser has 100 each; xsgames adds
+ * 79 more each so we can fill DEMO_PERSON_COUNT without obvious clones.
+ * Gender is never mixed — callers take from the matching pool only.
  */
-function buildPortraitPool(count: number, rng: () => number): string[] {
-  const pool: string[] = [];
+function buildGenderedPortraitPools(rng: () => number): {
+  male: string[];
+  female: string[];
+} {
+  const male: string[] = [];
+  const female: string[] = [];
   for (let i = 0; i < 100; i++) {
-    pool.push(`https://randomuser.me/api/portraits/men/${i}.jpg`);
-    pool.push(`https://randomuser.me/api/portraits/women/${i}.jpg`);
+    male.push(`https://randomuser.me/api/portraits/men/${i}.jpg`);
+    female.push(`https://randomuser.me/api/portraits/women/${i}.jpg`);
   }
   for (let i = 0; i <= 78; i++) {
-    pool.push(
+    male.push(
       `https://xsgames.co/randomusers/assets/avatars/male/${i}.jpg`
     );
-    pool.push(
+    female.push(
       `https://xsgames.co/randomusers/assets/avatars/female/${i}.jpg`
     );
   }
-  shuffleInPlace(rng, pool);
-  if (pool.length < count) {
-    // Last resort: unique illustrated faces (should not hit at DEMO_PERSON_COUNT=350)
-    for (let i = pool.length; i < count; i++) {
-      pool.push(
-        `https://api.dicebear.com/9.x/personas/png?seed=popby-${i}&size=128`
-      );
-    }
-  }
-  return pool.slice(0, count);
+  shuffleInPlace(rng, male);
+  shuffleInPlace(rng, female);
+  return { male, female };
 }
 
 /**
@@ -154,19 +165,35 @@ const CLUSTERS: {
   { name: "Wimbledon", lat: 51.421, lng: -0.208, weight: 3, spread: 0.014 },
 ];
 
+/** Male-coded first names only — paired exclusively with male portraits. */
 const FIRST_NAMES_MEN = [
-  "Alex", "Jordan", "Tom", "Chris", "Marcus", "Leo", "Omar", "Noah", "Ryan", "Kai",
+  "Alex", "Jordan", "Tom", "Chris", "Marcus", "Leo", "Omar", "Noah", "Ryan", "James",
   "Ben", "Daniel", "Mateo", "Samir", "Hugo", "Felix", "Owen", "Louis", "Adrian", "Ibrahim",
   "Theo", "Nate", "Ravi", "Seb", "Callum", "Miles", "Ethan", "Jasper", "Anil", "Finn",
-  "Reuben", "Arjun", "Luca", "Harvey", "Zach", "Idris", "Niko", "Pascal", "Devon", "Yusuf",
-];
+  "Reuben", "Arjun", "Luca", "Harvey", "Zach", "Idris", "Niko", "Pascal", "Will", "Yusuf",
+] as const;
 
+/** Female-coded first names only — paired exclusively with female portraits. */
 const FIRST_NAMES_WOMEN = [
   "Sam", "Priya", "Maya", "Elena", "Zara", "Aisha", "Nina", "Sofia", "Amelia", "Lara",
   "Chloe", "Yasmin", "Freya", "Ivy", "Mei", "Hannah", "Rosa", "Anya", "Leila", "Grace",
-  "Tara", "Nadia", "Cara", "Lucia", "Esme", "Fatima", "Jules", "Rina", "Nora", "Ava",
-  "Ines", "Sloane", "Kira", "Noor", "Billie", "Uma", "Celine", "Dalia", "Hana", "Pearl",
-];
+  "Tara", "Nadia", "Cara", "Lucia", "Esme", "Fatima", "Julia", "Rina", "Nora", "Ava",
+  "Ines", "Sloane", "Kira", "Noor", "Bella", "Uma", "Celine", "Dalia", "Hana", "Pearl",
+] as const;
+
+const MALE_NAME_SET = new Set(
+  FIRST_NAMES_MEN.map((n) => n.toLowerCase())
+);
+const FEMALE_NAME_SET = new Set(
+  FIRST_NAMES_WOMEN.map((n) => n.toLowerCase())
+);
+
+function nameGender(firstName: string): DemoGender | null {
+  const key = firstName.toLowerCase();
+  if (MALE_NAME_SET.has(key)) return "male";
+  if (FEMALE_NAME_SET.has(key)) return "female";
+  return null;
+}
 
 const ROLES: Role[] = [
   "founder",
@@ -236,6 +263,7 @@ const NOTES = [
 
 type DemoSeed = {
   id: string;
+  gender: DemoGender;
   first_name: string;
   photo_url: string;
   role: Role;
@@ -255,10 +283,14 @@ type DemoSeed = {
   luma_profile_url?: string | null;
 };
 
-/** Hand-authored people — portraits reserved from the unique pool at generation. */
+/**
+ * Hand-authored people. `gender` drives both name coding and portrait pool.
+ * Alex/Sam portraits match the landing page cards.
+ */
 const HAND_SEED_BASE: Omit<DemoSeed, "photo_url">[] = [
   {
     id: "1",
+    gender: "male",
     first_name: "Alex",
     role: "founder",
     company_type: "early_stage",
@@ -276,6 +308,7 @@ const HAND_SEED_BASE: Omit<DemoSeed, "photo_url">[] = [
   },
   {
     id: "2",
+    gender: "female",
     first_name: "Sam",
     role: "operator",
     company_type: "scale_up",
@@ -293,6 +326,7 @@ const HAND_SEED_BASE: Omit<DemoSeed, "photo_url">[] = [
   },
   {
     id: "3",
+    gender: "female",
     first_name: "Priya",
     role: "investor",
     company_type: "vc_fund",
@@ -311,6 +345,7 @@ const HAND_SEED_BASE: Omit<DemoSeed, "photo_url">[] = [
   },
   {
     id: "4",
+    gender: "male",
     first_name: "Jordan",
     role: "freelancer",
     company_type: "independent",
@@ -327,6 +362,7 @@ const HAND_SEED_BASE: Omit<DemoSeed, "photo_url">[] = [
   },
   {
     id: "5",
+    gender: "female",
     first_name: "Maya",
     role: "founder",
     company_type: "early_stage",
@@ -343,6 +379,7 @@ const HAND_SEED_BASE: Omit<DemoSeed, "photo_url">[] = [
   },
   {
     id: "6",
+    gender: "male",
     first_name: "Tom",
     role: "service_provider",
     company_type: "agency",
@@ -359,6 +396,7 @@ const HAND_SEED_BASE: Omit<DemoSeed, "photo_url">[] = [
   },
   {
     id: "7",
+    gender: "female",
     first_name: "Elena",
     role: "operator",
     company_type: "scale_up",
@@ -376,6 +414,7 @@ const HAND_SEED_BASE: Omit<DemoSeed, "photo_url">[] = [
   },
   {
     id: "8",
+    gender: "male",
     first_name: "Chris",
     role: "investor",
     company_type: "vc_fund",
@@ -392,6 +431,7 @@ const HAND_SEED_BASE: Omit<DemoSeed, "photo_url">[] = [
   },
   {
     id: "9",
+    gender: "female",
     first_name: "Zara",
     role: "freelancer",
     company_type: "independent",
@@ -408,6 +448,12 @@ const HAND_SEED_BASE: Omit<DemoSeed, "photo_url">[] = [
     twitter_url: "https://x.com",
   },
 ];
+
+/** Landing-page faces — reserved so demo people match those cards. */
+const PINNED_HAND_PHOTOS: Record<string, string> = {
+  "1": "https://randomuser.me/api/portraits/men/32.jpg",
+  "2": "https://randomuser.me/api/portraits/women/65.jpg",
+};
 
 function weightedCluster(rng: () => number) {
   const total = CLUSTERS.reduce((s, c) => s + c.weight, 0);
@@ -484,9 +530,15 @@ let demoMePhotoUrl =
 
 function generateSeeds(count: number): DemoSeed[] {
   const rng = mulberry32(20260305);
-  const portraits = buildPortraitPool(count + 1, rng); // +1 for DEMO_ME
-  let portraitIdx = 0;
-  const nextPhoto = () => portraits[portraitIdx++]!;
+  const pools = buildGenderedPortraitPools(rng);
+  let maleIdx = 0;
+  let femaleIdx = 0;
+  const nextPhoto = (gender: DemoGender) => {
+    if (gender === "male") {
+      return pools.male[maleIdx++] ?? pools.female[femaleIdx++]!;
+    }
+    return pools.female[femaleIdx++] ?? pools.male[maleIdx++]!;
+  };
 
   const placed: { lat: number; lng: number }[] = [];
   const seeds: DemoSeed[] = HAND_SEED_BASE.map((base) => {
@@ -501,15 +553,15 @@ function generateSeeds(count: number): DemoSeed[] {
       ...base,
       lat: point.lat,
       lng: point.lng,
-      photo_url: nextPhoto(),
+      photo_url: nextPhoto(base.gender),
     };
   });
 
   const usedNames = new Set(seeds.map((s) => s.first_name.toLowerCase()));
 
   for (let i = seeds.length; i < count; i++) {
-    const genderRoll = rng();
-    const names = genderRoll < 0.5 ? FIRST_NAMES_MEN : FIRST_NAMES_WOMEN;
+    const gender: DemoGender = rng() < 0.5 ? "male" : "female";
+    const names = gender === "male" ? FIRST_NAMES_MEN : FIRST_NAMES_WOMEN;
     let first = pick(rng, names);
     let tries = 0;
     while (usedNames.has(first.toLowerCase()) && tries < 8) {
@@ -531,8 +583,9 @@ function generateSeeds(count: number): DemoSeed[] {
 
     seeds.push({
       id: String(i + 1),
+      gender,
       first_name: first,
-      photo_url: nextPhoto(),
+      photo_url: nextPhoto(gender),
       role,
       company_type,
       bio: pick(rng, BIOS[role]),
@@ -551,7 +604,7 @@ function generateSeeds(count: number): DemoSeed[] {
     });
   }
 
-  demoMePhotoUrl = nextPhoto();
+  demoMePhotoUrl = nextPhoto("female");
   return seeds;
 }
 
