@@ -87,8 +87,11 @@ function createPin(photoUrl: string) {
   const img = document.createElement("img");
   img.src = photoUrl;
   img.alt = "";
-  img.loading = "lazy";
+  // Eager: MapLibre positions markers with transforms, so lazy never fires.
+  img.loading = "eager";
+  img.decoding = "async";
   img.onerror = () => {
+    if (!el.isConnected) return;
     img.remove();
     el.textContent = "?";
     el.style.display = "flex";
