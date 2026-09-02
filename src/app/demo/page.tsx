@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import Logo from "@/components/Logo";
 import PopbyMapLoader, { type MapPerson } from "@/components/PopbyMapLoader";
@@ -37,6 +37,7 @@ export default function DemoPage() {
   const [selected, setSelected] = useState<SelectedPerson | null>(null);
   const [showGoLive, setShowGoLive] = useState(false);
   const [showRating, setShowRating] = useState(false);
+  const [showMatches, setShowMatches] = useState(false);
   const [connections, setConnections] = useState<ConnectionMap>({});
   const [toast, setToast] = useState<string | null>(null);
 
@@ -56,6 +57,21 @@ export default function DemoPage() {
     const all = myLive ? [...people, myLive] : people;
     return toMapPeople(subsampleForMap(all));
   }, [people, myLive]);
+
+  const matchesOpen = Boolean(myLive && showMatches && topMatches.length > 0);
+
+  // Lock body / map scroll bleed while the fullscreen matches view is open.
+  useEffect(() => {
+    if (!matchesOpen) return;
+    const prevOverflow = document.body.style.overflow;
+    const prevTouch = document.body.style.touchAction;
+    document.body.style.overflow = "hidden";
+    document.body.style.touchAction = "none";
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      document.body.style.touchAction = prevTouch;
+    };
+  }, [matchesOpen]);
 
   const showToast = useCallback((msg: string) => {
     setToast(msg);
@@ -89,15 +105,17 @@ export default function DemoPage() {
     };
     setMyLive(session);
     setShowGoLive(false);
+    setShowMatches(true);
     showToast(
       payload.match_preference === "vibe"
-        ? `You're live. ${DEMO_TOP_MATCH_COUNT} vibe matches below.`
-        : `You're live. ${DEMO_TOP_MATCH_COUNT} people near you below.`
+        ? `You're live. ${DEMO_TOP_MATCH_COUNT} vibe matches.`
+        : `You're live. ${DEMO_TOP_MATCH_COUNT} people near you.`
     );
   }
 
   function handleStopLive() {
     setMyLive(null);
+    setShowMatches(false);
     setSelected(null);
     showToast("You're off the map");
   }
@@ -123,24 +141,33 @@ export default function DemoPage() {
 
   return (
     <div className="h-[100dvh] flex flex-col relative bg-paper overflow-hidden">
-      <header className="absolute top-0 inset-x-0 z-[1000] p-3 flex items-center justify-between pointer-events-none">
-        <div className="pointer-events-auto bg-white/95 backdrop-blur rounded-xl px-3 py-2 shadow-lg border border-paper-3">
-          <Logo size="sm" />
-        </div>
-        <div className="pointer-events-auto flex items-center gap-2">
-          <span className="text-xs bg-accent text-white px-2.5 py-1 rounded-lg font-semibold">
-            Demo · {DEMO_PERSON_COUNT} people
-          </span>
-          <Link
-            href="/"
-            className="text-xs bg-navy text-white px-3 py-1.5 rounded-lg font-medium"
-          >
-            Waitlist
-          </Link>
-        </div>
-      </header>
+      {!matchesOpen && (
+        <header className="absolute top-0 inset-x-0 z-[1000] p-3 flex items-center justify-between pointer-events-none">
+          <div className="pointer-events-auto bg-white/95 backdrop-blur rounded-xl px-3 py-2 shadow-lg border border-paper-3">
+            <Logo size="sm" />
+          </div>
+          <div className="pointer-events-auto flex items-center gap-2">
+            <span className="text-xs bg-accent text-white px-2.5 py-1 rounded-lg font-semibold">
+              Demo · {DEMO_PERSON_COUNT} people
+            </span>
+            <Link
+              href="/"
+              className="text-xs bg-navy text-white px-3 py-1.5 rounded-lg font-medium"
+            >
+              Waitlist
+            </Link>
+          </div>
+        </header>
+      )}
 
-      <div className="flex-1 relative min-h-0">
+      <div
+        className={`flex-1 relative min-h-0 ${
+          matchesOpen
+            ? "pointer-events-none touch-none overflow-hidden select-none"
+            : ""
+        }`}
+        aria-hidden={matchesOpen || undefined}
+      >
         <PopbyMapLoader
           people={mapPeople}
           center={DEMO_MAP_CENTER}
@@ -171,54 +198,64 @@ export default function DemoPage() {
         </div>
       )}
 
-      <div
-        className="absolute inset-x-0 bottom-0 z-[1000] p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] flex flex-col items-center gap-2.5 pointer-events-none"
-      >
-        {myLive && topMatches.length > 0 && (
-          <div className="pointer-events-auto w-full max-w-lg">
-            <MatchCarousel
-              matches={topMatches}
-              me={myLive}
-              origin={origin}
-              preferVibe={preferVibe}
-              getConnectionStatus={getConnectionStatus}
-              onOpen={(p) => setSelected({ ...p })}
-              onConnect={handleConnect}
-              onMessage={() => handleMessage()}
-            />
-          </div>
-        )}
-
-        {myLive ? (
-          <div className="pointer-events-auto flex items-center gap-3 bg-navy text-white rounded-xl px-5 py-3 shadow-xl w-full max-w-sm">
-            <span className="live-dot" />
-            <span className="text-sm font-medium flex-1">You&apos;re live</span>
+      {!matchesOpen && (
+        <div
+          className="absolute inset-x-0 bottom-0 z-[1000] p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] flex flex-col items-center gap-2.5 pointer-events-none"
+        >
+          {myLive ? (
+            <div className="pointer-events-auto flex items-center gap-3 bg-navy text-white rounded-xl px-4 py-3 shadow-xl w-full max-w-sm">
+              <span className="live-dot" />
+              <span className="text-sm font-medium flex-1">You&apos;re live</span>
+              <button
+                type="button"
+                onClick={() => setShowMatches(true)}
+                className="text-xs bg-accent rounded-lg px-3 py-1.5 font-semibold"
+              >
+                See matches
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowGoLive(true)}
+                className="text-xs underline opacity-90"
+              >
+                Edit
+              </button>
+              <button
+                type="button"
+                onClick={handleStopLive}
+                className="text-xs bg-white/15 rounded-lg px-3 py-1"
+              >
+                Stop
+              </button>
+            </div>
+          ) : (
             <button
               type="button"
               onClick={() => setShowGoLive(true)}
-              className="text-xs underline opacity-90"
+              className="pointer-events-auto popby-btn popby-btn-accent shadow-xl text-base px-8 py-3.5 w-full max-w-sm"
             >
-              Edit
+              <span className="live-dot" />
+              I&apos;m free to hang out
             </button>
-            <button
-              type="button"
-              onClick={handleStopLive}
-              className="text-xs bg-white/15 rounded-lg px-3 py-1"
-            >
-              Stop
-            </button>
-          </div>
-        ) : (
-          <button
-            type="button"
-            onClick={() => setShowGoLive(true)}
-            className="pointer-events-auto popby-btn popby-btn-accent shadow-xl text-base px-8 py-3.5 w-full max-w-sm"
-          >
-            <span className="live-dot" />
-            I&apos;m free to hang out
-          </button>
-        )}
-      </div>
+          )}
+        </div>
+      )}
+
+      {matchesOpen && myLive && (
+        <MatchCarousel
+          matches={topMatches}
+          me={myLive}
+          origin={origin}
+          preferVibe={preferVibe}
+          getConnectionStatus={getConnectionStatus}
+          onOpen={(p) => setSelected({ ...p })}
+          onConnect={handleConnect}
+          onMessage={() => handleMessage()}
+          onBackToMap={() => setShowMatches(false)}
+          onEdit={() => setShowGoLive(true)}
+          onStop={handleStopLive}
+        />
+      )}
 
       {showGoLive && (
         <GoLiveModal

@@ -217,4 +217,16 @@ h1, h2, h3 {
   animation: pulse-live 2s ease-in-out infinite;
 }
 
+/* Fullscreen Top 5 after go-live — blocks map pan/zoom underneath */
+.match-fullscreen {
+  overscroll-behavior: none;
+  touch-action: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.match-fullscreen [role="list"] {
+  touch-action: pan-x;
+  overscroll-behavior-x: contain;
+}
+
 /* Legacy class aliases — old cony-* still work via duplicate rules above */
