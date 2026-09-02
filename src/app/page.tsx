@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Logo from "@/components/Logo";
 import LandingHeroMapLoader from "@/components/LandingHeroMapLoader";
-import { APP_CITY, APP_NAME } from "@/lib/brand";
+import { APP_CITY } from "@/lib/brand";
 
 export default async function HomePage({
   searchParams,
@@ -17,11 +17,17 @@ export default async function HomePage({
         <Logo size="md" />
 
         <div className="py-10 lg:py-12 flex-1 flex flex-col justify-center">
-          <h1 className="font-display font-extrabold text-[2.65rem] sm:text-[3.5rem] xl:text-[4.35rem] text-navy leading-[0.98] tracking-[-0.04em] mb-10 max-w-[14ch]">
+          <h1 className="font-display font-extrabold text-[2.65rem] sm:text-[3.5rem] xl:text-[4.35rem] text-navy leading-[0.98] tracking-[-0.04em] mb-5 max-w-[18ch]">
             The{" "}
             <span className="hl-accent">startup</span> social network for{" "}
-            <span className="hl-accent">IRL</span>
+            <span className="hl-accent">IRL</span>{" "}
+            <span className="hl-accent">London Edition</span>
           </h1>
+
+          <p className="text-lg sm:text-xl text-navy/70 leading-relaxed max-w-xl mb-10">
+            City-wide live accounts aren&apos;t open yet. The demo runs the full
+            loop with fake people.
+          </p>
 
           <ul className="space-y-7 sm:space-y-8 text-xl sm:text-2xl leading-snug text-navy/85 max-w-xl mb-10 font-display font-semibold tracking-[-0.02em] list-none pl-0">
             <li className="relative pl-5 before:absolute before:left-0 before:top-[0.55em] before:h-1.5 before:w-1.5 before:rounded-full before:bg-navy/35">
@@ -59,13 +65,6 @@ export default async function HomePage({
             </Link>
           </div>
         </div>
-
-        <footer className="pt-2">
-          <p className="text-lg text-navy/70 leading-relaxed max-w-xl">
-            {APP_NAME} starts in {APP_CITY}. City-wide live accounts aren&apos;t
-            open yet. The demo runs the full loop with fake people.
-          </p>
-        </footer>
       </section>
 
       <section className="relative w-full lg:w-[56%] xl:w-[60%] min-h-[48vh] sm:min-h-[52vh] lg:min-h-screen border-t border-paper-3 lg:border-t-0 lg:border-l">
