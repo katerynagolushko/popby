@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import {
   companyTypeLabel,
   hangoutSummary,
@@ -15,6 +16,8 @@ interface PersonSheetProps {
   connectionStatus?: "none" | "pending" | "accepted" | "declined";
   /** Demo: soften messaging CTA and show pair copy. */
   demo?: boolean;
+  /** When set, name/photo and "View profile" open the full profile page. */
+  profileHref?: string;
   onConnect: () => void;
   onMessage: () => void;
   onRate: () => void;
@@ -28,6 +31,7 @@ export default function PersonSheet({
   isSelf,
   connectionStatus = "none",
   demo = false,
+  profileHref,
   onConnect,
   onMessage,
   onRate,
@@ -56,25 +60,55 @@ export default function PersonSheet({
       <div className="relative bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl border border-paper-3 overflow-hidden">
         <div className="p-5">
           <div className="flex gap-4 items-start">
-            <div className="w-20 h-20 rounded-full overflow-hidden bg-paper-2 flex-shrink-0 border-2 border-paper-3">
-              {profile.photo_url ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={profile.photo_url}
-                  alt={profile.first_name}
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center text-lg font-bold text-accent bg-paper">
-                  {profile.first_name[0]}
-                </div>
-              )}
-            </div>
+            {profileHref && !isSelf ? (
+              <Link
+                href={profileHref}
+                className="w-20 h-20 rounded-full overflow-hidden bg-paper-2 flex-shrink-0 border-2 border-paper-3"
+                aria-label={`View ${profile.first_name}'s profile`}
+              >
+                {profile.photo_url ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={profile.photo_url}
+                    alt={profile.first_name}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-lg font-bold text-accent bg-paper">
+                    {profile.first_name[0]}
+                  </div>
+                )}
+              </Link>
+            ) : (
+              <div className="w-20 h-20 rounded-full overflow-hidden bg-paper-2 flex-shrink-0 border-2 border-paper-3">
+                {profile.photo_url ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={profile.photo_url}
+                    alt={profile.first_name}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-lg font-bold text-accent bg-paper">
+                    {profile.first_name[0]}
+                  </div>
+                )}
+              </div>
+            )}
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
-                <h2 className="text-xl text-navy truncate font-display">
-                  {profile.first_name}
-                </h2>
+                {profileHref && !isSelf ? (
+                  <Link
+                    href={profileHref}
+                    className="text-xl text-navy truncate font-display hover:underline"
+                  >
+                    {profile.first_name}
+                  </Link>
+                ) : (
+                  <h2 className="text-xl text-navy truncate font-display">
+                    {profile.first_name}
+                  </h2>
+                )}
                 {availability.is_active && (
                   <span className="flex items-center gap-1 text-xs text-mint font-semibold">
                     <span className="live-dot" />
@@ -216,6 +250,14 @@ export default function PersonSheet({
                   Connect
                 </button>
               </>
+            )}
+            {profileHref && !isSelf && (
+              <Link
+                href={profileHref}
+                className="popby-btn popby-btn-ghost w-full text-center"
+              >
+                View profile
+              </Link>
             )}
           </div>
         </div>

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import {
   companyTypeLabel,
   distanceMetres,
@@ -177,7 +178,7 @@ export default function MatchCarousel({
                   </div>
                 </button>
 
-                <div className="px-4 pb-4 pt-1 flex-shrink-0">
+                <div className="px-4 pb-4 pt-1 flex-shrink-0 flex flex-col gap-2">
                   {status === "none" ? (
                     <button
                       type="button"
@@ -199,6 +200,12 @@ export default function MatchCarousel({
                       You&apos;re a pair · Message
                     </button>
                   )}
+                  <Link
+                    href={`/demo/person/${p.profile.id}`}
+                    className="w-full text-center text-sm font-semibold text-navy py-2.5 rounded-xl border-2 border-navy/15 bg-white hover:border-navy/40"
+                  >
+                    View profile
+                  </Link>
                 </div>
               </article>
             );

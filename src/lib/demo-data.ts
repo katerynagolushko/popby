@@ -48,6 +48,15 @@ export type DemoPerson = {
   isSelf?: boolean;
 };
 
+/** Simulated hangout review shown on demo profile pages. */
+export type DemoReview = {
+  id: string;
+  reviewerName: string;
+  score: number;
+  comment: string;
+  daysAgo: number;
+};
+
 function expiresIn(minutes: number) {
   return new Date(Date.now() + minutes * 60 * 1000).toISOString();
 }
@@ -645,7 +654,8 @@ function generateSeeds(count: number): DemoSeed[] {
       duration_minutes,
       minutes_left,
       avg_score: Math.round((3.8 + rng() * 1.2) * 10) / 10,
-      rating_count: Math.floor(rng() * 28),
+      // Prefer a few reviews so profile pages feel lived-in; 0 still allowed.
+      rating_count: rng() < 0.12 ? 0 : 3 + Math.floor(rng() * 6),
       linkedin_url: rng() > 0.45 ? "https://linkedin.com" : null,
       twitter_url: rng() > 0.7 ? "https://x.com" : null,
       luma_profile_url: rng() > 0.85 ? "https://lu.ma" : null,
@@ -711,6 +721,119 @@ function seedToPerson(seed: DemoSeed): DemoPerson {
 
 export const INITIAL_DEMO_PEOPLE: DemoPerson[] =
   generateSeeds(DEMO_PERSON_COUNT).map(seedToPerson);
+
+const DEMO_PEOPLE_BY_ID = new Map(
+  INITIAL_DEMO_PEOPLE.map((p) => [p.profile.id, p])
+);
+
+export function getDemoPersonById(id: string): DemoPerson | undefined {
+  return DEMO_PEOPLE_BY_ID.get(id);
+}
+
+const REVIEW_COMMENTS = [
+  "Showed up on time. Sharp notes on the product.",
+  "Easy hang. Knew who to intro next.",
+  "Honest feedback without the fluff. Would meet again.",
+  "Good walk. Clear thinker, no pitch theatre.",
+  "Co-worked for an hour. Quiet, useful, zero weirdness.",
+  "Coffee turned into a real brainstorm. Kept it concrete.",
+  "Warm but direct. Left with two things to try that week.",
+  "On time, curious, and actually listened.",
+  "Solid hang. Shared a hiring tip that stuck.",
+  "Low ego. High signal. Exactly what I needed.",
+  "Quick coffee, clear next step. Rare combo.",
+  "Walked through Shoreditch talking GTM. Worth it.",
+  "Made intros without forcing it. Good taste in people.",
+  "Blunt on the deck, kind about it. Helped a lot.",
+  "Felt like talking to someone who builds, not performs.",
+  "Short hang, strong takeaways. Booked another.",
+];
+
+function hashPersonId(id: string): number {
+  let h = 2166136261;
+  for (let i = 0; i < id.length; i++) {
+    h ^= id.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return h >>> 0;
+}
+
+/**
+ * Build 3–8 (or fewer if rating_count is low) demo reviews whose mean
+ * matches the person's avg_score. Deterministic per person id.
+ */
+export function getDemoReviews(person: DemoPerson): DemoReview[] {
+  const avg = person.profile.avg_score;
+  const total = person.profile.rating_count ?? 0;
+  if (avg == null || avg <= 0 || total <= 0) return [];
+
+  const n = Math.min(Math.max(total, 1), 8);
+  const rng = mulberry32(hashPersonId(person.profile.id) ^ 0x5e11);
+  const self = person.profile.first_name.toLowerCase();
+  const namePool = [...FIRST_NAMES_MEN, ...FIRST_NAMES_WOMEN].filter(
+    (name) => name.toLowerCase() !== self
+  );
+
+  const targetSum = avg * n;
+  const scores: number[] = [];
+  let remainingSum = targetSum;
+  let remaining = n;
+
+  for (let i = 0; i < n - 1; i++) {
+    const minS = Math.max(1, Math.ceil(remainingSum - 5 * (remaining - 1)));
+    const maxS = Math.min(5, Math.floor(remainingSum - 1 * (remaining - 1)));
+    const lo = Math.min(minS, maxS);
+    const hi = Math.max(minS, maxS);
+    const biased = Math.round(avg + (rng() - 0.5) * 1.4);
+    const score = Math.min(hi, Math.max(lo, biased));
+    scores.push(score);
+    remainingSum -= score;
+    remaining -= 1;
+  }
+  scores.push(Math.min(5, Math.max(1, Math.round(remainingSum))));
+
+  // Tiny drift fix so displayed ★ avg stays honest vs the list.
+  const listAvg = scores.reduce((s, x) => s + x, 0) / scores.length;
+  if (Math.abs(listAvg - avg) > 0.15 && scores.length > 0) {
+    const tweak = listAvg < avg ? 1 : -1;
+    const idx = scores.findIndex((s) =>
+      tweak > 0 ? s < 5 : s > 1
+    );
+    if (idx >= 0) scores[idx] = scores[idx]! + tweak;
+  }
+
+  const usedNames = new Set<string>();
+  const reviews: DemoReview[] = [];
+  for (let i = 0; i < n; i++) {
+    let name = pick(rng, namePool);
+    let tries = 0;
+    while (usedNames.has(name) && tries < 12) {
+      name = pick(rng, namePool);
+      tries += 1;
+    }
+    usedNames.add(name);
+    reviews.push({
+      id: `r-${person.profile.id}-${i}`,
+      reviewerName: name,
+      score: scores[i]!,
+      comment: pick(rng, REVIEW_COMMENTS),
+      daysAgo: Math.floor(rng() * 45) + (i === 0 ? 0 : 1),
+    });
+  }
+
+  reviews.sort((a, b) => a.daysAgo - b.daysAgo);
+  return reviews;
+}
+
+/** Relative label for demo review timestamps. */
+export function formatReviewWhen(daysAgo: number): string {
+  if (daysAgo <= 0) return "Today";
+  if (daysAgo === 1) return "Yesterday";
+  if (daysAgo < 7) return `${daysAgo} days ago`;
+  if (daysAgo < 14) return "Last week";
+  if (daysAgo < 35) return `${Math.floor(daysAgo / 7)} weeks ago`;
+  return "About a month ago";
+}
 
 export const DEMO_ME_PROFILE: Profile = {
   id: DEMO_ME_ID,

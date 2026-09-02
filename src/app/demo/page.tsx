@@ -382,6 +382,9 @@ export default function DemoPage() {
           availability={selected.availability}
           isSelf={selected.isSelf ?? false}
           connectionStatus={getConnectionStatus(selected.profile.id)}
+          profileHref={
+            selected.isSelf ? undefined : `/demo/person/${selected.profile.id}`
+          }
           onConnect={() => handleConnect(selected.profile.id)}
           onMessage={handleMessage}
           onRate={() => setShowRating(true)}

@@ -29,10 +29,14 @@ export async function updateSession(request: NextRequest) {
   const path = request.nextUrl.pathname;
   const isAuthPage = path === "/login" || path.startsWith("/auth");
   const isPublicApi = path === "/api/waitlist" || path.startsWith("/api/waitlist/");
-  // Encode launch: landing + waitlist + /demo are the public path.
+  // Encode launch: landing + waitlist + /demo (incl. person profiles) are public.
   // Real /map stays behind auth for the founder; unauthenticated hits soft-gate to home.
   const isPublic =
-    path === "/" || path === "/demo" || isAuthPage || isPublicApi;
+    path === "/" ||
+    path === "/demo" ||
+    path.startsWith("/demo/") ||
+    isAuthPage ||
+    isPublicApi;
 
   if (!user && path === "/map") {
     const url = request.nextUrl.clone();
