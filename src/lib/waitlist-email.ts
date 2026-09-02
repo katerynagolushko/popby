@@ -3,6 +3,11 @@ import { APP_DOMAIN, APP_NAME } from "@/lib/brand";
 /**
  * Optional waitlist confirmation via Resend.
  * Never throws for missing config — signup must succeed even when email is off.
+ *
+ * Env:
+ * - RESEND_API_KEY
+ * - WAITLIST_FROM_EMAIL e.g. "Hangbyme <hello@hangby.me>"
+ * - WAITLIST_REPLY_TO optional, e.g. "kat@hangby.me"
  */
 export async function sendWaitlistConfirmationEmail(
   to: string,
@@ -10,6 +15,8 @@ export async function sendWaitlistConfirmationEmail(
 ): Promise<{ sent: boolean; reason?: string }> {
   const apiKey = process.env.RESEND_API_KEY?.trim();
   const from = process.env.WAITLIST_FROM_EMAIL?.trim();
+  const replyTo =
+    process.env.WAITLIST_REPLY_TO?.trim() || "kat@hangby.me";
 
   if (!apiKey || !from) {
     return {
@@ -30,6 +37,7 @@ export async function sendWaitlistConfirmationEmail(
       body: JSON.stringify({
         from,
         to: [to],
+        reply_to: replyTo,
         subject: `You're on the ${APP_NAME} waitlist`,
         text: [
           greeting,
@@ -38,6 +46,8 @@ export async function sendWaitlistConfirmationEmail(
           "",
           "We'll email again when early access opens in London.",
           "No spam. No drip sequence.",
+          "",
+          `Reply to this email if you want to reach me — ${replyTo}`,
           "",
           `${APP_NAME} · ${APP_DOMAIN}`,
         ].join("\n"),

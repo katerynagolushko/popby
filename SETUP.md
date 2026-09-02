@@ -47,7 +47,8 @@ Code path is ready in `src/lib/waitlist-email.ts`. If keys are missing, signup s
 2. Add and verify your domain (DNS: SPF, DKIM, and whatever Resend shows for the domain). Until the domain is verified, you can only send from Resend’s onboarding address in test mode.
 3. Create an API key. Put it in Vercel / `.env.local` as `RESEND_API_KEY`.
 4. Set `WAITLIST_FROM_EMAIL` to a verified sender, e.g. `Hangbyme <hello@hangby.me>`.
-5. Redeploy. Join the waitlist once and check Resend → Emails plus the inbox.
+5. Set `WAITLIST_REPLY_TO` to `kat@hangby.me` (replies go to you).
+6. Redeploy. Join the waitlist once and check Resend → Emails plus the inbox.
 
 Do not pretend email works without keys. The API returns `emailSent: true|false` so you can confirm.
 
