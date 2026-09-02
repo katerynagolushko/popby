@@ -257,9 +257,9 @@ export default function DemoOnboardingTour({
       aria-modal="true"
       aria-labelledby={titleId}
     >
-      <div className="flex-1 flex flex-col justify-end sm:justify-center p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
-        <div className="w-full max-w-md mx-auto bg-paper rounded-2xl border-2 border-navy shadow-2xl overflow-hidden flex flex-col max-h-[min(92dvh,640px)] demo-tour-sheet">
-          <div className="bg-navy text-white px-4 py-3 flex items-center justify-between gap-3 shrink-0">
+      <div className="flex-1 flex flex-col justify-end sm:justify-center p-2 sm:p-4 pb-[max(0.5rem,env(safe-area-inset-bottom))]">
+        <div className="w-full max-w-lg sm:max-w-xl mx-auto bg-paper rounded-2xl border-2 border-navy shadow-2xl overflow-hidden flex flex-col min-h-[min(78dvh,680px)] max-h-[min(94dvh,760px)] demo-tour-sheet">
+          <div className="bg-navy text-white px-5 py-3.5 flex items-center justify-between gap-3 shrink-0">
             <Logo size="sm" />
             <div className="flex items-center gap-3">
               <span className="text-[11px] font-semibold tracking-wide text-white/70">
@@ -275,24 +275,25 @@ export default function DemoOnboardingTour({
             </div>
           </div>
 
-          <div className="px-4 pt-5 pb-2 overflow-y-auto flex-1 min-h-0">
+          <div className="px-5 pt-6 pb-3 overflow-y-auto flex-1 min-h-0">
             {step === "welcome" && (
-              <div className="space-y-3 pb-2">
+              <div className="space-y-4 pb-2 flex flex-col justify-center min-h-[min(42dvh,320px)]">
                 <h2
                   id={titleId}
-                  className="text-2xl text-navy font-bold tracking-tight leading-tight"
+                  className="text-3xl sm:text-4xl text-navy font-bold tracking-tight leading-tight"
                   style={{
                     fontFamily: "var(--font-syne), system-ui, sans-serif",
                   }}
                 >
-                  Try Popby on a fake London crowd
+                  Simulated London crowd
                 </h2>
-                <p className="text-sm text-ink/80 leading-relaxed">
-                  Same flow as a real account: name, role, company, photo,
-                  optional socials. Then you go live and get five people to meet.
+                <p className="text-base text-ink/80 leading-relaxed">
+                  Create your profile and open a hangout. See who else is close
+                  by and get instantly matched with top 5 people by vibe or
+                  location.
                 </p>
                 <p className="text-sm text-muted leading-relaxed">
-                  Nothing here is saved. Takes about a minute.
+                  Nothing is saved. About a minute.
                 </p>
               </div>
             )}
@@ -509,7 +510,7 @@ export default function DemoOnboardingTour({
             )}
           </div>
 
-          <div className="px-4 py-3 border-t border-paper-3 flex items-center gap-2 shrink-0 bg-white/60">
+          <div className="px-5 py-4 border-t border-paper-3 flex items-center gap-2 shrink-0 bg-white/60">
             {step !== "welcome" ? (
               <button
                 type="button"
