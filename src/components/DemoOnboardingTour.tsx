@@ -151,14 +151,12 @@ export default function DemoOnboardingTour({
   const titleId = useId();
   const [step, setStep] = useState<ProfileStep>("welcome");
   const [hole, setHole] = useState<DOMRect | null>(null);
-  const [previewRating, setPreviewRating] = useState(0);
   const nameInputRef = useRef<HTMLInputElement>(null);
 
   // Reset to welcome when replaying
   useEffect(() => {
     if (profileOpen) {
       setStep("welcome");
-      setPreviewRating(0);
     }
   }, [profileOpen]);
 
@@ -569,53 +567,31 @@ export default function DemoOnboardingTour({
                   After you hang
                 </h2>
                 <p className="text-xl text-ink/80 leading-relaxed">
-                  Keeps the map for people who show up and don&apos;t get weird.
+                  You will be able to rate the person you met, and you will also
+                  be rated.
                 </p>
                 <div
-                  className="flex items-center justify-center gap-2 pt-1"
-                  role="group"
-                  aria-label="Preview rating from 1 to 5"
+                  className="flex items-center justify-center gap-2 pt-1 pointer-events-none"
+                  aria-hidden
                 >
-                  {[1, 2, 3, 4, 5].map((n) => {
-                    const filled = previewRating >= n;
-                    return (
-                      <button
-                        key={n}
-                        type="button"
-                        onClick={() =>
-                          setPreviewRating((prev) => (prev === n ? 0 : n))
-                        }
-                        className="p-1.5 rounded-lg hover:bg-paper-2 transition-colors"
-                        aria-label={`${n} star${n === 1 ? "" : "s"}`}
-                        aria-pressed={filled}
+                  {[1, 2, 3, 4, 5].map((n) => (
+                    <span key={n} className="p-1.5">
+                      <svg
+                        width="44"
+                        height="44"
+                        viewBox="0 0 24 24"
+                        className="text-accent fill-accent"
                       >
-                        <svg
-                          width="44"
-                          height="44"
-                          viewBox="0 0 24 24"
-                          aria-hidden
-                          className={
-                            filled
-                              ? "text-accent fill-accent"
-                              : "text-navy/25 fill-transparent"
-                          }
-                        >
-                          <path
-                            stroke="currentColor"
-                            strokeWidth="1.5"
-                            strokeLinejoin="round"
-                            d="M12 2.5l2.9 5.88 6.5.95-4.7 4.58 1.11 6.47L12 17.27l-5.81 3.06 1.11-6.47-4.7-4.58 6.5-.95L12 2.5z"
-                          />
-                        </svg>
-                      </button>
-                    );
-                  })}
+                        <path
+                          stroke="currentColor"
+                          strokeWidth="1.5"
+                          strokeLinejoin="round"
+                          d="M12 2.5l2.9 5.88 6.5.95-4.7 4.58 1.11 6.47L12 17.27l-5.81 3.06 1.11-6.47-4.7-4.58 6.5-.95L12 2.5z"
+                        />
+                      </svg>
+                    </span>
+                  ))}
                 </div>
-                <p className="text-xl text-muted text-center tabular-nums">
-                  {previewRating > 0
-                    ? `${previewRating} / 5 · demo only, not saved`
-                    : "Tap a star to try it · demo only"}
-                </p>
               </div>
             )}
           </div>
