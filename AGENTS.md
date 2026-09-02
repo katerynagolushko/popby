@@ -8,11 +8,11 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 <!-- END:nextjs-agent-rules -->
 
-# Popby — project context (read this every session)
+# Hangbyme — project context (read this every session)
 
 ## Vision
 
-A world where startup people actually meet in person instead of rotting in DMs and feeds. Popby is **the social network that only works IRL**: no feed, no posts, no follower counts. The app's only job is to get two people in the same city to physically show up.
+A world where startup people actually meet in person instead of rotting in DMs and feeds. Hangbyme is **the social network that only works IRL**: no feed, no posts, no follower counts. The app's only job is to get two people in the same city to physically show up.
 
 ## Mission
 
@@ -63,7 +63,7 @@ Public path for Encode: **landing waitlist + `/demo`**. City-wide real accounts 
 ## Architecture / key decisions (don't relitigate these)
 
 - **Stack**: Next.js (App Router) + React + TypeScript + Tailwind v4; Supabase for auth (magic link), Postgres, and realtime; Vercel for deploy. Mobile-first PWA — no App Store for launch, QR → mobile web.
-- **Branding lives in `src/lib/brand.ts`** (APP_NAME = "Popby"). One-file rebrand — never hardcode the app name elsewhere.
+- **Branding lives in `src/lib/brand.ts`** (APP_NAME = "Hangbyme", domain Hangby.me). Wordmark via `Logo` / `AppWordmark`: navy **Hangby** + orange **me**. Never hardcode the app name elsewhere.
 - **Domain constants live in `src/lib/constants.ts`** (roles, hangout types, durations, London bounds) and **types in `src/lib/types.ts`**. Extend these, don't duplicate.
 - **Map**: native MapLibre GL JS, worker files served from `public/maplibre/` (copied by the `postinstall` script). **`src/middleware.ts` must keep excluding `maplibre/` and `.mjs` files from the auth matcher** — the map goes blank if the worker gets redirected to `/login`.
 - **Design**: must not look AI-generated. Syne + IBM Plex Sans fonts, navy/orange/cream palette, custom SVG logo in `src/components/Logo.tsx`. No stock gradients, no emoji mascots.

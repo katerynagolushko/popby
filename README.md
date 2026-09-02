@@ -1,6 +1,6 @@
-# Popby
+# Hangbyme
 
-**The social network that only works IRL.**
+**The social network that only works IRL.** Domain: [Hangby.me](https://hangby.me).
 
 See who's free to hang out in London right now. Founders, operators, investors — spontaneous meetups, no awkward cold intros.
 
@@ -45,4 +45,4 @@ Next.js · Supabase · MapLibre · OpenFreeMap · TypeScript
 
 ## License
 
-Private — Popby.
+Private — Hangbyme.

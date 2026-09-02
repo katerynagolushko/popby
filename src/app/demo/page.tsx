@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import Logo from "@/components/Logo";
 import PopbyMapLoader, { type MapPerson } from "@/components/PopbyMapLoader";
+import { APP_NAME } from "@/lib/brand";
 import GoLiveModal, { type GoLivePayload } from "@/components/GoLiveModal";
 import MatchCarousel from "@/components/MatchCarousel";
 import PersonSheet from "@/components/PersonSheet";
@@ -11,6 +12,8 @@ import RatingModal from "@/components/RatingModal";
 import DemoOnboardingTour, {
   DEFAULT_DEMO_DRAFT,
   DEMO_TOUR_STORAGE_KEY,
+  clearDemoTourDone,
+  readDemoTourDone,
   type DemoProfileDraft,
 } from "@/components/DemoOnboardingTour";
 import {
@@ -35,12 +38,7 @@ type ConnectionMap = Record<string, "none" | "pending" | "accepted">;
 type SelectedPerson = DemoPerson & { isSelf?: boolean };
 
 function readTourDone(): boolean {
-  if (typeof window === "undefined") return true;
-  try {
-    return sessionStorage.getItem(DEMO_TOUR_STORAGE_KEY) === "1";
-  } catch {
-    return false;
-  }
+  return readDemoTourDone();
 }
 
 function markTourDone() {
@@ -152,11 +150,7 @@ export default function DemoPage() {
     setShowGoLive(false);
     setSelected(null);
     setDraft({ ...DEFAULT_DEMO_DRAFT });
-    try {
-      sessionStorage.removeItem(DEMO_TOUR_STORAGE_KEY);
-    } catch {
-      /* ignore */
-    }
+    clearDemoTourDone();
     setCoachOpen(false);
     setProfileTourOpen(true);
   }
@@ -243,7 +237,7 @@ export default function DemoPage() {
         <header className="absolute top-0 inset-x-0 z-[1000] p-3 flex items-center justify-between pointer-events-none">
           <Link
             href="/"
-            aria-label="Popby home"
+            aria-label={`${APP_NAME} home`}
             className="pointer-events-auto bg-white/95 backdrop-blur rounded-xl px-3 py-2 shadow-lg border border-paper-3 cursor-pointer"
           >
             <Logo size="sm" />

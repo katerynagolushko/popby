@@ -1,4 +1,4 @@
-import { APP_NAME } from "@/lib/brand";
+import { APP_NAME_LEAD, APP_NAME_TAIL } from "@/lib/brand";
 
 interface LogoProps {
   size?: "sm" | "md" | "lg";
@@ -11,6 +11,20 @@ const sizes = {
   md: { icon: 36, text: "text-xl" },
   lg: { icon: 48, text: "text-2xl" },
 };
+
+/** Hangby (navy) + me (orange) — use anywhere the app name is shown as a wordmark */
+export function AppWordmark({
+  className = "",
+}: {
+  className?: string;
+}) {
+  return (
+    <span className={`font-display font-bold tracking-tight ${className}`}>
+      <span className="text-navy">{APP_NAME_LEAD}</span>
+      <span className="text-accent">{APP_NAME_TAIL}</span>
+    </span>
+  );
+}
 
 /** Custom mark — speech-bubble + map pin, not emoji */
 export function LogoMark({ size = 32 }: { size?: number }) {
@@ -54,13 +68,7 @@ export default function Logo({
   return (
     <div className={`flex items-center gap-2.5 ${className}`}>
       <LogoMark size={s.icon} />
-      {showWordmark && (
-        <span
-          className={`font-display font-bold tracking-tight text-navy ${s.text}`}
-        >
-          {APP_NAME}
-        </span>
-      )}
+      {showWordmark && <AppWordmark className={s.text} />}
     </div>
   );
 }

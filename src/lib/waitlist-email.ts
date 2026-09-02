@@ -1,4 +1,4 @@
-import { APP_NAME } from "@/lib/brand";
+import { APP_DOMAIN, APP_NAME } from "@/lib/brand";
 
 /**
  * Optional waitlist confirmation via Resend.
@@ -39,7 +39,7 @@ export async function sendWaitlistConfirmationEmail(
           "We'll email again when early access opens in London.",
           "No spam. No drip sequence.",
           "",
-          APP_NAME,
+          `${APP_NAME} · ${APP_DOMAIN}`,
         ].join("\n"),
       }),
     });

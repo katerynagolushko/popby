@@ -6,7 +6,33 @@ import { pickSessionDemoMePhoto } from "@/lib/demo-data";
 import type { CompanyType, Role, SocialsVisibility } from "@/lib/types";
 import Logo from "@/components/Logo";
 
-export const DEMO_TOUR_STORAGE_KEY = "popby-demo-tour-done";
+export const DEMO_TOUR_STORAGE_KEY = "hangbyme-demo-tour-done";
+const DEMO_TOUR_STORAGE_KEY_LEGACY = "popby-demo-tour-done";
+
+/** Read tour-done flag; migrate legacy Popby key once. */
+export function readDemoTourDone(): boolean {
+  if (typeof window === "undefined") return false;
+  try {
+    if (sessionStorage.getItem(DEMO_TOUR_STORAGE_KEY) === "1") return true;
+    if (sessionStorage.getItem(DEMO_TOUR_STORAGE_KEY_LEGACY) === "1") {
+      sessionStorage.setItem(DEMO_TOUR_STORAGE_KEY, "1");
+      sessionStorage.removeItem(DEMO_TOUR_STORAGE_KEY_LEGACY);
+      return true;
+    }
+    return false;
+  } catch {
+    return false;
+  }
+}
+
+export function clearDemoTourDone() {
+  try {
+    sessionStorage.removeItem(DEMO_TOUR_STORAGE_KEY);
+    sessionStorage.removeItem(DEMO_TOUR_STORAGE_KEY_LEGACY);
+  } catch {
+    /* ignore */
+  }
+}
 
 export type DemoProfileDraft = {
   first_name: string;

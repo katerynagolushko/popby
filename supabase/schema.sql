@@ -1,4 +1,4 @@
--- Popby database schema — run in Supabase SQL Editor
+-- Hangbyme database schema — run in Supabase SQL Editor
 -- Source of truth. Also see supabase/migrations/ for incremental alters.
 
 create extension if not exists "uuid-ossp";

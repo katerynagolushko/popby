@@ -17,14 +17,22 @@ import {
 
 type ConnStatus = "none" | "pending" | "accepted";
 
-const STORAGE_KEY = "popby-demo-connections";
+const STORAGE_KEY = "hangbyme-demo-connections";
+const STORAGE_KEY_LEGACY = "popby-demo-connections";
 
 function readConnections(): Record<string, ConnStatus> {
   if (typeof window === "undefined") return {};
   try {
-    const raw = sessionStorage.getItem(STORAGE_KEY);
+    const raw =
+      sessionStorage.getItem(STORAGE_KEY) ??
+      sessionStorage.getItem(STORAGE_KEY_LEGACY);
     if (!raw) return {};
-    return JSON.parse(raw) as Record<string, ConnStatus>;
+    const parsed = JSON.parse(raw) as Record<string, ConnStatus>;
+    if (!sessionStorage.getItem(STORAGE_KEY) && sessionStorage.getItem(STORAGE_KEY_LEGACY)) {
+      sessionStorage.setItem(STORAGE_KEY, raw);
+      sessionStorage.removeItem(STORAGE_KEY_LEGACY);
+    }
+    return parsed;
   } catch {
     return {};
   }
@@ -33,6 +41,7 @@ function readConnections(): Record<string, ConnStatus> {
 function writeConnections(map: Record<string, ConnStatus>) {
   try {
     sessionStorage.setItem(STORAGE_KEY, JSON.stringify(map));
+    sessionStorage.removeItem(STORAGE_KEY_LEGACY);
   } catch {
     /* ignore quota */
   }

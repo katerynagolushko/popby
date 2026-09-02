@@ -1,6 +1,6 @@
 {
-  "name": "Popby",
-  "short_name": "Popby",
+  "name": "Hangbyme",
+  "short_name": "Hangbyme",
   "description": "The social network that only works IRL",
   "start_url": "/map",
   "display": "standalone",

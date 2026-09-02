@@ -4,7 +4,7 @@ import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import Link from "next/link";
 import Logo from "@/components/Logo";
-import { APP_CITY } from "@/lib/brand";
+import { APP_CITY, APP_NAME } from "@/lib/brand";
 
 type Step = "choose" | "email" | "code";
 
@@ -65,7 +65,7 @@ export default function LoginPage() {
       return;
     }
     setInfo(
-      "Enter the 6-digit code from the email. If you only got a link, open it on this device so it returns you to Popby, not localhost."
+      `Enter the 6-digit code from the email. If you only got a link, open it on this device so it returns you to ${APP_NAME}, not localhost.`
     );
     setStep("code");
   }

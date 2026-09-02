@@ -1,6 +1,6 @@
-# Popby — setup in ~15 minutes
+# Hangbyme — setup in ~15 minutes
 
-Popby is a London-only IRL hangout app for startup people.
+Hangbyme (Hangby.me) is a London-only IRL hangout app for startup people.
 
 ## 1. Supabase (5 min)
 
@@ -43,7 +43,7 @@ Code path is ready in `src/lib/waitlist-email.ts`. If keys are missing, signup s
 1. Create a [Resend](https://resend.com) account.
 2. Add and verify your domain (DNS: SPF, DKIM, and whatever Resend shows for the domain). Until the domain is verified, you can only send from Resend’s onboarding address in test mode.
 3. Create an API key. Put it in Vercel / `.env.local` as `RESEND_API_KEY`.
-4. Set `WAITLIST_FROM_EMAIL` to a verified sender, e.g. `Popby <hello@yourdomain.com>`.
+4. Set `WAITLIST_FROM_EMAIL` to a verified sender, e.g. `Hangbyme <hello@hangby.me>`.
 5. Redeploy. Join the waitlist once and check Resend → Emails plus the inbox.
 
 Do not pretend email works without keys. The API returns `emailSent: true|false` so you can confirm.
