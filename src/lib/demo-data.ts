@@ -26,10 +26,10 @@ export const DEMO_ME_ID = "demo-me";
 
 /**
  * Full ranking pool. Kept under unique-portrait capacity so faces don't
- * obviously repeat on the map or in Top 5. Cap tracks the curated LinkedIn
- * Unsplash allowlist (see demo-portraits.ts) minus leftovers for demo "You".
+ * obviously repeat on the map or in Top 5. Cap tracks the curated local
+ * LinkedIn pool (see demo-portraits.ts) minus leftovers for demo "You".
  */
-export const DEMO_PERSON_COUNT = 52;
+export const DEMO_PERSON_COUNT = 46;
 
 /**
  * MapLibre paints a city-wide geographic subsample (never nearest-to-Old-Street).
@@ -530,7 +530,7 @@ let demoMeMalePool: string[] = [];
 let demoMeFemalePool: string[] = [];
 
 function generateSeeds(count: number): DemoSeed[] {
-  const rng = mulberry32(20260902);
+  const rng = mulberry32(20260903);
   const pools = buildGenderedPortraitPools(rng);
   const usedPhotos = new Set<string>();
 
