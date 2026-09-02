@@ -26,23 +26,27 @@ export const DEMO_PERSON_COUNT = 350;
  * Ranking / Top 5 always use the full DEMO_PERSON_COUNT set;
  * the map paints a density-capped, city-wide spread subsample
  * (coarse geographic cells — never "nearest to Old Street").
+ *
+ * Gaps are large on purpose: at zoom ~11 a face pin is ~40px, and
+ * ~50m/px means sub-km gaps still read as one overlapping blob.
  */
-export const DEMO_MAP_MARKER_LIMIT = 48;
+export const DEMO_MAP_MARKER_LIMIT = 28;
 
 /** Min metres between any two generated pins (city-wide). */
 const MIN_PIN_GAP_M = 95;
 
 /**
- * Map subsample spacing. Coarse enough that city zoom shows separate
- * neighborhood groups, not one overlapping East London pile.
+ * Map subsample spacing sized for city zoom readability.
+ * Neighborhood groups stay distinct; zoom in and faces are still clear.
+ * (~60m/px at z10.7, 42px faces → need ~2km+ between pins)
  */
-const MAP_LOCAL_RADIUS_M = 700;
-const MAP_MAX_LOCAL = 2;
-const MAP_MIN_GAP_M = 380;
+const MAP_LOCAL_RADIUS_M = 2400;
+const MAP_MAX_LOCAL = 1;
+const MAP_MIN_GAP_M = 2000;
 
-/** ~2.2km lat / ~2.1km lng cells for map display bucketing. */
-const MAP_CELL_LAT = 0.02;
-const MAP_CELL_LNG = 0.03;
+/** ~3.3km lat / ~3.5km lng cells for map display bucketing. */
+const MAP_CELL_LAT = 0.03;
+const MAP_CELL_LNG = 0.05;
 
 export type DemoPerson = {
   profile: Profile & { avg_score?: number | null; rating_count?: number };

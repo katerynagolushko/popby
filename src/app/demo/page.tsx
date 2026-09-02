@@ -171,7 +171,7 @@ export default function DemoPage() {
         <PopbyMapLoader
           people={mapPeople}
           center={DEMO_MAP_CENTER}
-          zoom={11}
+          zoom={10.7}
           onPersonClick={handlePersonClick}
           className="h-full w-full"
         />

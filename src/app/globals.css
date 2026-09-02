@@ -83,11 +83,11 @@ h1, h2, h3 {
 
 .popby-marker {
   background: var(--accent);
-  border: 3px solid white;
+  border: 2.5px solid white;
   border-radius: 50%;
-  box-shadow: 0 3px 14px rgba(26, 31, 54, 0.3);
-  width: 58px;
-  height: 58px;
+  box-shadow: 0 3px 12px rgba(26, 31, 54, 0.28);
+  width: 42px;
+  height: 42px;
   overflow: hidden;
   cursor: pointer;
   transition: transform 0.15s ease, box-shadow 0.15s;
