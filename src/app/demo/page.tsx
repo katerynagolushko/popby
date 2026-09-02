@@ -26,10 +26,9 @@ import {
 } from "@/lib/demo-data";
 import { LONDON_CENTER } from "@/lib/constants";
 
-const DEMO_MAP_CENTER: [number, number] = [
-  51.512, // mid-London so west/south/east pins aren't cropped at city zoom
-  -0.12,
-];
+/** Frames the central London pin cluster (not Greater London empty outskirts). */
+const DEMO_MAP_CENTER: [number, number] = [51.505, -0.115];
+const DEMO_MAP_ZOOM = 12;
 
 type ConnectionMap = Record<string, "none" | "pending" | "accepted">;
 
@@ -242,9 +241,13 @@ export default function DemoPage() {
     <div className="h-[100dvh] flex flex-col relative bg-paper overflow-hidden">
       {!matchesOpen && (
         <header className="absolute top-0 inset-x-0 z-[1000] p-3 flex items-center justify-between pointer-events-none">
-          <div className="pointer-events-auto bg-white/95 backdrop-blur rounded-xl px-3 py-2 shadow-lg border border-paper-3">
+          <Link
+            href="/"
+            aria-label="Popby home"
+            className="pointer-events-auto bg-white/95 backdrop-blur rounded-xl px-3 py-2 shadow-lg border border-paper-3 cursor-pointer"
+          >
             <Logo size="sm" />
-          </div>
+          </Link>
           <div className="pointer-events-auto flex items-center gap-2">
             {tourHydrated && !tourBlocking && (
               <button
@@ -276,7 +279,7 @@ export default function DemoPage() {
         <PopbyMapLoader
           people={mapPeople}
           center={DEMO_MAP_CENTER}
-          zoom={10.7}
+          zoom={DEMO_MAP_ZOOM}
           onPersonClick={handlePersonClick}
           className="h-full w-full"
         />
