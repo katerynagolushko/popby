@@ -290,7 +290,7 @@ export default function DemoOnboardingTour({
       <div className="flex-1 flex flex-col justify-end sm:justify-center p-3 sm:p-6 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
         <div className="w-full max-w-xl sm:max-w-2xl mx-auto bg-paper rounded-2xl border-2 border-navy shadow-2xl overflow-hidden flex flex-col max-h-[min(94dvh,860px)] demo-tour-sheet">
           <div className="bg-navy text-white px-5 sm:px-7 py-4 sm:py-5 flex items-center justify-between gap-3 shrink-0">
-            <Logo size="md" />
+            <Logo size="md" tone="onDark" />
             <div className="flex items-center gap-4">
               <span className="text-xl font-semibold tracking-wide text-white/85 tabular-nums">
                 {stepIndex(step)} / {TOTAL_STEPS}

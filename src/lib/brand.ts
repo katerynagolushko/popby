@@ -1,8 +1,8 @@
 /** Change name here if you pick something else — one place to rebrand */
 export const APP_NAME = "Hangbyme";
-/** First part of the wordmark (navy) */
+/** First part of the wordmark (navy on light / white on dark) */
 export const APP_NAME_LEAD = "Hangby";
-/** Second part of the wordmark (orange accent) */
+/** Second part of the wordmark (orange accent on light and dark) */
 export const APP_NAME_TAIL = "me";
 /** Public domain shown in copy / emails */
 export const APP_DOMAIN = "Hangby.me";
