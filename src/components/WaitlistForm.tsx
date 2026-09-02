@@ -357,17 +357,16 @@ export default function WaitlistForm({
       )}
       <p className="text-lg text-navy/70 leading-relaxed">
         {isCity ? (
-          "Tell us where you are. V1 is London — this list helps us pick the next city."
+          "Tell us where you are. V1 is London. This list helps us pick the next city."
         ) : (
           <>
-            V1 for London. For the worldwide list,{" "}
+            V1 for London, for the worldwide list{" "}
             <Link
               href="/waitlist/city"
               className="text-navy font-medium underline underline-offset-2 hover:text-accent"
             >
               click here
             </Link>
-            .
           </>
         )}
       </p>
