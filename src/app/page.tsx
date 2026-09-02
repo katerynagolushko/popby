@@ -16,44 +16,40 @@ export default async function HomePage({
       <section className="relative z-10 flex flex-col w-full min-h-svh lg:h-full lg:min-h-0 lg:w-[44%] xl:w-[40%] px-5 pt-3 pb-4 sm:px-8 sm:pt-4 sm:pb-5 lg:px-10 lg:pt-5 lg:pb-6 xl:px-12">
         <Logo size="md" />
 
-        <div className="flex-1 flex flex-col justify-evenly gap-6 sm:gap-8 min-h-0 py-4 sm:py-6 lg:py-2">
-          <hgroup className="max-w-xl">
-            <h1 className="font-display font-extrabold text-4xl sm:text-5xl xl:text-6xl text-navy leading-[1.05] tracking-[-0.04em]">
+        <div className="flex-1 flex flex-col justify-center min-h-0 py-5 sm:py-6 lg:py-4">
+          <div className="flex flex-col gap-5 sm:gap-6 max-w-xl">
+            <h1 className="font-display font-extrabold text-5xl sm:text-6xl xl:text-7xl text-navy leading-[1.02] tracking-[-0.04em]">
               The <span className="hl-accent">startup</span> social network for{" "}
               <span className="hl-accent">IRL</span>
             </h1>
-            <p className="mt-2 sm:mt-2.5 font-display font-semibold text-xl sm:text-2xl text-navy/55 tracking-[-0.02em]">
-              London Edition
-            </p>
-          </hgroup>
 
-          <p className="max-w-xl font-display font-semibold tracking-[-0.02em] text-[1.4rem] sm:text-[1.7rem] xl:text-[1.9rem] leading-[1.25] text-navy">
-            It&apos;s time to make it easy to meet{" "}
-            <span className="hl-accent">cool people</span> in the startup world
-          </p>
+            <div className="flex flex-col gap-1.5 sm:gap-2">
+              <p className="font-display font-semibold tracking-[-0.02em] text-[1.4rem] sm:text-[1.7rem] xl:text-[1.9rem] leading-[1.25] text-navy">
+                It&apos;s time to make it easy to meet{" "}
+                <span className="hl-accent">cool people</span> in the startup world
+              </p>
+              <p className="font-display font-semibold tracking-[-0.02em] text-[1.25rem] sm:text-[1.5rem] xl:text-[1.7rem] leading-[1.25] text-navy">
+                #spontaneous hangouts
+              </p>
+            </div>
 
-          {softGated && (
-            <p className="text-base sm:text-lg text-navy bg-paper-2 border border-paper-3 rounded-xl px-4 py-2.5 max-w-xl leading-snug">
-              The live map with real accounts isn&apos;t open yet. Join the
-              waitlist or try the full demo with fake people across {APP_CITY}.
-            </p>
-          )}
+            {softGated && (
+              <p className="text-base sm:text-lg text-navy bg-paper-2 border border-paper-3 rounded-xl px-4 py-2.5 leading-snug">
+                The live map with real accounts isn&apos;t open yet. Join the
+                waitlist or try the full demo with fake people across {APP_CITY}.
+              </p>
+            )}
 
-          <div className="flex flex-col gap-5 sm:gap-6">
-            <p className="max-w-xl font-display font-semibold tracking-[-0.02em] text-[1.4rem] sm:text-[1.7rem] xl:text-[1.9rem] leading-[1.25] text-navy">
-              #spontaneous hangouts
-            </p>
-
-            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 shrink-0">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 shrink-0 pt-1">
               <Link
                 href="/waitlist"
-                className="popby-btn popby-btn-accent text-[1.55rem] sm:text-[1.85rem] px-12 sm:px-16 py-6 sm:py-7 min-h-[104px] sm:min-h-[116px] rounded-[16px]"
+                className="popby-btn popby-btn-accent text-[1.7rem] sm:text-[2rem] xl:text-[2.15rem] px-12 sm:px-16 py-7 sm:py-8 min-h-[112px] sm:min-h-[128px] rounded-[16px]"
               >
                 Join the waitlist
               </Link>
               <Link
                 href="/demo"
-                className="popby-btn popby-btn-navy text-[1.55rem] sm:text-[1.85rem] px-12 sm:px-16 py-6 sm:py-7 min-h-[104px] sm:min-h-[116px] rounded-[16px]"
+                className="popby-btn popby-btn-navy text-[1.7rem] sm:text-[2rem] xl:text-[2.15rem] px-12 sm:px-16 py-7 sm:py-8 min-h-[112px] sm:min-h-[128px] rounded-[16px]"
               >
                 Try the full demo
               </Link>
