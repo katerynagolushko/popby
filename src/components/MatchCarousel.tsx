@@ -89,8 +89,8 @@ export default function MatchCarousel({
             {title}
           </p>
           <p className="text-sm text-muted mt-1.5 leading-snug">
-            Connect. If they connect back, you&apos;re a pair. Swipe sideways —
-            tap a card for more.
+            Connect. If they connect back, you&apos;re a pair. Swipe sideways.
+            Tap a card for more.
           </p>
         </div>
       </header>

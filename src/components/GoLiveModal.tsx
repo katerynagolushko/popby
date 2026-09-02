@@ -193,7 +193,7 @@ export default function GoLiveModal({
             <h2 className="text-xl text-navy font-display">Go live</h2>
             <p className="text-xs text-muted">
               {demo
-                ? "Demo mode: fake people will rank against your picks"
+                ? "Demo: matches rank against your picks"
                 : "People nearby can see you while you're live"}
             </p>
           </div>

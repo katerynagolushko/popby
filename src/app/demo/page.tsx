@@ -186,11 +186,11 @@ export default function DemoPage() {
                   className="text-lg font-bold tracking-tight leading-snug"
                   style={{ fontFamily: "var(--font-syne), system-ui, sans-serif" }}
                 >
-                  Fake London crowd for Encode
+                  Simulated London crowd
                 </p>
                 <p className="text-sm text-white/85 mt-1 leading-snug">
-                  Go live and we pick {DEMO_TOP_MATCH_COUNT} people you should
-                  meet. Pins are spread across the city, not one blob.
+                  Go live, and we pick {DEMO_TOP_MATCH_COUNT} people you should
+                  meet.
                 </p>
               </div>
             </div>
