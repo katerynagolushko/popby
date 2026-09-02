@@ -182,7 +182,7 @@ function CardFace({
         <img
           src={person.photo}
           alt=""
-          className="w-10 h-10 rounded-full object-cover bg-paper-2"
+          className="w-10 h-10 rounded-full object-cover object-top bg-paper-2"
         />
         <div className="min-w-0">
           <p className="text-lg font-semibold text-navy truncate">

@@ -129,7 +129,7 @@ export default function MatchCarousel({
                       <img
                         src={p.profile.photo_url}
                         alt=""
-                        className="absolute inset-0 w-full h-full object-cover"
+                        className="absolute inset-0 w-full h-full object-cover object-top"
                         draggable={false}
                         onError={(e) => {
                           (e.target as HTMLImageElement).style.visibility =
@@ -176,30 +176,30 @@ export default function MatchCarousel({
                   </div>
                 </button>
 
-                <div className="px-4 pb-4 pt-1 flex-shrink-0 flex flex-col gap-2">
+                <div className="px-4 pb-4 pt-3 flex-shrink-0 flex flex-col gap-3">
                   {status === "none" ? (
                     <button
                       type="button"
                       onClick={() => onConnect(p.profile.id)}
-                      className="w-full text-xl font-semibold bg-accent text-white rounded-xl px-4 py-4 min-h-[56px] hover:bg-accent-dark shadow-sm"
+                      className="w-full text-xl font-semibold bg-accent text-white rounded-xl px-4 py-3.5 min-h-[52px] hover:bg-accent-dark shadow-sm"
                     >
                       Connect
                     </button>
                   ) : status === "pending" ? (
-                    <div className="w-full text-center text-xl text-navy/70 font-medium py-4 min-h-[56px] rounded-xl bg-paper-2 border border-paper-3 inline-flex items-center justify-center">
+                    <div className="w-full text-center text-xl text-navy/70 font-medium py-3.5 min-h-[52px] rounded-xl bg-paper-2 border border-paper-3 inline-flex items-center justify-center">
                       Waiting on them…
                     </div>
                   ) : (
                     <Link
                       href="/waitlist"
-                      className="w-full text-center text-xl font-semibold bg-navy text-white rounded-xl px-4 py-4 min-h-[56px] hover:bg-navy-soft shadow-sm"
+                      className="w-full text-center text-xl font-semibold bg-navy text-white rounded-xl px-4 py-3.5 min-h-[52px] hover:bg-navy-soft shadow-sm"
                     >
                       Join waitlist to message
                     </Link>
                   )}
                   <Link
                     href={`/demo/person/${p.profile.id}`}
-                    className="w-full text-center text-xl font-semibold text-navy py-4 min-h-[56px] rounded-xl border-2 border-navy/15 bg-white hover:border-navy/40 inline-flex items-center justify-center"
+                    className="w-full text-center text-xl font-semibold text-navy py-3.5 min-h-[52px] rounded-xl border-2 border-navy/15 bg-white hover:border-navy/40 inline-flex items-center justify-center"
                   >
                     View profile
                   </Link>

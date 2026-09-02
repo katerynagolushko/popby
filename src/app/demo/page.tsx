@@ -254,24 +254,25 @@ export default function DemoPage() {
   return (
     <div className="h-[100dvh] flex flex-col relative bg-paper overflow-hidden">
       {!matchesOpen && (
-        <header className="absolute top-0 inset-x-0 z-[1000] p-3 flex items-center justify-between pointer-events-none">
+        <header className="absolute top-0 inset-x-0 z-[1000] p-3 flex items-center justify-between gap-2 pointer-events-none">
           <Logo
             size="sm"
-            className="pointer-events-auto bg-white/95 backdrop-blur rounded-xl px-3 py-2 shadow-lg border border-paper-3 cursor-pointer"
+            className="pointer-events-auto bg-white/95 backdrop-blur rounded-xl px-2.5 py-1.5 sm:px-3 sm:py-2 shadow-lg border border-paper-3 cursor-pointer shrink-0 max-w-[42%]"
           />
-          <div className="pointer-events-auto flex items-center gap-2">
+          <div className="pointer-events-auto flex items-center gap-2 shrink-0">
             {tourHydrated && !tourBlocking && (
               <button
                 type="button"
                 onClick={handleReplayTour}
-                className="text-lg bg-white/95 text-navy px-4 min-h-[52px] inline-flex items-center rounded-xl font-semibold border-2 border-navy/20 shadow-md"
+                className="text-base sm:text-lg bg-white/95 text-navy px-3 sm:px-4 min-h-[44px] sm:min-h-[52px] inline-flex items-center rounded-xl font-semibold border-2 border-navy/20 shadow-md whitespace-nowrap"
               >
-                Replay tour
+                <span className="sm:hidden">Tour</span>
+                <span className="hidden sm:inline">Replay tour</span>
               </button>
             )}
             <Link
               href="/waitlist"
-              className="text-lg bg-navy text-white px-5 min-h-[52px] inline-flex items-center rounded-xl font-semibold shadow-md"
+              className="text-base sm:text-lg bg-navy text-white px-3 sm:px-5 min-h-[44px] sm:min-h-[52px] inline-flex items-center rounded-xl font-semibold shadow-md whitespace-nowrap"
             >
               Waitlist
             </Link>
@@ -297,7 +298,7 @@ export default function DemoPage() {
       </div>
 
       {showIntroBanner && (
-        <div className="absolute top-14 inset-x-3 z-[900] pointer-events-none">
+        <div className="absolute top-[4.75rem] sm:top-16 inset-x-3 z-[900] pointer-events-none">
           <div className="pointer-events-auto max-w-lg mx-auto">
             <div className="bg-white border-2 border-navy rounded-2xl shadow-xl overflow-hidden">
               <div className="bg-navy text-white px-4 py-3.5">
