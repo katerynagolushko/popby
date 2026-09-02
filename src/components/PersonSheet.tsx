@@ -210,17 +210,26 @@ export default function PersonSheet({
                   <p className="text-sm font-bold text-navy">You&apos;re a pair</p>
                   <p className="text-xs text-navy/80 mt-0.5 leading-snug">
                     {demo
-                      ? "They connected back. You can message (demo)."
+                      ? "They connected back. Messaging needs a real account."
                       : "They connected back. You can message."}
                   </p>
                 </div>
-                <button
-                  type="button"
-                  onClick={onMessage}
-                  className="popby-btn popby-btn-accent w-full"
-                >
-                  Message
-                </button>
+                {demo ? (
+                  <Link
+                    href="/#waitlist"
+                    className="popby-btn popby-btn-accent w-full text-center"
+                  >
+                    Join waitlist to message
+                  </Link>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={onMessage}
+                    className="popby-btn popby-btn-accent w-full"
+                  >
+                    Message
+                  </button>
+                )}
                 <button
                   type="button"
                   onClick={onRate}

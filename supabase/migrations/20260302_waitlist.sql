@@ -4,6 +4,9 @@
 create table if not exists public.waitlist (
   id uuid primary key default uuid_generate_v4(),
   email text not null,
+  name text,
+  role text,
+  company_type text,
   source text not null default 'landing',
   created_at timestamptz default now() not null,
   constraint waitlist_email_unique unique (email)

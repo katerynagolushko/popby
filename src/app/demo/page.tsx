@@ -16,7 +16,6 @@ import DemoOnboardingTour, {
 import {
   DEMO_ME_ID,
   DEMO_ME_PROFILE,
-  DEMO_PERSON_COUNT,
   DEMO_TOP_MATCH_COUNT,
   INITIAL_DEMO_PEOPLE,
   pickSessionDemoMePhoto,
@@ -228,7 +227,7 @@ export default function DemoPage() {
   }
 
   function handleMessage() {
-    showToast("Messaging needs a real account. Join the waitlist from home.");
+    window.location.assign("/#waitlist");
   }
 
   function getConnectionStatus(userId: string): "none" | "pending" | "accepted" {
@@ -251,17 +250,14 @@ export default function DemoPage() {
               <button
                 type="button"
                 onClick={handleReplayTour}
-                className="text-xs bg-white/95 text-navy px-2.5 py-1 rounded-lg font-medium border border-paper-3 shadow-sm"
+                className="text-sm bg-white/95 text-navy px-3.5 py-2 rounded-xl font-semibold border-2 border-navy/20 shadow-md"
               >
                 Replay tour
               </button>
             )}
-            <span className="text-xs bg-accent text-white px-2.5 py-1 rounded-lg font-semibold">
-              Demo · {DEMO_PERSON_COUNT} people
-            </span>
             <Link
-              href="/"
-              className="text-xs bg-navy text-white px-3 py-1.5 rounded-lg font-medium"
+              href="/#waitlist"
+              className="text-sm bg-navy text-white px-4 py-2 rounded-xl font-semibold shadow-md"
             >
               Waitlist
             </Link>
@@ -360,7 +356,6 @@ export default function DemoPage() {
           getConnectionStatus={getConnectionStatus}
           onOpen={(p) => setSelected({ ...p })}
           onConnect={handleConnect}
-          onMessage={() => handleMessage()}
           onBackToMap={() => setShowMatches(false)}
           onEdit={() => setShowGoLive(true)}
           onStop={handleStopLive}

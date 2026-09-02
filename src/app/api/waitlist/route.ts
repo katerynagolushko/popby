@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { COMPANY_TYPES, ROLES } from "@/lib/constants";
+import type { CompanyType, Role } from "@/lib/types";
 import { sendWaitlistConfirmationEmail } from "@/lib/waitlist-email";
 
 function getEnv() {
@@ -12,9 +14,26 @@ function getEnv() {
 }
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const ROLE_VALUES = new Set(ROLES.map((r) => r.value));
+const COMPANY_VALUES = new Set(COMPANY_TYPES.map((c) => c.value));
+
+function isMissingColumnError(error: { code?: string; message: string }): boolean {
+  return (
+    error.code === "PGRST204" ||
+    /could not find the .+ column/i.test(error.message) ||
+    /column .+ does not exist/i.test(error.message) ||
+    /schema cache/i.test(error.message)
+  );
+}
 
 export async function POST(request: Request) {
-  let body: { email?: string; source?: string };
+  let body: {
+    email?: string;
+    name?: string;
+    role?: string;
+    company_type?: string;
+    source?: string;
+  };
   try {
     body = await request.json();
   } catch {
@@ -29,6 +48,25 @@ export async function POST(request: Request) {
     );
   }
 
+  const name = (body.name ?? "").trim().slice(0, 80);
+  if (!name) {
+    return NextResponse.json({ ok: false, error: "Need a name." }, { status: 400 });
+  }
+
+  const roleRaw = (body.role ?? "").trim();
+  const companyRaw = (body.company_type ?? "").trim();
+  if (!ROLE_VALUES.has(roleRaw as Role)) {
+    return NextResponse.json({ ok: false, error: "Pick a role." }, { status: 400 });
+  }
+  if (!COMPANY_VALUES.has(companyRaw as CompanyType)) {
+    return NextResponse.json(
+      { ok: false, error: "Pick a company type." },
+      { status: 400 }
+    );
+  }
+  const role = roleRaw as Role;
+  const company_type = companyRaw as CompanyType;
+
   const source =
     typeof body.source === "string" && body.source.length < 64
       ? body.source
@@ -39,17 +77,25 @@ export async function POST(request: Request) {
   let duplicate = false;
 
   if (!env) {
-    // UI still works in local/demo builds without Supabase; nothing is persisted.
-    console.warn("[waitlist] Supabase env missing — email accepted but not stored:", email);
+    console.warn(
+      "[waitlist] Supabase env missing — signup accepted but not stored:",
+      email
+    );
   } else {
     const supabase = createClient(env.url, env.key, {
       auth: { persistSession: false, autoRefreshToken: false },
     });
 
-    const { error } = await supabase.from("waitlist").insert({
-      email,
-      source,
-    });
+    const fullRow = { email, name, role, company_type, source };
+    let { error } = await supabase.from("waitlist").insert(fullRow);
+
+    // Older DBs may lack the new columns. Persist at least email so signup never dies.
+    if (error && isMissingColumnError(error)) {
+      console.warn(
+        "[waitlist] extra columns missing — storing email only. Run 20260902_waitlist_fields.sql"
+      );
+      ({ error } = await supabase.from("waitlist").insert({ email, source }));
+    }
 
     if (error) {
       if (error.code === "23505") {
@@ -67,7 +113,7 @@ export async function POST(request: Request) {
       } else {
         console.error("[waitlist] insert failed:", error.message);
         return NextResponse.json(
-          { ok: false, error: "Could not save email. Try again." },
+          { ok: false, error: "Could not save. Try again." },
           { status: 500 }
         );
       }
@@ -76,10 +122,9 @@ export async function POST(request: Request) {
     }
   }
 
-  // Confirmation email is optional. Never fail the signup if Resend isn't wired yet.
   let emailSent = false;
   if (!duplicate) {
-    const result = await sendWaitlistConfirmationEmail(email);
+    const result = await sendWaitlistConfirmationEmail(email, name);
     emailSent = result.sent;
     if (!result.sent && result.reason) {
       console.info("[waitlist] confirmation email skipped:", result.reason);

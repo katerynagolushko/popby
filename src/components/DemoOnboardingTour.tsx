@@ -28,7 +28,14 @@ export const DEFAULT_DEMO_DRAFT: DemoProfileDraft = {
   socials_visibility: "public",
 };
 
-type ProfileStep = "welcome" | "name" | "role" | "company" | "photo" | "socials";
+type ProfileStep =
+  | "welcome"
+  | "name"
+  | "role"
+  | "company"
+  | "photo"
+  | "socials"
+  | "reviews";
 
 const PROFILE_STEPS: ProfileStep[] = [
   "welcome",
@@ -37,6 +44,7 @@ const PROFILE_STEPS: ProfileStep[] = [
   "company",
   "photo",
   "socials",
+  "reviews",
 ];
 
 const TOTAL_STEPS = PROFILE_STEPS.length + 1; // + go-live coach mark
@@ -483,6 +491,22 @@ export default function DemoOnboardingTour({
                 </div>
               </div>
             )}
+            {step === "reviews" && (
+              <div className="space-y-3 pb-2">
+                <h2
+                  id={titleId}
+                  className="text-xl text-navy font-bold tracking-tight"
+                  style={{
+                    fontFamily: "var(--font-syne), system-ui, sans-serif",
+                  }}
+                >
+                  After you hang
+                </h2>
+                <p className="text-sm text-ink/80 leading-relaxed">
+                  Leave a useful review. Be decent.
+                </p>
+              </div>
+            )}
           </div>
 
           <div className="px-4 py-3 border-t border-paper-3 flex items-center gap-2 shrink-0 bg-white/60">
@@ -503,7 +527,7 @@ export default function DemoOnboardingTour({
               disabled={!canAdvance}
               className="popby-btn popby-btn-accent flex-1 disabled:opacity-50 text-sm py-2.5"
             >
-              {step === "socials" ? "See the map" : "Next"}
+              {step === "reviews" ? "See the map" : "Next"}
             </button>
           </div>
         </div>

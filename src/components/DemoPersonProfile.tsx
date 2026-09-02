@@ -221,7 +221,13 @@ export default function DemoPersonProfile({
                   They connected back. Messaging needs a real account.
                 </p>
               </div>
-              <Link href="/demo" className="popby-btn popby-btn-accent w-full text-center">
+              <Link
+                href="/#waitlist"
+                className="popby-btn popby-btn-accent w-full text-center"
+              >
+                Join waitlist to message
+              </Link>
+              <Link href="/demo" className="popby-btn popby-btn-ghost w-full text-center">
                 Back to matches
               </Link>
             </>

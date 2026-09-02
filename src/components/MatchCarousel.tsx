@@ -20,7 +20,6 @@ interface MatchCarouselProps {
   getConnectionStatus: (userId: string) => ConnectionStatus;
   onOpen: (person: DemoPerson) => void;
   onConnect: (userId: string) => void;
-  onMessage: (userId: string) => void;
   onBackToMap: () => void;
   onEdit: () => void;
   onStop: () => void;
@@ -34,7 +33,6 @@ export default function MatchCarousel({
   getConnectionStatus,
   onOpen,
   onConnect,
-  onMessage,
   onBackToMap,
   onEdit,
   onStop,
@@ -192,13 +190,12 @@ export default function MatchCarousel({
                       Waiting on them…
                     </div>
                   ) : (
-                    <button
-                      type="button"
-                      onClick={() => onMessage(p.profile.id)}
-                      className="w-full text-sm font-semibold bg-navy text-white rounded-xl px-3 py-3 hover:bg-navy-soft shadow-sm"
+                    <Link
+                      href="/#waitlist"
+                      className="w-full text-center text-sm font-semibold bg-navy text-white rounded-xl px-3 py-3 hover:bg-navy-soft shadow-sm"
                     >
-                      You&apos;re a pair · Message
-                    </button>
+                      Join waitlist to message
+                    </Link>
                   )}
                   <Link
                     href={`/demo/person/${p.profile.id}`}

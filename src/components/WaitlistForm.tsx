@@ -1,20 +1,42 @@
 "use client";
 
 import { useState } from "react";
+import { COMPANY_TYPES, ROLES } from "@/lib/constants";
+import type { CompanyType, Role } from "@/lib/types";
 
 type Status = "idle" | "loading" | "ok" | "error" | "duplicate";
 
 export default function WaitlistForm({ className = "" }: { className?: string }) {
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [role, setRole] = useState<Role | null>(null);
+  const [companyType, setCompanyType] = useState<CompanyType | null>(null);
   const [status, setStatus] = useState<Status>("idle");
   const [message, setMessage] = useState<string | null>(null);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    const trimmed = email.trim().toLowerCase();
-    if (!trimmed || !trimmed.includes("@")) {
+    const trimmedName = name.trim();
+    const trimmedEmail = email.trim().toLowerCase();
+
+    if (!trimmedName) {
+      setStatus("error");
+      setMessage("Need a name.");
+      return;
+    }
+    if (!trimmedEmail || !trimmedEmail.includes("@")) {
       setStatus("error");
       setMessage("Need a real email.");
+      return;
+    }
+    if (!role) {
+      setStatus("error");
+      setMessage("Pick a role.");
+      return;
+    }
+    if (!companyType) {
+      setStatus("error");
+      setMessage("Pick a company type.");
       return;
     }
 
@@ -25,7 +47,13 @@ export default function WaitlistForm({ className = "" }: { className?: string })
       const res = await fetch("/api/waitlist", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: trimmed, source: "landing" }),
+        body: JSON.stringify({
+          name: trimmedName,
+          email: trimmedEmail,
+          role,
+          company_type: companyType,
+          source: "landing",
+        }),
       });
       const data = (await res.json().catch(() => ({}))) as {
         ok?: boolean;
@@ -43,7 +71,10 @@ export default function WaitlistForm({ className = "" }: { className?: string })
               ? "You're on the list. Check your inbox for a quick confirmation."
               : "You're on the list. We'll email when early access opens in London."
         );
+        setName("");
         setEmail("");
+        setRole(null);
+        setCompanyType(null);
         return;
       }
 
@@ -57,47 +88,113 @@ export default function WaitlistForm({ className = "" }: { className?: string })
 
   if (status === "ok" || status === "duplicate") {
     return (
-      <div className={className}>
+      <div className={className} id="waitlist">
         <p className="text-base text-navy font-medium leading-relaxed">{message}</p>
       </div>
     );
   }
 
   return (
-    <form onSubmit={handleSubmit} className={`space-y-3 ${className}`}>
-      <label htmlFor="waitlist-email" className="block text-sm font-medium text-navy">
-        Early access waitlist
-      </label>
-      <div className="flex flex-col sm:flex-row gap-2">
+    <form
+      id="waitlist"
+      onSubmit={handleSubmit}
+      className={`space-y-4 ${className}`}
+    >
+      <div>
+        <label htmlFor="waitlist-name" className="block text-sm font-medium text-navy mb-1.5">
+          Early access waitlist
+        </label>
         <input
-          id="waitlist-email"
-          type="email"
-          name="email"
-          autoComplete="email"
+          id="waitlist-name"
+          type="text"
+          name="name"
+          autoComplete="name"
           required
-          value={email}
+          value={name}
           onChange={(e) => {
-            setEmail(e.target.value);
+            setName(e.target.value);
             if (status === "error") setStatus("idle");
           }}
-          placeholder="you@company.com"
-          className="popby-input flex-1"
+          placeholder="Name"
+          className="popby-input w-full"
           disabled={status === "loading"}
+          maxLength={80}
         />
-        <button
-          type="submit"
-          disabled={status === "loading"}
-          className="popby-btn popby-btn-accent sm:w-auto disabled:opacity-50"
-        >
-          {status === "loading" ? "Joining…" : "Join waitlist"}
-        </button>
       </div>
+
+      <input
+        id="waitlist-email"
+        type="email"
+        name="email"
+        autoComplete="email"
+        required
+        value={email}
+        onChange={(e) => {
+          setEmail(e.target.value);
+          if (status === "error") setStatus("idle");
+        }}
+        placeholder="you@company.com"
+        className="popby-input w-full"
+        disabled={status === "loading"}
+        aria-label="Email"
+      />
+
+      <div>
+        <p className="text-sm font-medium text-navy mb-2">I am a…</p>
+        <div className="flex flex-wrap gap-2">
+          {ROLES.map((r) => (
+            <button
+              key={r.value}
+              type="button"
+              disabled={status === "loading"}
+              onClick={() => {
+                setRole(r.value);
+                if (status === "error") setStatus("idle");
+              }}
+              className={`popby-chip ${role === r.value ? "popby-chip-selected" : ""}`}
+            >
+              {r.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div>
+        <p className="text-sm font-medium text-navy mb-2">Kind of company</p>
+        <div className="flex flex-wrap gap-2">
+          {COMPANY_TYPES.map((c) => (
+            <button
+              key={c.value}
+              type="button"
+              disabled={status === "loading"}
+              onClick={() => {
+                setCompanyType(c.value);
+                if (status === "error") setStatus("idle");
+              }}
+              className={`popby-chip ${
+                companyType === c.value ? "popby-chip-selected" : ""
+              }`}
+            >
+              {c.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <button
+        type="submit"
+        disabled={status === "loading"}
+        className="popby-btn popby-btn-accent w-full sm:w-auto disabled:opacity-50"
+      >
+        {status === "loading" ? "Joining…" : "Join waitlist"}
+      </button>
+
       {message && status === "error" && (
         <p className="text-sm text-red-600">{message}</p>
       )}
       <p className="text-xs text-muted leading-relaxed">
-        London only for now. No city-wide live map yet. Leave an email and try the
-        full demo below.
+        London only for now. No city-wide live map yet. Leave these and try the full
+        demo below.
       </p>
     </form>
   );
