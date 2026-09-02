@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import Logo from "@/components/Logo";
 import PopbyMapLoader, { type MapPerson } from "@/components/PopbyMapLoader";
@@ -57,8 +57,6 @@ export default function DemoPage() {
   const [tourHydrated, setTourHydrated] = useState(false);
   const [tourStatus, setTourStatus] = useState<DemoTourStatus>(null);
   const [profileTourOpen, setProfileTourOpen] = useState(false);
-  const [coachOpen, setCoachOpen] = useState(false);
-  const goLiveBtnRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     // Warm the portrait cache so map pins don't sit on the accent circle.
@@ -97,7 +95,7 @@ export default function DemoPage() {
   }, [people, myLive]);
 
   const matchesOpen = Boolean(myLive && showMatches && topMatches.length > 0);
-  const tourBlocking = profileTourOpen || coachOpen;
+  const tourBlocking = profileTourOpen;
 
   // Lock body / map scroll bleed while the fullscreen matches view is open.
   useEffect(() => {
@@ -131,28 +129,12 @@ export default function DemoPage() {
     markDemoTourDone();
     setTourStatus("done");
     setProfileTourOpen(false);
-    setCoachOpen(false);
   }
 
   function handleSkipTour() {
     markDemoTourSkipped();
     setTourStatus("skipped");
     setProfileTourOpen(false);
-    setCoachOpen(false);
-  }
-
-  function handleProfileDone() {
-    setProfileTourOpen(false);
-    setCoachOpen(true);
-  }
-
-  function handleCoachDone() {
-    finishTourPersist();
-  }
-
-  function handlePromptGoLive() {
-    finishTourPersist();
-    setShowGoLive(true);
   }
 
   function handleStartTour() {
@@ -161,7 +143,6 @@ export default function DemoPage() {
     setShowGoLive(false);
     setSelected(null);
     setDraft({ ...DEFAULT_DEMO_DRAFT });
-    setCoachOpen(false);
     setProfileTourOpen(true);
   }
 
@@ -213,7 +194,6 @@ export default function DemoPage() {
     setMyLive(session);
     setShowGoLive(false);
     setShowMatches(true);
-    if (coachOpen) finishTourPersist();
     showToast(
       payload.match_preference === "vibe"
         ? `You're live. ${DEMO_TOP_MATCH_COUNT} vibe matches.`
@@ -247,9 +227,7 @@ export default function DemoPage() {
 
   const preferVibe = myLive?.availability.match_preference === "vibe";
   const showIntroBanner =
-    !myLive && tourHydrated && !profileTourOpen && !coachOpen;
-  const showTourNudge =
-    showIntroBanner && tourStatus === "skipped";
+    !myLive && tourHydrated && !profileTourOpen && tourStatus === "skipped";
 
   return (
     <div className="h-[100dvh] flex flex-col relative bg-paper overflow-hidden">
@@ -309,19 +287,15 @@ export default function DemoPage() {
                   Simulated London crowd
                 </p>
                 <p className="text-lg text-white/85 mt-1 leading-snug">
-                  {showTourNudge
-                    ? "A one-minute walkthrough helps — or just go live."
-                    : `Go live, and we pick ${DEMO_TOP_MATCH_COUNT} people you should meet.`}
+                  A one-minute walkthrough helps — or tap I&apos;m free to hang out.
                 </p>
-                {showTourNudge && (
-                  <button
-                    type="button"
-                    onClick={handleStartTour}
-                    className="mt-3 text-lg font-semibold bg-white text-navy rounded-lg px-4 min-h-[44px] inline-flex items-center"
-                  >
-                    Take the tour
-                  </button>
-                )}
+                <button
+                  type="button"
+                  onClick={handleStartTour}
+                  className="mt-3 text-lg font-semibold bg-white text-navy rounded-lg px-4 min-h-[44px] inline-flex items-center"
+                >
+                  Take the tour
+                </button>
               </div>
             </div>
           </div>
@@ -360,7 +334,6 @@ export default function DemoPage() {
             </div>
           ) : (
             <button
-              ref={goLiveBtnRef}
               type="button"
               onClick={() => setShowGoLive(true)}
               className="pointer-events-auto popby-btn popby-btn-accent shadow-xl text-xl px-8 min-h-[56px] w-full max-w-sm"
@@ -433,12 +406,8 @@ export default function DemoPage() {
           draft={draft}
           onDraftChange={setDraft}
           profileOpen={profileTourOpen}
-          coachOpen={coachOpen && !myLive}
-          goLiveTargetRef={goLiveBtnRef}
           onSkipAll={handleSkipTour}
-          onProfileDone={handleProfileDone}
-          onCoachDone={handleCoachDone}
-          onPromptGoLive={handlePromptGoLive}
+          onProfileDone={finishTourPersist}
         />
       )}
 

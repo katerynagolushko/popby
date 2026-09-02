@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useLayoutEffect, useRef, useState, type RefObject } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { COMPANY_TYPES, ROLES } from "@/lib/constants";
 import { pickSessionDemoMePhoto } from "@/lib/demo-data";
 import type { CompanyType, Role, SocialsVisibility } from "@/lib/types";
@@ -116,21 +116,15 @@ const PROFILE_STEPS: ProfileStep[] = [
   "reviews",
 ];
 
-const TOTAL_STEPS = PROFILE_STEPS.length + 1; // + go-live coach mark
+const TOTAL_STEPS = PROFILE_STEPS.length;
 
 type DemoOnboardingTourProps = {
   draft: DemoProfileDraft;
   onDraftChange: (next: DemoProfileDraft) => void;
-  /** Profile steps overlay (welcome → socials) */
+  /** Profile steps overlay (welcome → reviews) */
   profileOpen: boolean;
-  /** Spotlight on the go-live CTA after profile steps */
-  coachOpen: boolean;
-  goLiveTargetRef: RefObject<HTMLElement | null>;
   onSkipAll: () => void;
   onProfileDone: () => void;
-  onCoachDone: () => void;
-  /** Cutout tap: dismiss coach and open go-live */
-  onPromptGoLive: () => void;
 };
 
 function stepIndex(step: ProfileStep): number {
@@ -141,16 +135,11 @@ export default function DemoOnboardingTour({
   draft,
   onDraftChange,
   profileOpen,
-  coachOpen,
-  goLiveTargetRef,
   onSkipAll,
   onProfileDone,
-  onCoachDone,
-  onPromptGoLive,
 }: DemoOnboardingTourProps) {
   const titleId = useId();
   const [step, setStep] = useState<ProfileStep>("welcome");
-  const [hole, setHole] = useState<DOMRect | null>(null);
   const nameInputRef = useRef<HTMLInputElement>(null);
 
   // Reset to welcome when replaying
@@ -175,28 +164,6 @@ export default function DemoOnboardingTour({
     // eslint-disable-next-line react-hooks/exhaustive-deps -- only seed once when entering photo
   }, [profileOpen, step]);
 
-  useLayoutEffect(() => {
-    if (!coachOpen) {
-      setHole(null);
-      return;
-    }
-    function measure() {
-      const el = goLiveTargetRef.current;
-      if (!el) {
-        setHole(null);
-        return;
-      }
-      setHole(el.getBoundingClientRect());
-    }
-    measure();
-    window.addEventListener("resize", measure);
-    window.addEventListener("scroll", measure, true);
-    return () => {
-      window.removeEventListener("resize", measure);
-      window.removeEventListener("scroll", measure, true);
-    };
-  }, [coachOpen, goLiveTargetRef]);
-
   function patch(partial: Partial<DemoProfileDraft>) {
     onDraftChange({ ...draft, ...partial });
   }
@@ -219,108 +186,8 @@ export default function DemoOnboardingTour({
   const canAdvance =
     step !== "name" || draft.first_name.trim().length > 0;
 
-  if (!profileOpen && !coachOpen) return null;
+  if (!profileOpen) return null;
 
-  if (coachOpen) {
-    const pad = 10;
-    const r = hole
-      ? {
-          top: Math.max(8, hole.top - pad),
-          left: Math.max(8, hole.left - pad),
-          width: hole.width + pad * 2,
-          height: hole.height + pad * 2,
-        }
-      : null;
-
-    return (
-      <div
-        className="fixed inset-0 z-[1100]"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby={titleId}
-      >
-        {/* Dim layer with cutout */}
-        <div className="absolute inset-0 pointer-events-none" aria-hidden>
-          {r ? (
-            <div
-              className="absolute rounded-2xl transition-[top,left,width,height] duration-200"
-              style={{
-                top: r.top,
-                left: r.left,
-                width: r.width,
-                height: r.height,
-                boxShadow: "0 0 0 9999px rgba(26, 31, 54, 0.72)",
-                outline: "2px solid var(--accent)",
-                outlineOffset: 2,
-              }}
-            />
-          ) : (
-            <div className="absolute inset-0 bg-navy/70" />
-          )}
-        </div>
-
-        {/* Invisible hit area so the real button stays clickable */}
-        {r && (
-          <button
-            type="button"
-            className="absolute z-[1] rounded-2xl bg-transparent"
-            style={{
-              top: r.top,
-              left: r.left,
-              width: r.width,
-              height: r.height,
-            }}
-            aria-label="I'm free to hang out"
-            onClick={onPromptGoLive}
-          />
-        )}
-
-        <div
-          className="absolute inset-x-3 z-[2] pointer-events-auto"
-          style={{
-            bottom: r
-              ? `calc(100dvh - ${r.top}px + 12px)`
-              : "max(6rem, env(safe-area-inset-bottom))",
-          }}
-        >
-          <div className="max-w-md sm:max-w-lg mx-auto relative">
-            <div className="bg-white border-2 border-navy rounded-2xl shadow-xl px-5 py-5 sm:px-6 sm:py-6">
-              <div className="flex items-center justify-between gap-2 mb-3">
-                <p className="text-xl font-semibold text-muted tabular-nums">
-                  {TOTAL_STEPS} / {TOTAL_STEPS}
-                </p>
-                <button
-                  type="button"
-                  onClick={onCoachDone}
-                  className="text-xl text-muted font-medium hover:text-navy min-h-[44px] px-1"
-                >
-                  Got it
-                </button>
-              </div>
-              <h2
-                id={titleId}
-                className="text-2xl sm:text-3xl text-navy font-bold tracking-tight leading-snug"
-                style={{ fontFamily: "var(--font-syne), system-ui, sans-serif" }}
-              >
-                You&apos;re in
-              </h2>
-              <p className="text-xl text-ink/80 mt-2 leading-relaxed">
-                Tap <span className="font-semibold text-navy">I&apos;m free to hang out</span>.
-                Pick format, intent, and how long. We&apos;ll show your top 5.
-              </p>
-            </div>
-            {/* Arrow pointing at the CTA */}
-            <div
-              className="mx-auto w-0 h-0 border-l-[10px] border-r-[10px] border-t-[12px] border-l-transparent border-r-transparent border-t-navy"
-              aria-hidden
-            />
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // Profile steps
   return (
     <div
       className="fixed inset-0 z-[1100] flex flex-col bg-navy/55 backdrop-blur-[2px]"
