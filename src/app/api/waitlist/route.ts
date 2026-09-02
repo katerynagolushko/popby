@@ -26,12 +26,22 @@ function isMissingColumnError(error: { code?: string; message: string }): boolea
   );
 }
 
+function optionalText(value: unknown, max: number): string | null {
+  if (typeof value !== "string") return null;
+  const trimmed = value.trim().slice(0, max);
+  return trimmed || null;
+}
+
 export async function POST(request: Request) {
   let body: {
     email?: string;
     name?: string;
     role?: string;
     company_type?: string;
+    city?: string | null;
+    country?: string | null;
+    social?: string | null;
+    feedback?: string | null;
     source?: string;
   };
   try {
@@ -72,6 +82,19 @@ export async function POST(request: Request) {
       ? body.source
       : "landing";
 
+  const isCityWaitlist = source === "city_waitlist";
+  const city = optionalText(body.city, 120);
+  const country = optionalText(body.country, 80);
+  const social = optionalText(body.social, 200);
+  const feedback = optionalText(body.feedback, 2000);
+
+  if (isCityWaitlist && !city) {
+    return NextResponse.json(
+      { ok: false, error: "Pick a city." },
+      { status: 400 }
+    );
+  }
+
   const env = getEnv();
   let stored = false;
   let duplicate = false;
@@ -86,15 +109,43 @@ export async function POST(request: Request) {
       auth: { persistSession: false, autoRefreshToken: false },
     });
 
-    const fullRow = { email, name, role, company_type, source };
+    const fullRow = {
+      email,
+      name,
+      role,
+      company_type,
+      city: city ?? (isCityWaitlist ? null : "London"),
+      country: country ?? (isCityWaitlist ? null : "United Kingdom"),
+      social,
+      feedback,
+      source,
+    };
+
     let { error } = await supabase.from("waitlist").insert(fullRow);
 
-    // Older DBs may lack the new columns. Persist at least email so signup never dies.
+    // Older DBs may lack newer columns. Fall back so signup never dies.
     if (error && isMissingColumnError(error)) {
       console.warn(
-        "[waitlist] extra columns missing — storing email only. Run 20260902_waitlist_fields.sql"
+        "[waitlist] extra columns missing — retrying leaner row. Run latest waitlist migrations."
       );
-      ({ error } = await supabase.from("waitlist").insert({ email, source }));
+      const midRow = {
+        email,
+        name,
+        role,
+        company_type,
+        city: fullRow.city,
+        country: fullRow.country,
+        source,
+      };
+      ({ error } = await supabase.from("waitlist").insert(midRow));
+      if (error && isMissingColumnError(error)) {
+        ({ error } = await supabase
+          .from("waitlist")
+          .insert({ email, name, role, company_type, source }));
+      }
+      if (error && isMissingColumnError(error)) {
+        ({ error } = await supabase.from("waitlist").insert({ email, source }));
+      }
     }
 
     if (error) {

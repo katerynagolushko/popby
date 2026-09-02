@@ -3,21 +3,50 @@
 import { useState } from "react";
 import { COMPANY_TYPES, ROLES } from "@/lib/constants";
 import type { CompanyType, Role } from "@/lib/types";
+import {
+  WAITLIST_CITIES,
+  WAITLIST_CITY_OTHER,
+  parseCityCountry,
+} from "@/lib/waitlist-cities";
 
 type Status = "idle" | "loading" | "ok" | "error" | "duplicate";
 
-export default function WaitlistForm({ className = "" }: { className?: string }) {
+export type WaitlistFormMode = "london" | "city";
+
+type WaitlistFormProps = {
+  className?: string;
+  /** London early access vs “launch in my city” demand list */
+  mode?: WaitlistFormMode;
+};
+
+const labelClass = "block text-lg font-medium text-navy mb-2.5";
+
+export default function WaitlistForm({
+  className = "",
+  mode = "london",
+}: WaitlistFormProps) {
+  const isCity = mode === "city";
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [role, setRole] = useState<Role | null>(null);
   const [companyType, setCompanyType] = useState<CompanyType | null>(null);
+  const [citySelect, setCitySelect] = useState("");
+  const [cityOther, setCityOther] = useState("");
+  const [social, setSocial] = useState("");
+  const [feedback, setFeedback] = useState("");
   const [status, setStatus] = useState<Status>("idle");
   const [message, setMessage] = useState<string | null>(null);
+
+  function clearError() {
+    if (status === "error") setStatus("idle");
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     const trimmedName = name.trim();
     const trimmedEmail = email.trim().toLowerCase();
+    const trimmedSocial = social.trim().slice(0, 200);
+    const trimmedFeedback = feedback.trim().slice(0, 2000);
 
     if (!trimmedName) {
       setStatus("error");
@@ -40,6 +69,35 @@ export default function WaitlistForm({ className = "" }: { className?: string })
       return;
     }
 
+    let city: string | null = null;
+    let country: string | null = null;
+
+    if (isCity) {
+      if (!citySelect) {
+        setStatus("error");
+        setMessage("Pick a city.");
+        return;
+      }
+      if (citySelect === WAITLIST_CITY_OTHER) {
+        const other = cityOther.trim().slice(0, 120);
+        if (!other) {
+          setStatus("error");
+          setMessage("Type your city.");
+          return;
+        }
+        const parsed = parseCityCountry(other);
+        city = parsed.city;
+        country = parsed.country;
+      } else {
+        const parsed = parseCityCountry(citySelect);
+        city = parsed.city;
+        country = parsed.country;
+      }
+    } else {
+      city = "London";
+      country = "United Kingdom";
+    }
+
     setStatus("loading");
     setMessage(null);
 
@@ -52,7 +110,11 @@ export default function WaitlistForm({ className = "" }: { className?: string })
           email: trimmedEmail,
           role,
           company_type: companyType,
-          source: "landing",
+          city,
+          country,
+          social: trimmedSocial || null,
+          feedback: trimmedFeedback || null,
+          source: isCity ? "city_waitlist" : "landing",
         }),
       });
       const data = (await res.json().catch(() => ({}))) as {
@@ -69,12 +131,18 @@ export default function WaitlistForm({ className = "" }: { className?: string })
             ? "You're already on the list."
             : data.emailSent
               ? "You're on the list. Check your inbox for a quick confirmation."
-              : "You're on the list. We'll email when early access opens in London."
+              : isCity
+                ? "You're on the list. We'll email if we launch near you."
+                : "You're on the list. We'll email when early access opens in London."
         );
         setName("");
         setEmail("");
         setRole(null);
         setCompanyType(null);
+        setCitySelect("");
+        setCityOther("");
+        setSocial("");
+        setFeedback("");
         return;
       }
 
@@ -101,10 +169,7 @@ export default function WaitlistForm({ className = "" }: { className?: string })
       className={`space-y-6 ${className}`}
     >
       <div>
-        <label
-          htmlFor="waitlist-name"
-          className="block text-lg font-medium text-navy mb-2.5"
-        >
+        <label htmlFor="waitlist-name" className={labelClass}>
           Name
         </label>
         <input
@@ -116,7 +181,7 @@ export default function WaitlistForm({ className = "" }: { className?: string })
           value={name}
           onChange={(e) => {
             setName(e.target.value);
-            if (status === "error") setStatus("idle");
+            clearError();
           }}
           placeholder="Your first name"
           className="popby-input w-full text-lg min-h-[54px]"
@@ -126,10 +191,7 @@ export default function WaitlistForm({ className = "" }: { className?: string })
       </div>
 
       <div>
-        <label
-          htmlFor="waitlist-email"
-          className="block text-lg font-medium text-navy mb-2.5"
-        >
+        <label htmlFor="waitlist-email" className={labelClass}>
           Email
         </label>
         <input
@@ -141,7 +203,7 @@ export default function WaitlistForm({ className = "" }: { className?: string })
           value={email}
           onChange={(e) => {
             setEmail(e.target.value);
-            if (status === "error") setStatus("idle");
+            clearError();
           }}
           placeholder="you@company.com"
           className="popby-input w-full text-lg min-h-[54px]"
@@ -149,8 +211,54 @@ export default function WaitlistForm({ className = "" }: { className?: string })
         />
       </div>
 
+      {isCity && (
+        <div>
+          <label htmlFor="waitlist-city" className={labelClass}>
+            What city are you in?
+          </label>
+          <select
+            id="waitlist-city"
+            name="city"
+            required
+            value={citySelect}
+            onChange={(e) => {
+              setCitySelect(e.target.value);
+              clearError();
+            }}
+            className="popby-input w-full text-lg min-h-[54px]"
+            disabled={status === "loading"}
+          >
+            <option value="" disabled>
+              Select city
+            </option>
+            {WAITLIST_CITIES.map((c) => (
+              <option key={c.value} value={c.value}>
+                {c.label}
+              </option>
+            ))}
+          </select>
+          {citySelect === WAITLIST_CITY_OTHER && (
+            <input
+              id="waitlist-city-other"
+              type="text"
+              name="city_other"
+              value={cityOther}
+              onChange={(e) => {
+                setCityOther(e.target.value);
+                clearError();
+              }}
+              placeholder="City, Country"
+              className="popby-input w-full text-lg min-h-[54px] mt-3"
+              disabled={status === "loading"}
+              maxLength={120}
+              required
+            />
+          )}
+        </div>
+      )}
+
       <div>
-        <p className="text-lg font-medium text-navy mb-2.5">I am a…</p>
+        <p className={labelClass}>I am a…</p>
         <div className="flex flex-wrap gap-2.5">
           {ROLES.map((r) => (
             <button
@@ -159,7 +267,7 @@ export default function WaitlistForm({ className = "" }: { className?: string })
               disabled={status === "loading"}
               onClick={() => {
                 setRole(r.value);
-                if (status === "error") setStatus("idle");
+                clearError();
               }}
               className={`popby-chip ${
                 role === r.value ? "popby-chip-selected" : ""
@@ -172,7 +280,7 @@ export default function WaitlistForm({ className = "" }: { className?: string })
       </div>
 
       <div>
-        <p className="text-lg font-medium text-navy mb-2.5">Kind of company</p>
+        <p className={labelClass}>Kind of company</p>
         <div className="flex flex-wrap gap-2.5">
           {COMPANY_TYPES.map((c) => (
             <button
@@ -181,7 +289,7 @@ export default function WaitlistForm({ className = "" }: { className?: string })
               disabled={status === "loading"}
               onClick={() => {
                 setCompanyType(c.value);
-                if (status === "error") setStatus("idle");
+                clearError();
               }}
               className={`popby-chip ${
                 companyType === c.value ? "popby-chip-selected" : ""
@@ -191,6 +299,48 @@ export default function WaitlistForm({ className = "" }: { className?: string })
             </button>
           ))}
         </div>
+      </div>
+
+      <div>
+        <label htmlFor="waitlist-social" className={labelClass}>
+          Social media{" "}
+          <span className="font-normal text-navy/55">(optional)</span>
+        </label>
+        <input
+          id="waitlist-social"
+          type="text"
+          name="social"
+          value={social}
+          onChange={(e) => {
+            setSocial(e.target.value);
+            clearError();
+          }}
+          placeholder="LinkedIn / X / Instagram handle or link"
+          className="popby-input w-full text-lg min-h-[54px]"
+          disabled={status === "loading"}
+          maxLength={200}
+        />
+      </div>
+
+      <div>
+        <label htmlFor="waitlist-feedback" className={labelClass}>
+          Feedback{" "}
+          <span className="font-normal text-navy/55">(optional)</span>
+        </label>
+        <textarea
+          id="waitlist-feedback"
+          name="feedback"
+          value={feedback}
+          onChange={(e) => {
+            setFeedback(e.target.value);
+            clearError();
+          }}
+          placeholder="Anything you want us to know"
+          className="popby-input w-full text-lg min-h-[120px] py-3 resize-y"
+          disabled={status === "loading"}
+          maxLength={2000}
+          rows={4}
+        />
       </div>
 
       <button
@@ -205,7 +355,9 @@ export default function WaitlistForm({ className = "" }: { className?: string })
         <p className="text-lg text-red-600">{message}</p>
       )}
       <p className="text-lg text-navy/70 leading-relaxed">
-        London only for now. No city-wide live map yet.
+        {isCity
+          ? "Tell us where you are. V1 is London — this list helps us pick the next city."
+          : "London only for now. No city-wide live map yet."}
       </p>
     </form>
   );

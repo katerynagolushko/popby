@@ -28,11 +28,14 @@ Fill in:
 
 ## Waitlist signups (where they go)
 
-Landing form → `POST /api/waitlist` → Supabase table `waitlist` (columns: email, source, created_at).
+Landing form → `POST /api/waitlist` → Supabase table `waitlist` (columns: email, name, role, company_type, city, country, social, feedback, source, created_at).
+
+- London waitlist: `/waitlist` (city defaults to London)
+- City demand waitlist: `/waitlist/city` (city required; optional social + feedback on both)
 
 View them: Supabase dashboard → **Table Editor** → **waitlist**.
 
-Migration: `supabase/migrations/20260302_waitlist.sql` (also in `schema.sql`). Run it once if the table is missing.
+Migrations: `supabase/migrations/20260302_waitlist.sql`, `20260902_waitlist_fields.sql`, `20260902_waitlist_city_social.sql` (also in `schema.sql`). Run if the table / columns are missing.
 
 Signup still returns ok if Supabase env is missing (local/demo); nothing is persisted in that case.
 

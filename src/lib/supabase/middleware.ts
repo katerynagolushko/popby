@@ -34,6 +34,7 @@ export async function updateSession(request: NextRequest) {
   const isPublic =
     path === "/" ||
     path === "/waitlist" ||
+    path.startsWith("/waitlist/") ||
     path === "/demo" ||
     path.startsWith("/demo/") ||
     isAuthPage ||

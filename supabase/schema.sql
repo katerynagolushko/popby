@@ -85,12 +85,18 @@ create table public.waitlist (
   name text,
   role text,
   company_type text,
+  city text,
+  country text,
+  social text,
+  feedback text,
   source text not null default 'landing',
   created_at timestamptz default now() not null,
   constraint waitlist_email_unique unique (email)
 );
 
 create index waitlist_created_idx on public.waitlist (created_at desc);
+create index waitlist_city_idx on public.waitlist (city);
+create index waitlist_source_idx on public.waitlist (source);
 
 -- Ratings after hangouts
 create table public.ratings (
