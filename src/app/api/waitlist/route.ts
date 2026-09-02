@@ -174,12 +174,12 @@ export async function POST(request: Request) {
   }
 
   let emailSent = false;
-  if (!duplicate) {
-    const result = await sendWaitlistConfirmationEmail(email, name);
-    emailSent = result.sent;
-    if (!result.sent && result.reason) {
-      console.info("[waitlist] confirmation email skipped:", result.reason);
-    }
+  // Always try to send — including duplicates — so people who joined before
+  // email was live still get a confirmation when they try again.
+  const result = await sendWaitlistConfirmationEmail(email, name);
+  emailSent = result.sent;
+  if (!result.sent && result.reason) {
+    console.info("[waitlist] confirmation email skipped:", result.reason);
   }
 
   return NextResponse.json({
