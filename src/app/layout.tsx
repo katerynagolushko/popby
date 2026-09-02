@@ -16,9 +16,39 @@ const ibmPlex = IBM_Plex_Sans({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://hangby.me"),
   title: `${APP_NAME}: ${APP_TAGLINE}`,
   description: APP_DESCRIPTION,
   manifest: "/manifest.json",
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/icon.png", type: "image/png", sizes: "512x512" },
+    ],
+    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
+  },
+  openGraph: {
+    type: "website",
+    locale: "en_GB",
+    url: "https://hangby.me",
+    siteName: APP_NAME,
+    title: `${APP_NAME}: ${APP_TAGLINE}`,
+    description: APP_DESCRIPTION,
+    images: [
+      {
+        url: "/og.png",
+        width: 1200,
+        height: 630,
+        alt: APP_NAME,
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `${APP_NAME}: ${APP_TAGLINE}`,
+    description: APP_DESCRIPTION,
+    images: ["/og.png"],
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
