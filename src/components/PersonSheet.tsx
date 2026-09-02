@@ -13,6 +13,8 @@ interface PersonSheetProps {
   availability: Availability;
   isSelf: boolean;
   connectionStatus?: "none" | "pending" | "accepted" | "declined";
+  /** Demo: soften messaging CTA and show pair copy. */
+  demo?: boolean;
   onConnect: () => void;
   onMessage: () => void;
   onRate: () => void;
@@ -25,6 +27,7 @@ export default function PersonSheet({
   availability,
   isSelf,
   connectionStatus = "none",
+  demo = false,
   onConnect,
   onMessage,
   onRate,
@@ -169,6 +172,14 @@ export default function PersonSheet({
               </button>
             ) : connectionStatus === "accepted" ? (
               <>
+                <div className="rounded-xl bg-mint/20 border border-mint/40 px-3 py-2.5 mb-1">
+                  <p className="text-sm font-bold text-navy">You&apos;re a pair</p>
+                  <p className="text-xs text-navy/80 mt-0.5 leading-snug">
+                    {demo
+                      ? "They connected back. You can message (demo)."
+                      : "They connected back. You can message."}
+                  </p>
+                </div>
                 <button
                   type="button"
                   onClick={onMessage}
@@ -190,16 +201,21 @@ export default function PersonSheet({
                 disabled
                 className="popby-btn popby-btn-ghost w-full opacity-60"
               >
-                Request sent. Waiting.
+                Waiting on them…
               </button>
             ) : (
-              <button
-                type="button"
-                onClick={onConnect}
-                className="popby-btn popby-btn-accent w-full"
-              >
-                Connect
-              </button>
+              <>
+                <p className="text-xs text-muted text-center leading-snug mb-1">
+                  If they connect back, you&apos;re a pair and can message.
+                </p>
+                <button
+                  type="button"
+                  onClick={onConnect}
+                  className="popby-btn popby-btn-accent w-full"
+                >
+                  Connect
+                </button>
+              </>
             )}
           </div>
         </div>

@@ -5,6 +5,7 @@ import Link from "next/link";
 import Logo from "@/components/Logo";
 import PopbyMapLoader, { type MapPerson } from "@/components/PopbyMapLoader";
 import GoLiveModal, { type GoLivePayload } from "@/components/GoLiveModal";
+import MatchCarousel from "@/components/MatchCarousel";
 import PersonSheet from "@/components/PersonSheet";
 import RatingModal from "@/components/RatingModal";
 import {
@@ -13,19 +14,12 @@ import {
   DEMO_PERSON_COUNT,
   DEMO_TOP_MATCH_COUNT,
   INITIAL_DEMO_PEOPLE,
-  matchWhy,
   subsampleForMap,
   toMapPeople,
   topDemoMatches,
   type DemoPerson,
 } from "@/lib/demo-data";
-import {
-  LONDON_CENTER,
-  distanceMetres,
-  formatDistance,
-  hangoutSummary,
-  roleLabel,
-} from "@/lib/constants";
+import { LONDON_CENTER } from "@/lib/constants";
 
 const DEMO_MAP_CENTER: [number, number] = [
   51.512, // mid-London so west/south/east pins aren't cropped at city zoom
@@ -65,7 +59,7 @@ export default function DemoPage() {
 
   const showToast = useCallback((msg: string) => {
     setToast(msg);
-    setTimeout(() => setToast(null), 2800);
+    setTimeout(() => setToast(null), 3000);
   }, []);
 
   function handlePersonClick(person: MapPerson) {
@@ -97,8 +91,8 @@ export default function DemoPage() {
     setShowGoLive(false);
     showToast(
       payload.match_preference === "vibe"
-        ? `You're live. Here are your top ${DEMO_TOP_MATCH_COUNT} vibe matches.`
-        : `You're live. Here are your top ${DEMO_TOP_MATCH_COUNT} closest people.`
+        ? `You're live. ${DEMO_TOP_MATCH_COUNT} vibe matches below.`
+        : `You're live. ${DEMO_TOP_MATCH_COUNT} people near you below.`
     );
   }
 
@@ -110,14 +104,18 @@ export default function DemoPage() {
 
   function handleConnect(userId: string) {
     setConnections((prev) => ({ ...prev, [userId]: "pending" }));
-    showToast("Connect request sent");
+    showToast("Connect sent. Waiting on them…");
     setTimeout(() => {
       setConnections((prev) => ({ ...prev, [userId]: "accepted" }));
-      showToast("They accepted. Messaging stays demo-only.");
+      showToast("You're a pair. They connected back. You can message.");
     }, 1500);
   }
 
-  function getConnectionStatus(userId: string) {
+  function handleMessage() {
+    showToast("Messaging needs a real account. Join the waitlist from home.");
+  }
+
+  function getConnectionStatus(userId: string): "none" | "pending" | "accepted" {
     return connections[userId] ?? "none";
   }
 
@@ -152,7 +150,45 @@ export default function DemoPage() {
         />
       </div>
 
-      <div className="absolute bottom-0 inset-x-0 z-[1000] p-4 pb-[max(1rem,env(safe-area-inset-bottom))] flex justify-center pointer-events-none">
+      {!myLive && (
+        <div className="absolute top-14 inset-x-3 z-[900] pointer-events-none">
+          <div className="pointer-events-auto max-w-lg mx-auto">
+            <div className="bg-white border-2 border-navy rounded-2xl shadow-xl overflow-hidden">
+              <div className="bg-navy text-white px-4 py-3.5">
+                <p
+                  className="text-lg font-bold tracking-tight leading-snug"
+                  style={{ fontFamily: "var(--font-syne), system-ui, sans-serif" }}
+                >
+                  Fake London crowd for Encode
+                </p>
+                <p className="text-sm text-white/85 mt-1 leading-snug">
+                  Go live and we pick {DEMO_TOP_MATCH_COUNT} people you should
+                  meet. Pins are spread across the city, not one blob.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div
+        className="absolute inset-x-0 bottom-0 z-[1000] p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] flex flex-col items-center gap-2.5 pointer-events-none"
+      >
+        {myLive && topMatches.length > 0 && (
+          <div className="pointer-events-auto w-full max-w-lg">
+            <MatchCarousel
+              matches={topMatches}
+              me={myLive}
+              origin={origin}
+              preferVibe={preferVibe}
+              getConnectionStatus={getConnectionStatus}
+              onOpen={(p) => setSelected({ ...p })}
+              onConnect={handleConnect}
+              onMessage={() => handleMessage()}
+            />
+          </div>
+        )}
+
         {myLive ? (
           <div className="pointer-events-auto flex items-center gap-3 bg-navy text-white rounded-xl px-5 py-3 shadow-xl w-full max-w-sm">
             <span className="live-dot" />
@@ -194,14 +230,13 @@ export default function DemoPage() {
 
       {selected && (
         <PersonSheet
+          demo
           profile={selected.profile}
           availability={selected.availability}
           isSelf={selected.isSelf ?? false}
           connectionStatus={getConnectionStatus(selected.profile.id)}
           onConnect={() => handleConnect(selected.profile.id)}
-          onMessage={() =>
-            showToast("Messaging needs a real account. Join the waitlist from home.")
-          }
+          onMessage={handleMessage}
           onRate={() => setShowRating(true)}
           onClose={() => setSelected(null)}
           onStopLive={handleStopLive}
@@ -230,117 +265,6 @@ export default function DemoPage() {
           </div>
         </div>
       )}
-
-      <div className="absolute top-14 inset-x-3 z-[900] pointer-events-none">
-        <div className="pointer-events-auto max-w-lg mx-auto">
-          {!myLive && (
-            <div className="bg-white border-2 border-navy rounded-2xl shadow-xl overflow-hidden">
-              <div className="bg-navy text-white px-4 py-3.5">
-                <p
-                  className="text-lg font-bold tracking-tight leading-snug"
-                  style={{ fontFamily: "var(--font-syne), system-ui, sans-serif" }}
-                >
-                  Fake London crowd for Encode
-                </p>
-                <p className="text-sm text-white/85 mt-1 leading-snug">
-                  Go live and we pick {DEMO_TOP_MATCH_COUNT} people you should
-                  meet. Pins are spread across the city, not one blob.
-                </p>
-              </div>
-            </div>
-          )}
-
-          {myLive && topMatches.length > 0 && (
-            <div className="bg-paper border-2 border-navy rounded-2xl shadow-2xl overflow-hidden max-h-[min(62vh,520px)] flex flex-col">
-              <div className="bg-navy text-white px-4 py-4 flex-shrink-0">
-                <p
-                  className="text-xl font-bold tracking-tight leading-tight"
-                  style={{ fontFamily: "var(--font-syne), system-ui, sans-serif" }}
-                >
-                  You should connect with…
-                </p>
-                <p className="text-sm text-white/80 mt-1.5 leading-snug">
-                  {preferVibe
-                    ? `Your top ${DEMO_TOP_MATCH_COUNT} by hangout vibe. Edit live to switch to closest.`
-                    : `Your top ${DEMO_TOP_MATCH_COUNT} closest to your pin. Edit live to switch to vibe.`}
-                </p>
-              </div>
-              <ul className="overflow-y-auto divide-y divide-paper-3 bg-white">
-                {topMatches.map((p, i) => {
-                  const metres = distanceMetres(origin, {
-                    lat: p.availability.lat,
-                    lng: p.availability.lng,
-                  });
-                  const why = matchWhy(myLive, p, origin);
-                  const status = getConnectionStatus(p.profile.id);
-                  return (
-                    <li
-                      key={p.profile.id}
-                      className="flex items-stretch gap-3 px-3.5 py-3.5 bg-white"
-                    >
-                      <button
-                        type="button"
-                        onClick={() => setSelected({ ...p })}
-                        className="flex items-center gap-3 min-w-0 flex-1 text-left"
-                      >
-                        <span className="flex-shrink-0 w-6 text-sm font-bold text-accent tabular-nums">
-                          {i + 1}
-                        </span>
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                          src={p.profile.photo_url ?? ""}
-                          alt=""
-                          className="w-14 h-14 rounded-full object-cover bg-paper-2 flex-shrink-0 ring-2 ring-navy/15"
-                          onError={(e) => {
-                            (e.target as HTMLImageElement).style.visibility =
-                              "hidden";
-                          }}
-                        />
-                        <div className="min-w-0 flex-1">
-                          <p className="text-base font-semibold text-navy truncate">
-                            {p.profile.first_name}
-                            <span className="font-normal text-muted text-sm">
-                              {" "}
-                              · {roleLabel(p.profile.role)}
-                            </span>
-                          </p>
-                          <p className="text-xs text-muted truncate mt-0.5">
-                            {formatDistance(metres)} ·{" "}
-                            {hangoutSummary(
-                              p.availability.hangout_format,
-                              p.availability.hangout_intent
-                            )}
-                          </p>
-                          <p className="text-xs text-accent font-semibold truncate mt-0.5">
-                            {why}
-                          </p>
-                        </div>
-                      </button>
-                      <div className="flex-shrink-0 flex items-center">
-                        {status === "none" ? (
-                          <button
-                            type="button"
-                            onClick={() => handleConnect(p.profile.id)}
-                            className="text-sm font-semibold bg-accent text-white rounded-xl px-3.5 py-2.5 hover:bg-accent-dark shadow-sm"
-                          >
-                            Connect
-                          </button>
-                        ) : status === "pending" ? (
-                          <span className="text-xs text-muted px-2">Sent</span>
-                        ) : (
-                          <span className="text-xs text-navy font-semibold px-2">
-                            Connected
-                          </span>
-                        )}
-                      </div>
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
-          )}
-        </div>
-      </div>
     </div>
   );
 }
