@@ -734,7 +734,8 @@ export function getDemoPersonById(id: string): DemoPerson | undefined {
   return DEMO_PEOPLE_BY_ID.get(id);
 }
 
-const REVIEW_COMMENTS = [
+/** Positive blurbs — only pair with scores 4–5. */
+const POSITIVE_REVIEW_COMMENTS = [
   "Showed up on time. Sharp notes on the product.",
   "Easy hang. Knew who to intro next.",
   "Honest feedback without the fluff. Would meet again.",
@@ -753,6 +754,30 @@ const REVIEW_COMMENTS = [
   "Short hang, strong takeaways. Booked another.",
 ];
 
+/**
+ * Consequence blurbs for low scores (1–3): creepy / awkward / no-show / weird vibe.
+ * Never pair these with 4–5, and never pair praise with ≤3.
+ */
+const LOW_REVIEW_COMMENTS = [
+  "No-showed after I walked across town. Ghosted the chat too.",
+  "Kept steering into dating talk. Felt off for a work hang.",
+  "Showed up late, half-present, checked phone the whole time.",
+  "Pitch dump the second we sat down. Zero curiosity about me.",
+  "Asked for my number three times after I said LinkedIn only.",
+  "Weird vibe. Overshared personal stuff I didn't ask for.",
+  "Cancelled last minute, then blamed me for not waiting around.",
+  "Stood too close, laughed at nothing. Left early.",
+  "Tried to sell me their SaaS mid-coffee. Hard pass.",
+  "Flaky energy. Confirmed, then went quiet for 40 minutes.",
+  "Awkward silence, then a weird compliment about my looks.",
+  "Talked over me the whole walk. Never again.",
+];
+
+function commentForScore(score: number, rng: () => number): string {
+  if (score >= 4) return pick(rng, POSITIVE_REVIEW_COMMENTS);
+  return pick(rng, LOW_REVIEW_COMMENTS);
+}
+
 function hashPersonId(id: string): number {
   let h = 2166136261;
   for (let i = 0; i < id.length; i++) {
@@ -765,6 +790,7 @@ function hashPersonId(id: string): number {
 /**
  * Build 3–8 (or fewer if rating_count is low) demo reviews whose mean
  * matches the person's avg_score. Deterministic per person id.
+ * Score and comment are paired by sentiment: ≥4 → praise, ≤3 → consequence.
  */
 export function getDemoReviews(person: DemoPerson): DemoReview[] {
   const avg = person.profile.avg_score;
@@ -788,7 +814,9 @@ export function getDemoReviews(person: DemoPerson): DemoReview[] {
     const maxS = Math.min(5, Math.floor(remainingSum - 1 * (remaining - 1)));
     const lo = Math.min(minS, maxS);
     const hi = Math.max(minS, maxS);
-    const biased = Math.round(avg + (rng() - 0.5) * 1.4);
+    // Bias toward 4–5; still allow occasional ≤3 when the avg math permits
+    // (so people see consequences for creepy / flaky hangs).
+    const biased = Math.round(avg + (rng() - 0.55) * 1.2);
     const score = Math.min(hi, Math.max(lo, biased));
     scores.push(score);
     remainingSum -= score;
@@ -807,6 +835,7 @@ export function getDemoReviews(person: DemoPerson): DemoReview[] {
   }
 
   const usedNames = new Set<string>();
+  const usedComments = new Set<string>();
   const reviews: DemoReview[] = [];
   for (let i = 0; i < n; i++) {
     let name = pick(rng, namePool);
@@ -816,11 +845,21 @@ export function getDemoReviews(person: DemoPerson): DemoReview[] {
       tries += 1;
     }
     usedNames.add(name);
+
+    const score = scores[i]!;
+    let comment = commentForScore(score, rng);
+    let commentTries = 0;
+    while (usedComments.has(comment) && commentTries < 12) {
+      comment = commentForScore(score, rng);
+      commentTries += 1;
+    }
+    usedComments.add(comment);
+
     reviews.push({
       id: `r-${person.profile.id}-${i}`,
       reviewerName: name,
-      score: scores[i]!,
-      comment: pick(rng, REVIEW_COMMENTS),
+      score,
+      comment,
       daysAgo: Math.floor(rng() * 45) + (i === 0 ? 0 : 1),
     });
   }
