@@ -365,7 +365,7 @@ export default function DemoOnboardingTour({
                   by and get matched with your top 5 by vibe or location.
                 </p>
                 <p className="text-xl text-muted leading-relaxed">
-                  Nothing is saved. About a minute.
+                  * Not saving your data
                 </p>
               </div>
             )}
