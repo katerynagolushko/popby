@@ -8,27 +8,70 @@ import Logo from "@/components/Logo";
 
 export const DEMO_TOUR_STORAGE_KEY = "hangbyme-demo-tour-done";
 const DEMO_TOUR_STORAGE_KEY_LEGACY = "popby-demo-tour-done";
+/** skipped | done — distinguishes Skip from finishing the guided flow */
+export const DEMO_TOUR_STATUS_KEY = "hangbyme-demo-tour-status";
 
-/** Read tour-done flag; migrate legacy Popby key once. */
-export function readDemoTourDone(): boolean {
-  if (typeof window === "undefined") return false;
+export type DemoTourStatus = "done" | "skipped" | null;
+
+/** Read tour status; migrate legacy boolean keys once. */
+export function readDemoTourStatus(): DemoTourStatus {
+  if (typeof window === "undefined") return null;
   try {
-    if (sessionStorage.getItem(DEMO_TOUR_STORAGE_KEY) === "1") return true;
+    const status = sessionStorage.getItem(DEMO_TOUR_STATUS_KEY);
+    if (status === "done" || status === "skipped") return status;
+
+    // Legacy: hangbyme-demo-tour-done / popby-demo-tour-done → treat as completed
+    if (sessionStorage.getItem(DEMO_TOUR_STORAGE_KEY) === "1") {
+      sessionStorage.setItem(DEMO_TOUR_STATUS_KEY, "done");
+      return "done";
+    }
     if (sessionStorage.getItem(DEMO_TOUR_STORAGE_KEY_LEGACY) === "1") {
       sessionStorage.setItem(DEMO_TOUR_STORAGE_KEY, "1");
+      sessionStorage.setItem(DEMO_TOUR_STATUS_KEY, "done");
       sessionStorage.removeItem(DEMO_TOUR_STORAGE_KEY_LEGACY);
-      return true;
+      return "done";
     }
-    return false;
+    return null;
   } catch {
-    return false;
+    return null;
   }
+}
+
+/** @deprecated Prefer readDemoTourStatus(); kept for call sites that only need done/not. */
+export function readDemoTourDone(): boolean {
+  return readDemoTourStatus() === "done";
+}
+
+export function markDemoTourDone() {
+  try {
+    sessionStorage.setItem(DEMO_TOUR_STATUS_KEY, "done");
+    sessionStorage.setItem(DEMO_TOUR_STORAGE_KEY, "1");
+  } catch {
+    /* ignore */
+  }
+}
+
+export function markDemoTourSkipped() {
+  try {
+    sessionStorage.setItem(DEMO_TOUR_STATUS_KEY, "skipped");
+    // Clear legacy "done" so Skip is not treated as finished
+    sessionStorage.removeItem(DEMO_TOUR_STORAGE_KEY);
+    sessionStorage.removeItem(DEMO_TOUR_STORAGE_KEY_LEGACY);
+  } catch {
+    /* ignore */
+  }
+}
+
+/** Auto-open only when they've never finished or skipped (first visit this session). */
+export function shouldAutoOpenDemoTour(): boolean {
+  return readDemoTourStatus() === null;
 }
 
 export function clearDemoTourDone() {
   try {
     sessionStorage.removeItem(DEMO_TOUR_STORAGE_KEY);
     sessionStorage.removeItem(DEMO_TOUR_STORAGE_KEY_LEGACY);
+    sessionStorage.removeItem(DEMO_TOUR_STATUS_KEY);
   } catch {
     /* ignore */
   }

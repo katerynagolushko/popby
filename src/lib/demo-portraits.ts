@@ -47,6 +47,12 @@ export const YOUNG_FEMALE_PORTRAIT_URLS: readonly string[] = Array.from(
   (_, i) => localUrl(`female/${String(i).padStart(2, "0")}.jpg`)
 );
 
+/** Full local pool — map + landing share this; every path must exist under public/. */
+export const ALL_DEMO_PORTRAIT_URLS: readonly string[] = [
+  ...YOUNG_MALE_PORTRAIT_URLS,
+  ...YOUNG_FEMALE_PORTRAIT_URLS,
+];
+
 const MALE_URL_SET = new Set(YOUNG_MALE_PORTRAIT_URLS);
 const FEMALE_URL_SET = new Set(YOUNG_FEMALE_PORTRAIT_URLS);
 

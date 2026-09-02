@@ -11,10 +11,13 @@ import PersonSheet from "@/components/PersonSheet";
 import RatingModal from "@/components/RatingModal";
 import DemoOnboardingTour, {
   DEFAULT_DEMO_DRAFT,
-  DEMO_TOUR_STORAGE_KEY,
   clearDemoTourDone,
-  readDemoTourDone,
+  markDemoTourDone,
+  markDemoTourSkipped,
+  readDemoTourStatus,
+  shouldAutoOpenDemoTour,
   type DemoProfileDraft,
+  type DemoTourStatus,
 } from "@/components/DemoOnboardingTour";
 import {
   DEMO_ME_ID,
@@ -27,6 +30,7 @@ import {
   topDemoMatches,
   type DemoPerson,
 } from "@/lib/demo-data";
+import { ALL_DEMO_PORTRAIT_URLS } from "@/lib/demo-portraits";
 import { LONDON_CENTER } from "@/lib/constants";
 
 /** Frames the central London pin cluster (not Greater London empty outskirts). */
@@ -36,18 +40,6 @@ const DEMO_MAP_ZOOM = 12;
 type ConnectionMap = Record<string, "none" | "pending" | "accepted">;
 
 type SelectedPerson = DemoPerson & { isSelf?: boolean };
-
-function readTourDone(): boolean {
-  return readDemoTourDone();
-}
-
-function markTourDone() {
-  try {
-    sessionStorage.setItem(DEMO_TOUR_STORAGE_KEY, "1");
-  } catch {
-    /* ignore */
-  }
-}
 
 /** Full interactive demo — real London map, fake crowd, no Supabase. */
 export default function DemoPage() {
@@ -62,14 +54,25 @@ export default function DemoPage() {
 
   const [draft, setDraft] = useState<DemoProfileDraft>(DEFAULT_DEMO_DRAFT);
   const [tourHydrated, setTourHydrated] = useState(false);
+  const [tourStatus, setTourStatus] = useState<DemoTourStatus>(null);
   const [profileTourOpen, setProfileTourOpen] = useState(false);
   const [coachOpen, setCoachOpen] = useState(false);
   const goLiveBtnRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
-    const done = readTourDone();
+    // Warm the portrait cache so map pins don't sit on the accent circle.
+    for (const url of ALL_DEMO_PORTRAIT_URLS) {
+      const img = new window.Image();
+      img.decoding = "async";
+      img.src = url;
+    }
+  }, []);
+
+  useEffect(() => {
+    const status = readDemoTourStatus();
+    setTourStatus(status);
     setTourHydrated(true);
-    if (!done) setProfileTourOpen(true);
+    if (shouldAutoOpenDemoTour()) setProfileTourOpen(true);
   }, []);
 
   const origin = useMemo(() => {
@@ -121,13 +124,17 @@ export default function DemoPage() {
   }, []);
 
   function finishTourPersist() {
-    markTourDone();
+    markDemoTourDone();
+    setTourStatus("done");
     setProfileTourOpen(false);
     setCoachOpen(false);
   }
 
   function handleSkipTour() {
-    finishTourPersist();
+    markDemoTourSkipped();
+    setTourStatus("skipped");
+    setProfileTourOpen(false);
+    setCoachOpen(false);
   }
 
   function handleProfileDone() {
@@ -144,15 +151,20 @@ export default function DemoPage() {
     setShowGoLive(true);
   }
 
-  function handleReplayTour() {
+  function handleStartTour() {
     setMyLive(null);
     setShowMatches(false);
     setShowGoLive(false);
     setSelected(null);
     setDraft({ ...DEFAULT_DEMO_DRAFT });
-    clearDemoTourDone();
     setCoachOpen(false);
     setProfileTourOpen(true);
+  }
+
+  function handleReplayTour() {
+    clearDemoTourDone();
+    setTourStatus(null);
+    handleStartTour();
   }
 
   function handlePersonClick(person: MapPerson) {
@@ -230,6 +242,8 @@ export default function DemoPage() {
   const preferVibe = myLive?.availability.match_preference === "vibe";
   const showIntroBanner =
     !myLive && tourHydrated && !profileTourOpen && !coachOpen;
+  const showTourNudge =
+    showIntroBanner && tourStatus === "skipped";
 
   return (
     <div className="h-[100dvh] flex flex-col relative bg-paper overflow-hidden">
@@ -291,9 +305,19 @@ export default function DemoPage() {
                   Simulated London crowd
                 </p>
                 <p className="text-lg text-white/85 mt-1 leading-snug">
-                  Go live, and we pick {DEMO_TOP_MATCH_COUNT} people you should
-                  meet.
+                  {showTourNudge
+                    ? "A one-minute walkthrough helps — or just go live."
+                    : `Go live, and we pick ${DEMO_TOP_MATCH_COUNT} people you should meet.`}
                 </p>
+                {showTourNudge && (
+                  <button
+                    type="button"
+                    onClick={handleStartTour}
+                    className="mt-3 text-lg font-semibold bg-white text-navy rounded-lg px-4 min-h-[44px] inline-flex items-center"
+                  >
+                    Take the tour
+                  </button>
+                )}
               </div>
             </div>
           </div>

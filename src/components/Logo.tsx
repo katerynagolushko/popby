@@ -24,10 +24,16 @@ export function AppWordmark({
   className?: string;
   tone?: WordmarkTone;
 }) {
-  const leadClass = tone === "onDark" ? "text-white" : "text-navy";
+  const onDark = tone === "onDark";
+  // Inline color so navy headers never lose white Hangby if a utility is purged.
   return (
     <span className={`font-display font-bold tracking-tight ${className}`}>
-      <span className={leadClass}>{APP_NAME_LEAD}</span>
+      <span
+        className={onDark ? "text-white" : "text-navy"}
+        style={onDark ? { color: "#ffffff" } : undefined}
+      >
+        {APP_NAME_LEAD}
+      </span>
       <span className="text-accent">{APP_NAME_TAIL}</span>
     </span>
   );

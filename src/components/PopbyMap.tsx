@@ -41,33 +41,45 @@ const LONDON_MAX_BOUNDS: [[number, number], [number, number]] = [
   [LONDON_BOUNDS.east, LONDON_BOUNDS.north],
 ];
 
+function showMarkerFallback(el: HTMLDivElement) {
+  el.replaceChildren();
+  el.textContent = "?";
+  el.style.display = "flex";
+  el.style.alignItems = "center";
+  el.style.justifyContent = "center";
+  el.style.fontWeight = "700";
+  el.style.color = "white";
+  el.style.background = "#ff5722";
+}
+
+/**
+ * MapLibre markers use CSS transforms; `loading="lazy"` often never intersects,
+ * so the accent circle stays empty. Eager-load + one retry; ignore aborts on detach.
+ */
 function createMarkerElement(photoUrl: string | null, isSelf: boolean) {
   const el = document.createElement("div");
   el.className = `popby-marker ${isSelf ? "popby-marker-self" : ""}`;
   if (photoUrl) {
     const img = document.createElement("img");
-    img.src = photoUrl;
     img.alt = "";
-    img.loading = "lazy";
+    img.decoding = "async";
+    img.loading = "eager";
+    img.referrerPolicy = "no-referrer";
+    let retried = false;
     img.onerror = () => {
-      img.remove();
-      el.textContent = "?";
-      el.style.display = "flex";
-      el.style.alignItems = "center";
-      el.style.justifyContent = "center";
-      el.style.fontWeight = "700";
-      el.style.color = "white";
-      el.style.background = "#ff5722";
+      if (!el.isConnected) return;
+      if (!retried) {
+        retried = true;
+        // Bust any stale cache entry; keep the same public path.
+        img.src = `${photoUrl}${photoUrl.includes("?") ? "&" : "?"}v=1`;
+        return;
+      }
+      showMarkerFallback(el);
     };
+    img.src = photoUrl;
     el.appendChild(img);
   } else {
-    el.textContent = "?";
-    el.style.display = "flex";
-    el.style.alignItems = "center";
-    el.style.justifyContent = "center";
-    el.style.fontWeight = "700";
-    el.style.color = "white";
-    el.style.background = "#ff5722";
+    showMarkerFallback(el);
   }
   return el;
 }
