@@ -100,7 +100,7 @@ export default function LandingHeroMap({ className = "" }: { className?: string 
         fill
         priority
         sizes="(max-width: 1024px) 100vw, 60vw"
-        className="object-cover object-center"
+        className="object-cover object-[50%_42%]"
       />
 
       <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-navy/25 via-transparent to-navy/10" />
@@ -112,6 +112,9 @@ export default function LandingHeroMap({ className = "" }: { className?: string 
 
       <p className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 text-center text-lg text-navy/80 bg-paper/85 backdrop-blur-sm px-4 py-2 rounded-lg max-w-[90%] leading-snug landing-card-in landing-card-delay-3">
         Go live, see who matches nearby, meet in person.
+      </p>
+      <p className="absolute bottom-2 right-3 z-10 text-[10px] text-navy/45 pointer-events-none">
+        © OpenStreetMap
       </p>
     </div>
   );

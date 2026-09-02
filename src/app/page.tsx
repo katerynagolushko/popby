@@ -13,34 +13,35 @@ export default async function HomePage({
 
   return (
     <main className="min-h-svh flex flex-col lg:flex-row lg:h-svh lg:overflow-hidden">
-      <section className="relative z-10 flex flex-col w-full min-h-svh lg:h-full lg:min-h-0 lg:w-[44%] xl:w-[40%] px-5 pt-4 pb-5 sm:px-8 sm:pt-5 sm:pb-6 lg:px-10 lg:pt-6 lg:pb-7 xl:px-12">
+      <section className="relative z-10 flex flex-col w-full min-h-svh lg:h-full lg:min-h-0 lg:w-[44%] xl:w-[40%] px-5 pt-3 pb-4 sm:px-8 sm:pt-4 sm:pb-5 lg:px-10 lg:pt-5 lg:pb-6 xl:px-12">
         <Logo size="md" />
 
-        <div className="mt-5 sm:mt-6 lg:mt-7 flex flex-col gap-5 sm:gap-6 min-h-0">
+        <div className="mt-3 sm:mt-3.5 lg:mt-4 flex flex-col gap-4 sm:gap-5 min-h-0">
           <hgroup className="max-w-xl">
             <h1 className="font-display font-extrabold text-[2.35rem] sm:text-[3.15rem] xl:text-[3.85rem] text-navy leading-[1.05] tracking-[-0.04em]">
               The <span className="hl-accent">startup</span> social network for{" "}
               <span className="hl-accent">IRL</span>
             </h1>
-            <p className="mt-2 sm:mt-2.5 font-display font-semibold text-xl sm:text-2xl text-navy/55 tracking-[-0.02em]">
+            <p className="mt-1.5 sm:mt-2 font-display font-semibold text-xl sm:text-2xl text-navy/55 tracking-[-0.02em]">
               London Edition
             </p>
           </hgroup>
 
-          <div className="max-w-xl space-y-5 sm:space-y-6 font-display font-semibold tracking-[-0.02em] text-[1.35rem] sm:text-[1.65rem] xl:text-[1.85rem] leading-[1.25] text-navy/85">
+          <div className="max-w-xl space-y-4 sm:space-y-5 font-display font-semibold tracking-[-0.02em] text-[1.4rem] sm:text-[1.7rem] xl:text-[1.9rem] leading-[1.22] text-navy/85">
             <p>
               It&apos;s time to make it easy to meet{" "}
               <span className="hl-accent">cool people</span>
-              <br className="hidden sm:block" /> in the{" "}
-              <span className="hl-accent">startup world</span>
-              <br className="hidden sm:block" /> when you are up for it
+              <br />
+              in the <span className="hl-accent">startup world</span>
+              <br />
+              when you are up for it
             </p>
             <p>
               See who&apos;s <span className="hl-accent">spontaneously</span> up
               for a hang
-              <br className="hidden sm:block" /> and form{" "}
-              <span className="hl-accent">real connection</span>,
-              <br className="hidden sm:block" />{" "}
+              <br />
+              and form <span className="hl-accent">real connection</span>,
+              <br />
               <span className="hl-accent">no bs</span> selling upfront
             </p>
           </div>
@@ -68,7 +69,7 @@ export default async function HomePage({
           </div>
         </div>
 
-        <p className="mt-auto pt-8 sm:pt-10 text-base sm:text-lg text-navy/70 leading-snug max-w-xl">
+        <p className="mt-auto pt-6 sm:pt-8 text-base sm:text-lg text-navy/70 leading-snug max-w-xl">
           The V1 is for London. If you want us to launch in your city,{" "}
           <Link
             href="/waitlist/city"
