@@ -229,4 +229,19 @@ h1, h2, h3 {
   overscroll-behavior-x: contain;
 }
 
+@keyframes tour-rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.demo-tour-sheet {
+  animation: tour-rise 0.28s ease-out;
+}
+
 /* Legacy class aliases — old cony-* still work via duplicate rules above */

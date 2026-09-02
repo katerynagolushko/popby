@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import Logo from "@/components/Logo";
 import PopbyMapLoader, { type MapPerson } from "@/components/PopbyMapLoader";
@@ -8,6 +8,11 @@ import GoLiveModal, { type GoLivePayload } from "@/components/GoLiveModal";
 import MatchCarousel from "@/components/MatchCarousel";
 import PersonSheet from "@/components/PersonSheet";
 import RatingModal from "@/components/RatingModal";
+import DemoOnboardingTour, {
+  DEFAULT_DEMO_DRAFT,
+  DEMO_TOUR_STORAGE_KEY,
+  type DemoProfileDraft,
+} from "@/components/DemoOnboardingTour";
 import {
   DEMO_ME_ID,
   DEMO_ME_PROFILE,
@@ -31,6 +36,23 @@ type ConnectionMap = Record<string, "none" | "pending" | "accepted">;
 
 type SelectedPerson = DemoPerson & { isSelf?: boolean };
 
+function readTourDone(): boolean {
+  if (typeof window === "undefined") return true;
+  try {
+    return sessionStorage.getItem(DEMO_TOUR_STORAGE_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
+function markTourDone() {
+  try {
+    sessionStorage.setItem(DEMO_TOUR_STORAGE_KEY, "1");
+  } catch {
+    /* ignore */
+  }
+}
+
 /** Full interactive demo — real London map, fake crowd, no Supabase. */
 export default function DemoPage() {
   const [people] = useState<DemoPerson[]>(INITIAL_DEMO_PEOPLE);
@@ -41,6 +63,18 @@ export default function DemoPage() {
   const [showMatches, setShowMatches] = useState(false);
   const [connections, setConnections] = useState<ConnectionMap>({});
   const [toast, setToast] = useState<string | null>(null);
+
+  const [draft, setDraft] = useState<DemoProfileDraft>(DEFAULT_DEMO_DRAFT);
+  const [tourHydrated, setTourHydrated] = useState(false);
+  const [profileTourOpen, setProfileTourOpen] = useState(false);
+  const [coachOpen, setCoachOpen] = useState(false);
+  const goLiveBtnRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    const done = readTourDone();
+    setTourHydrated(true);
+    if (!done) setProfileTourOpen(true);
+  }, []);
 
   const origin = useMemo(() => {
     if (myLive) {
@@ -60,6 +94,7 @@ export default function DemoPage() {
   }, [people, myLive]);
 
   const matchesOpen = Boolean(myLive && showMatches && topMatches.length > 0);
+  const tourBlocking = profileTourOpen || coachOpen;
 
   // Lock body / map scroll bleed while the fullscreen matches view is open.
   useEffect(() => {
@@ -74,10 +109,59 @@ export default function DemoPage() {
     };
   }, [matchesOpen]);
 
+  // Soft-lock scroll while profile tour sheet is up
+  useEffect(() => {
+    if (!profileTourOpen) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [profileTourOpen]);
+
   const showToast = useCallback((msg: string) => {
     setToast(msg);
     setTimeout(() => setToast(null), 3000);
   }, []);
+
+  function finishTourPersist() {
+    markTourDone();
+    setProfileTourOpen(false);
+    setCoachOpen(false);
+  }
+
+  function handleSkipTour() {
+    finishTourPersist();
+  }
+
+  function handleProfileDone() {
+    setProfileTourOpen(false);
+    setCoachOpen(true);
+  }
+
+  function handleCoachDone() {
+    finishTourPersist();
+  }
+
+  function handlePromptGoLive() {
+    finishTourPersist();
+    setShowGoLive(true);
+  }
+
+  function handleReplayTour() {
+    setMyLive(null);
+    setShowMatches(false);
+    setShowGoLive(false);
+    setSelected(null);
+    setDraft({ ...DEFAULT_DEMO_DRAFT });
+    try {
+      sessionStorage.removeItem(DEMO_TOUR_STORAGE_KEY);
+    } catch {
+      /* ignore */
+    }
+    setCoachOpen(false);
+    setProfileTourOpen(true);
+  }
 
   function handlePersonClick(person: MapPerson) {
     const all = myLive ? [...people, myLive] : people;
@@ -86,10 +170,17 @@ export default function DemoPage() {
   }
 
   function handleGoLive(payload: GoLivePayload) {
+    const name = draft.first_name.trim() || "You";
     const session: DemoPerson = {
       profile: {
         ...DEMO_ME_PROFILE,
-        photo_url: pickSessionDemoMePhoto(),
+        first_name: name,
+        role: draft.role,
+        company_type: draft.company_type,
+        photo_url: draft.photo_url ?? pickSessionDemoMePhoto(),
+        linkedin_url: draft.linkedin_url.trim() || null,
+        twitter_url: draft.twitter_url.trim() || null,
+        socials_visibility: draft.socials_visibility,
         avg_score: null,
         rating_count: 0,
       },
@@ -112,6 +203,7 @@ export default function DemoPage() {
     setMyLive(session);
     setShowGoLive(false);
     setShowMatches(true);
+    if (coachOpen) finishTourPersist();
     showToast(
       payload.match_preference === "vibe"
         ? `You're live. ${DEMO_TOP_MATCH_COUNT} vibe matches.`
@@ -144,6 +236,8 @@ export default function DemoPage() {
   }
 
   const preferVibe = myLive?.availability.match_preference === "vibe";
+  const showIntroBanner =
+    !myLive && tourHydrated && !profileTourOpen && !coachOpen;
 
   return (
     <div className="h-[100dvh] flex flex-col relative bg-paper overflow-hidden">
@@ -153,6 +247,15 @@ export default function DemoPage() {
             <Logo size="sm" />
           </div>
           <div className="pointer-events-auto flex items-center gap-2">
+            {tourHydrated && !tourBlocking && (
+              <button
+                type="button"
+                onClick={handleReplayTour}
+                className="text-xs bg-white/95 text-navy px-2.5 py-1 rounded-lg font-medium border border-paper-3 shadow-sm"
+              >
+                Replay tour
+              </button>
+            )}
             <span className="text-xs bg-accent text-white px-2.5 py-1 rounded-lg font-semibold">
               Demo · {DEMO_PERSON_COUNT} people
             </span>
@@ -183,7 +286,7 @@ export default function DemoPage() {
         />
       </div>
 
-      {!myLive && (
+      {showIntroBanner && (
         <div className="absolute top-14 inset-x-3 z-[900] pointer-events-none">
           <div className="pointer-events-auto max-w-lg mx-auto">
             <div className="bg-white border-2 border-navy rounded-2xl shadow-xl overflow-hidden">
@@ -236,6 +339,7 @@ export default function DemoPage() {
             </div>
           ) : (
             <button
+              ref={goLiveBtnRef}
               type="button"
               onClick={() => setShowGoLive(true)}
               className="pointer-events-auto popby-btn popby-btn-accent shadow-xl text-base px-8 py-3.5 w-full max-w-sm"
@@ -298,6 +402,20 @@ export default function DemoPage() {
             setShowRating(false);
             showToast("Rating saved in the demo only");
           }}
+        />
+      )}
+
+      {tourHydrated && (
+        <DemoOnboardingTour
+          draft={draft}
+          onDraftChange={setDraft}
+          profileOpen={profileTourOpen}
+          coachOpen={coachOpen && !myLive}
+          goLiveTargetRef={goLiveBtnRef}
+          onSkipAll={handleSkipTour}
+          onProfileDone={handleProfileDone}
+          onCoachDone={handleCoachDone}
+          onPromptGoLive={handlePromptGoLive}
         />
       )}
 
