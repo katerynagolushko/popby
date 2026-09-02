@@ -101,11 +101,9 @@ function createPin(photoUrl: string) {
 function ProfileCard({ person }: { person: LandingPerson }) {
   return (
     <div
-      className={`absolute z-20 w-[min(100%,15.5rem)] pointer-events-none landing-card-in ${person.positionClass} ${person.delayClass}`}
+      className={`absolute z-20 w-[min(100%,15.5rem)] pointer-events-none ${person.cardClass}`}
     >
-      <div
-        className={`popby-card p-4 text-left shadow-lg ${person.rotateClass}`}
-      >
+      <div className="popby-card p-4 text-left shadow-lg">
         <div className="flex items-center gap-3 mb-2.5">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
