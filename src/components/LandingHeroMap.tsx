@@ -1,5 +1,15 @@
-import Image from "next/image";
+"use client";
+
+import "@/lib/maplibre-setup";
+import { useEffect, useRef, useState } from "react";
+import { Map, Marker } from "maplibre-gl";
+import "maplibre-gl/dist/maplibre-gl.css";
+import { LONDON_CENTER } from "@/lib/constants";
 import { LANDING_CARD_PHOTOS } from "@/lib/demo-portraits";
+import {
+  DEFAULT_MAP_STYLE,
+  OPENFREEMAP_STYLES,
+} from "@/lib/map-tiles";
 
 type LandingPerson = {
   name: string;
@@ -8,6 +18,8 @@ type LandingPerson = {
   formatIntent: string;
   area: string;
   photo: string;
+  lat: number;
+  lng: number;
   positionClass: string;
   rotateClass: string;
   delayClass: string;
@@ -21,6 +33,8 @@ const PEOPLE: LandingPerson[] = [
     formatIntent: "Coffee · product feedback",
     area: "Near Old Street",
     photo: LANDING_CARD_PHOTOS.Adam,
+    lat: 51.5256,
+    lng: -0.0877,
     positionClass: "top-[8%] left-[6%] sm:left-[8%]",
     rotateClass: "rotate-[-2.5deg]",
     delayClass: "",
@@ -32,6 +46,8 @@ const PEOPLE: LandingPerson[] = [
     formatIntent: "Walk · brainstorm",
     area: "Shoreditch",
     photo: LANDING_CARD_PHOTOS.Sara,
+    lat: 51.5225,
+    lng: -0.078,
     positionClass: "top-[12%] right-[5%] sm:right-[8%]",
     rotateClass: "rotate-[2deg]",
     delayClass: "landing-card-delay-1",
@@ -43,6 +59,8 @@ const PEOPLE: LandingPerson[] = [
     formatIntent: "Co-work · casual chat",
     area: "King's Cross",
     photo: LANDING_CARD_PHOTOS.Maya,
+    lat: 51.5308,
+    lng: -0.1238,
     positionClass: "bottom-[22%] left-[4%] sm:left-[10%] hidden sm:block",
     rotateClass: "rotate-[1.5deg]",
     delayClass: "landing-card-delay-2",
@@ -54,11 +72,34 @@ const PEOPLE: LandingPerson[] = [
     formatIntent: "Activity · just hang",
     area: "London Bridge",
     photo: LANDING_CARD_PHOTOS.Leo,
+    lat: 51.5055,
+    lng: -0.0865,
     positionClass: "bottom-[14%] right-[4%] sm:right-[7%] hidden md:block",
     rotateClass: "rotate-[-1.5deg]",
     delayClass: "landing-card-delay-3",
   },
 ];
+
+function createPin(photoUrl: string) {
+  const el = document.createElement("div");
+  el.className = "popby-marker";
+  el.style.pointerEvents = "none";
+  const img = document.createElement("img");
+  img.src = photoUrl;
+  img.alt = "";
+  img.loading = "lazy";
+  img.onerror = () => {
+    img.remove();
+    el.textContent = "?";
+    el.style.display = "flex";
+    el.style.alignItems = "center";
+    el.style.justifyContent = "center";
+    el.style.fontWeight = "700";
+    el.style.color = "white";
+  };
+  el.appendChild(img);
+  return el;
+}
 
 function ProfileCard({ person }: { person: LandingPerson }) {
   return (
@@ -90,18 +131,67 @@ function ProfileCard({ person }: { person: LandingPerson }) {
   );
 }
 
-/** Static London map still — same-origin image for instant LCP (no MapLibre / tiles). */
 export default function LandingHeroMap({ className = "" }: { className?: string }) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const mapRef = useRef<Map | null>(null);
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    if (!containerRef.current || mapRef.current) return;
+
+    const map = new Map({
+      container: containerRef.current,
+      style: OPENFREEMAP_STYLES[DEFAULT_MAP_STYLE],
+      center: [LONDON_CENTER.lng - 0.02, LONDON_CENTER.lat - 0.005],
+      zoom: 12.1,
+      interactive: false,
+      attributionControl: { compact: true },
+    });
+
+    mapRef.current = map;
+
+    const markers: Marker[] = [];
+
+    map.on("load", () => {
+      map.resize();
+      PEOPLE.forEach((person) => {
+        const marker = new Marker({
+          element: createPin(person.photo),
+          anchor: "center",
+        })
+          .setLngLat([person.lng, person.lat])
+          .addTo(map);
+        markers.push(marker);
+      });
+      setReady(true);
+    });
+
+    map.on("error", (e) => {
+      console.error("Landing map error:", e.error?.message ?? e);
+    });
+
+    const ro = new ResizeObserver(() => map.resize());
+    ro.observe(containerRef.current);
+
+    const fallback = window.setTimeout(() => setReady(true), 600);
+
+    return () => {
+      window.clearTimeout(fallback);
+      ro.disconnect();
+      markers.forEach((m) => m.remove());
+      map.remove();
+      mapRef.current = null;
+    };
+  }, []);
+
   return (
-    <div className={`relative overflow-hidden bg-paper-2 ${className}`}>
-      <Image
-        src="/landing-map.webp"
-        alt="London map with people free to hang nearby"
-        fill
-        priority
-        sizes="(max-width: 1024px) 100vw, 60vw"
-        className="object-cover object-[50%_42%]"
-      />
+    <div
+      className={`relative overflow-hidden bg-paper-2 ${className}`}
+      aria-hidden={!ready}
+    >
+      <div className="popby-map absolute inset-0">
+        <div ref={containerRef} className="h-full w-full" />
+      </div>
 
       <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-navy/25 via-transparent to-navy/10" />
       <div className="absolute inset-y-0 left-0 w-16 pointer-events-none bg-gradient-to-r from-paper/40 to-transparent lg:from-transparent" />
@@ -112,9 +202,6 @@ export default function LandingHeroMap({ className = "" }: { className?: string 
 
       <p className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 text-center text-lg text-navy/80 bg-paper/85 backdrop-blur-sm px-4 py-2 rounded-lg max-w-[90%] leading-snug landing-card-in landing-card-delay-3">
         Go live, see who matches nearby, meet in person.
-      </p>
-      <p className="absolute bottom-2 right-3 z-10 text-[10px] text-navy/45 pointer-events-none">
-        © OpenStreetMap
       </p>
     </div>
   );

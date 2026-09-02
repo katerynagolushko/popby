@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Logo from "@/components/Logo";
-import LandingHeroMap from "@/components/LandingHeroMap";
+import LandingHeroMapLoader from "@/components/LandingHeroMapLoader";
 import { APP_CITY } from "@/lib/brand";
 
 export default async function HomePage({
@@ -16,35 +16,24 @@ export default async function HomePage({
       <section className="relative z-10 flex flex-col w-full min-h-svh lg:h-full lg:min-h-0 lg:w-[44%] xl:w-[40%] px-5 pt-3 pb-4 sm:px-8 sm:pt-4 sm:pb-5 lg:px-10 lg:pt-5 lg:pb-6 xl:px-12">
         <Logo size="md" />
 
-        <div className="mt-3 sm:mt-3.5 lg:mt-4 flex flex-col gap-4 sm:gap-5 min-h-0">
+        <div className="mt-4 sm:mt-5 lg:mt-6 flex flex-col gap-5 sm:gap-6 min-h-0">
           <hgroup className="max-w-xl">
-            <h1 className="font-display font-extrabold text-[2.35rem] sm:text-[3.15rem] xl:text-[3.85rem] text-navy leading-[1.05] tracking-[-0.04em]">
+            <h1 className="font-display font-extrabold text-4xl sm:text-5xl xl:text-6xl text-navy leading-[1.05] tracking-[-0.04em]">
               The <span className="hl-accent">startup</span> social network for{" "}
               <span className="hl-accent">IRL</span>
             </h1>
-            <p className="mt-1.5 sm:mt-2 font-display font-semibold text-xl sm:text-2xl text-navy/55 tracking-[-0.02em]">
+            <p className="mt-2 sm:mt-2.5 font-display font-semibold text-xl sm:text-2xl text-navy/55 tracking-[-0.02em]">
               London Edition
             </p>
           </hgroup>
 
-          <div className="max-w-xl space-y-4 sm:space-y-5 font-display font-semibold tracking-[-0.02em] text-[1.4rem] sm:text-[1.7rem] xl:text-[1.9rem] leading-[1.22] text-navy/85">
-            <p>
-              It&apos;s time to make it easy to meet{" "}
-              <span className="hl-accent">cool people</span>
-              <br />
-              in the <span className="hl-accent">startup world</span>
-              <br />
-              when you are up for it
-            </p>
-            <p>
-              See who&apos;s <span className="hl-accent">spontaneously</span> up
-              for a hang
-              <br />
-              and form <span className="hl-accent">real connection</span>,
-              <br />
-              <span className="hl-accent">no bs</span> selling upfront
-            </p>
-          </div>
+          <p className="max-w-xl font-display font-semibold tracking-[-0.02em] text-[1.4rem] sm:text-[1.7rem] xl:text-[1.9rem] leading-[1.25] text-navy">
+            It&apos;s time to make it easy to meet cool people
+            <br />
+            in the startup world
+            <br />
+            when you are up for it
+          </p>
 
           {softGated && (
             <p className="text-base sm:text-lg text-navy bg-paper-2 border border-paper-3 rounded-xl px-4 py-2.5 max-w-xl leading-snug">
@@ -53,27 +42,31 @@ export default async function HomePage({
             </p>
           )}
 
+          <p className="max-w-xl font-display font-semibold tracking-[-0.02em] text-[1.4rem] sm:text-[1.7rem] xl:text-[1.9rem] leading-[1.25] text-navy">
+            #spontaneous hangouts
+          </p>
+
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 shrink-0">
             <Link
               href="/waitlist"
-              className="popby-btn popby-btn-accent text-[1.35rem] sm:text-[1.55rem] px-10 sm:px-14 py-5 sm:py-6 min-h-[88px] sm:min-h-[98px] rounded-[14px]"
+              className="popby-btn popby-btn-accent text-[1.55rem] sm:text-[1.85rem] px-12 sm:px-16 py-6 sm:py-7 min-h-[104px] sm:min-h-[116px] rounded-[16px]"
             >
               Join the waitlist
             </Link>
             <Link
               href="/demo"
-              className="popby-btn popby-btn-navy text-[1.35rem] sm:text-[1.55rem] px-10 sm:px-14 py-5 sm:py-6 min-h-[88px] sm:min-h-[98px] rounded-[14px]"
+              className="popby-btn popby-btn-navy text-[1.55rem] sm:text-[1.85rem] px-12 sm:px-16 py-6 sm:py-7 min-h-[104px] sm:min-h-[116px] rounded-[16px]"
             >
               Try the full demo
             </Link>
           </div>
         </div>
 
-        <p className="mt-auto pt-6 sm:pt-8 text-base sm:text-lg text-navy/70 leading-snug max-w-xl">
+        <p className="mt-auto pt-6 sm:pt-8 text-xl sm:text-2xl text-navy/80 leading-snug max-w-xl font-medium">
           The V1 is for London. If you want us to launch in your city,{" "}
           <Link
             href="/waitlist/city"
-            className="text-navy font-medium underline underline-offset-2 hover:text-accent"
+            className="text-navy font-semibold underline underline-offset-2 hover:text-accent"
           >
             join this waitlist
           </Link>
@@ -82,7 +75,7 @@ export default async function HomePage({
       </section>
 
       <section className="relative w-full lg:w-[56%] xl:w-[60%] min-h-[42vh] sm:min-h-[48vh] lg:min-h-0 lg:h-full border-t border-paper-3 lg:border-t-0 lg:border-l">
-        <LandingHeroMap className="absolute inset-0 h-full w-full min-h-[42vh] lg:min-h-full" />
+        <LandingHeroMapLoader className="absolute inset-0 h-full w-full min-h-[42vh] lg:min-h-full" />
       </section>
     </main>
   );
