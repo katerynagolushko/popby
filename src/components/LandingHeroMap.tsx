@@ -19,7 +19,9 @@ type LandingPerson = {
   photo: string;
   lat: number;
   lng: number;
-  cardClass: string;
+  positionClass: string;
+  rotateClass: string;
+  delayClass: string;
 };
 
 const PEOPLE: LandingPerson[] = [
@@ -33,8 +35,9 @@ const PEOPLE: LandingPerson[] = [
       "https://cdn.jsdelivr.net/gh/faker-js/assets-person-portrait@main/male/512/32.jpg",
     lat: 51.5256,
     lng: -0.0877,
-    cardClass:
-      "top-[8%] left-[6%] sm:left-[8%] rotate-[-2.5deg] landing-card-in",
+    positionClass: "top-[8%] left-[6%] sm:left-[8%]",
+    rotateClass: "rotate-[-2.5deg]",
+    delayClass: "",
   },
   {
     name: "Sara",
@@ -46,8 +49,9 @@ const PEOPLE: LandingPerson[] = [
       "https://cdn.jsdelivr.net/gh/faker-js/assets-person-portrait@main/female/512/65.jpg",
     lat: 51.5225,
     lng: -0.078,
-    cardClass:
-      "top-[12%] right-[5%] sm:right-[8%] rotate-[2deg] landing-card-in landing-card-delay-1",
+    positionClass: "top-[12%] right-[5%] sm:right-[8%]",
+    rotateClass: "rotate-[2deg]",
+    delayClass: "landing-card-delay-1",
   },
   {
     name: "Maya",
@@ -59,8 +63,9 @@ const PEOPLE: LandingPerson[] = [
       "https://cdn.jsdelivr.net/gh/faker-js/assets-person-portrait@main/female/512/44.jpg",
     lat: 51.5308,
     lng: -0.1238,
-    cardClass:
-      "bottom-[22%] left-[4%] sm:left-[10%] rotate-[1.5deg] landing-card-in landing-card-delay-2",
+    positionClass: "bottom-[22%] left-[4%] sm:left-[10%] hidden sm:block",
+    rotateClass: "rotate-[1.5deg]",
+    delayClass: "landing-card-delay-2",
   },
   {
     name: "Leo",
@@ -72,8 +77,9 @@ const PEOPLE: LandingPerson[] = [
       "https://cdn.jsdelivr.net/gh/faker-js/assets-person-portrait@main/male/512/75.jpg",
     lat: 51.5055,
     lng: -0.0865,
-    cardClass:
-      "bottom-[14%] right-[4%] sm:right-[7%] rotate-[-1.5deg] landing-card-in landing-card-delay-3",
+    positionClass: "bottom-[14%] right-[4%] sm:right-[7%] hidden md:block",
+    rotateClass: "rotate-[-1.5deg]",
+    delayClass: "landing-card-delay-3",
   },
 ];
 
@@ -101,9 +107,9 @@ function createPin(photoUrl: string) {
 function ProfileCard({ person }: { person: LandingPerson }) {
   return (
     <div
-      className={`absolute z-20 w-[min(100%,15.5rem)] pointer-events-none ${person.cardClass}`}
+      className={`absolute z-20 w-[min(100%,15.5rem)] pointer-events-none landing-card-in ${person.positionClass} ${person.delayClass}`}
     >
-      <div className="popby-card p-4 text-left shadow-lg">
+      <div className={`popby-card p-4 text-left shadow-lg ${person.rotateClass}`}>
         <div className="flex items-center gap-3 mb-2.5">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
@@ -127,6 +133,7 @@ function ProfileCard({ person }: { person: LandingPerson }) {
     </div>
   );
 }
+
 export default function LandingHeroMap({ className = "" }: { className?: string }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<Map | null>(null);
@@ -189,7 +196,6 @@ export default function LandingHeroMap({ className = "" }: { className?: string 
         <div ref={containerRef} className="h-full w-full" />
       </div>
 
-      {/* Soft edges so floating cards sit on the map cleanly */}
       <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-navy/25 via-transparent to-navy/10" />
       <div className="absolute inset-y-0 left-0 w-16 pointer-events-none bg-gradient-to-r from-paper/40 to-transparent lg:from-transparent" />
 
