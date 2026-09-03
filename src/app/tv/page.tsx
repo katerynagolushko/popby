@@ -41,12 +41,15 @@ export default function TvPage() {
             />
           </div>
 
-          <h1 className="mt-[4.5vh] font-display text-[clamp(2.5rem,4vw,4.5rem)] font-bold leading-[1.04] tracking-[-0.05em]">
+          <h1 className="mt-[4.5vh] font-display text-[clamp(2.5rem,4vw,4.5rem)] font-extrabold leading-[1.02] tracking-[-0.04em]">
             <span className="block whitespace-nowrap">
               The <span className="hl-accent">first startup</span>
             </span>
             <span className="block whitespace-nowrap">
-              social network for <span className="hl-accent">IRL</span>
+              social network
+            </span>
+            <span className="block whitespace-nowrap">
+              for <span className="hl-accent">IRL</span>
             </span>
           </h1>
 

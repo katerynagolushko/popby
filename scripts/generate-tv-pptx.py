@@ -229,7 +229,7 @@ def build_slide(prs: Presentation) -> None:
     content_w = half_w - left_pad - Inches(0.35)
 
     # Vertically center the left column block (~matches /tv flex justify-center).
-    brand_top = Inches(1.95)
+    brand_top = Inches(1.62)
     logo_size = Inches(0.5)
     slide.shapes.add_picture(str(LOGO), left_pad, brand_top, logo_size, logo_size)
 
@@ -246,19 +246,19 @@ def build_slide(prs: Presentation) -> None:
     add_run(wordmark_p, "me", font_name=FONT_DISPLAY, size=Pt(32), bold=True, color=ACCENT)
 
     headline_top = brand_top + Inches(0.72)
-    headline_box = slide.shapes.add_textbox(left_pad, headline_top, content_w, Inches(2.35))
+    headline_box = slide.shapes.add_textbox(left_pad, headline_top, content_w, Inches(2.55))
     headline_tf = headline_box.text_frame
     headline_tf.word_wrap = True
     headline_tf.auto_size = MSO_AUTO_SIZE.NONE
     headline_p = headline_tf.paragraphs[0]
-    headline_p.line_spacing = 1.15
+    headline_p.line_spacing = 1.02
     headline_p.space_after = Pt(0)
 
     # Match src/app/tv/page.tsx: orange on "first startup" and "IRL".
     add_run(headline_p, "The ", font_name=FONT_DISPLAY, size=Pt(50), bold=True, color=NAVY)
     add_run(
         headline_p,
-        "first startup",
+        "first startup\n",
         font_name=FONT_DISPLAY,
         size=Pt(50),
         bold=True,
@@ -266,7 +266,7 @@ def build_slide(prs: Presentation) -> None:
     )
     add_run(
         headline_p,
-        " social network for ",
+        "social network\nfor ",
         font_name=FONT_DISPLAY,
         size=Pt(50),
         bold=True,
@@ -274,7 +274,7 @@ def build_slide(prs: Presentation) -> None:
     )
     add_run(headline_p, "IRL", font_name=FONT_DISPLAY, size=Pt(50), bold=True, color=ACCENT)
 
-    subcopy_top = headline_top + Inches(2.05)
+    subcopy_top = headline_top + Inches(2.48)
     add_textbox(
         slide,
         left_pad,
