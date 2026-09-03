@@ -26,6 +26,14 @@ function isMissingColumnError(error: { code?: string; message: string }): boolea
   );
 }
 
+function isMissingRpcError(error: { code?: string; message: string }): boolean {
+  return (
+    error.code === "PGRST202" ||
+    /could not find the function/i.test(error.message) ||
+    /function .*waitlist_upsert_backfill/i.test(error.message)
+  );
+}
+
 function optionalText(value: unknown, max: number): string | null {
   if (typeof value !== "string") return null;
   const trimmed = value.trim().slice(0, max);
@@ -121,55 +129,89 @@ export async function POST(request: Request) {
       source,
     };
 
-    let { error } = await supabase.from("waitlist").insert(fullRow);
+    // Prefer RPC: inserts new rows, or backfills null/blank fields on duplicate email.
+    // Plain UPDATE under anon RLS fails because there is no public SELECT policy.
+    const { data: rpcData, error: rpcError } = await supabase.rpc(
+      "waitlist_upsert_backfill",
+      {
+        p_email: fullRow.email,
+        p_name: fullRow.name,
+        p_role: fullRow.role,
+        p_company_type: fullRow.company_type,
+        p_city: fullRow.city,
+        p_country: fullRow.country,
+        p_social: fullRow.social,
+        p_feedback: fullRow.feedback,
+        p_source: fullRow.source,
+      }
+    );
 
-    // Older DBs may lack newer columns. Fall back so signup never dies.
-    if (error && isMissingColumnError(error)) {
-      console.warn(
-        "[waitlist] extra columns missing — retrying leaner row. Run latest waitlist migrations."
-      );
-      const midRow = {
-        email,
-        name,
-        role,
-        company_type,
-        city: fullRow.city,
-        country: fullRow.country,
-        source,
-      };
-      ({ error } = await supabase.from("waitlist").insert(midRow));
-      if (error && isMissingColumnError(error)) {
-        ({ error } = await supabase
-          .from("waitlist")
-          .insert({ email, name, role, company_type, source }));
-      }
-      if (error && isMissingColumnError(error)) {
-        ({ error } = await supabase.from("waitlist").insert({ email, source }));
-      }
-    }
-
-    if (error) {
-      if (error.code === "23505") {
-        duplicate = true;
-        stored = true;
-      } else if (
-        error.code === "PGRST205" ||
-        /could not find the table/i.test(error.message) ||
-        /relation .*waitlist/i.test(error.message)
-      ) {
-        console.warn(
-          "[waitlist] table missing — run supabase/migrations/20260302_waitlist.sql. Email:",
-          email
-        );
-      } else {
-        console.error("[waitlist] insert failed:", error.message);
-        return NextResponse.json(
-          { ok: false, error: "Could not save. Try again." },
-          { status: 500 }
-        );
-      }
-    } else {
+    if (!rpcError) {
       stored = true;
+      const result = rpcData as { stored?: boolean; duplicate?: boolean } | null;
+      duplicate = Boolean(result?.duplicate);
+    } else if (!isMissingRpcError(rpcError)) {
+      console.error("[waitlist] upsert rpc failed:", rpcError.message);
+      return NextResponse.json(
+        { ok: false, error: "Could not save. Try again." },
+        { status: 500 }
+      );
+    } else {
+      console.warn(
+        "[waitlist] upsert rpc missing — falling back to insert. Run 20260903_waitlist_duplicate_update.sql."
+      );
+
+      let { error } = await supabase.from("waitlist").insert(fullRow);
+
+      // Older DBs may lack newer columns. Fall back so signup never dies.
+      if (error && isMissingColumnError(error)) {
+        console.warn(
+          "[waitlist] extra columns missing — retrying leaner row. Run latest waitlist migrations."
+        );
+        const midRow = {
+          email,
+          name,
+          role,
+          company_type,
+          city: fullRow.city,
+          country: fullRow.country,
+          source,
+        };
+        ({ error } = await supabase.from("waitlist").insert(midRow));
+        if (error && isMissingColumnError(error)) {
+          ({ error } = await supabase
+            .from("waitlist")
+            .insert({ email, name, role, company_type, source }));
+        }
+        if (error && isMissingColumnError(error)) {
+          ({ error } = await supabase.from("waitlist").insert({ email, source }));
+        }
+      }
+
+      if (error) {
+        if (error.code === "23505") {
+          // Duplicate without RPC — cannot backfill under anon RLS; still OK for signup.
+          duplicate = true;
+          stored = true;
+        } else if (
+          error.code === "PGRST205" ||
+          /could not find the table/i.test(error.message) ||
+          /relation .*waitlist/i.test(error.message)
+        ) {
+          console.warn(
+            "[waitlist] table missing — run supabase/migrations/20260302_waitlist.sql. Email:",
+            email
+          );
+        } else {
+          console.error("[waitlist] insert failed:", error.message);
+          return NextResponse.json(
+            { ok: false, error: "Could not save. Try again." },
+            { status: 500 }
+          );
+        }
+      } else {
+        stored = true;
+      }
     }
   }
 

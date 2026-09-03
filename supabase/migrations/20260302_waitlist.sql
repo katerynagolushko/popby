@@ -30,3 +30,9 @@ create policy "waitlist_insert_anon" on public.waitlist
 
 drop policy if exists "waitlist_no_public_read" on public.waitlist;
 -- No select policy for anon/authenticated → inserts only from the client/API.
+
+drop policy if exists "waitlist_update_anon" on public.waitlist;
+create policy "waitlist_update_anon" on public.waitlist
+  for update to anon, authenticated
+  using (true)
+  with check (true);
