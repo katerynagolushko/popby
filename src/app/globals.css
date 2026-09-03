@@ -128,19 +128,22 @@ h1, h2, h3 {
   font-family: var(--font-ibm-plex), system-ui, sans-serif;
 }
 
-/* Landing hero CTAs — ~30% larger than prior landing-cta (easy revert target) */
+/* Landing hero CTAs — mobile matches base .popby-btn size so both CTAs share
+   the same typography/padding; sm+ keeps the larger hero scale */
 .landing-cta {
-  padding: 1.1rem 2.275rem;
-  min-height: 4.225rem; /* ~68px */
+  padding: 0.95rem 1.5rem;
+  min-height: 3.375rem; /* ~54px — same as .popby-btn */
   border-radius: 12px;
-  font-size: 1.4625rem;
+  font-size: 1.125rem;
   line-height: 1.2;
   font-weight: 600;
   text-align: center;
+  width: 100%;
 }
 
 @media (min-width: 640px) {
   .landing-cta {
+    width: auto;
     padding: 1.235rem 2.6rem;
     min-height: 4.55rem; /* ~73px */
     font-size: 1.56rem;
