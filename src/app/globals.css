@@ -315,6 +315,52 @@ h1, h2, h3 {
     0 2px 10px rgba(255, 87, 34, 0.12);
 }
 
+/* Encode TV / lobby attract — subtle presence, not noise */
+@keyframes tv-rise {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.tv-rise {
+  animation: tv-rise 0.75s ease-out both;
+}
+
+.tv-rise-delay {
+  animation-delay: 0.18s;
+}
+
+@keyframes tv-qr-pulse {
+  0%,
+  100% {
+    box-shadow:
+      0 12px 40px rgba(26, 31, 54, 0.12),
+      0 0 0 0 rgba(255, 87, 34, 0.28);
+  }
+  50% {
+    box-shadow:
+      0 12px 40px rgba(26, 31, 54, 0.12),
+      0 0 0 14px rgba(255, 87, 34, 0);
+  }
+}
+
+.tv-qr-frame {
+  animation: tv-qr-pulse 2.8s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tv-rise,
+  .tv-rise-delay,
+  .tv-qr-frame {
+    animation: none;
+  }
+}
+
 .hl-mint {
   color: var(--mint);
   text-shadow:

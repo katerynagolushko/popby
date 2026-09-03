@@ -37,6 +37,8 @@ export async function updateSession(request: NextRequest) {
     path.startsWith("/waitlist/") ||
     path === "/demo" ||
     path.startsWith("/demo/") ||
+    path === "/tv" ||
+    path.startsWith("/tv/") ||
     isAuthPage ||
     isPublicApi;
 
