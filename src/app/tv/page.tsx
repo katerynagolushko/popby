@@ -33,17 +33,20 @@ export default function TvPage() {
       <div className="relative z-10 flex h-full w-full flex-row items-stretch">
         {/* Pitch: ~half the viewport */}
         <section className="tv-rise flex w-1/2 min-w-0 flex-col justify-center px-[4.5vw] py-[5vh]">
-          <div className="inline-flex items-center gap-4">
-            <LogoMark size={72} tone="onLight" />
-            <AppWordmark className="text-[clamp(2.75rem,4.2vw,4.5rem)]" tone="onLight" />
+          <div className="inline-flex items-center gap-3">
+            <LogoMark size={48} tone="onLight" />
+            <AppWordmark
+              className="text-[clamp(1.5rem,2.2vw,2.25rem)]"
+              tone="onLight"
+            />
           </div>
 
-          <h1 className="mt-[5.5vh] max-w-[16ch] font-display text-[clamp(2.85rem,5.4vw,6.25rem)] font-extrabold leading-[1.02] tracking-[-0.04em]">
+          <h1 className="mt-[4.5vh] max-w-[22ch] font-display text-[clamp(2.15rem,3.5vw,3.65rem)] font-bold leading-[1.15] tracking-[-0.025em]">
             The <span className="hl-accent">first</span> startup social network for{" "}
             <span className="hl-accent">IRL</span>
           </h1>
 
-          <p className="mt-[3.5vh] max-w-[26ch] font-display text-[clamp(1.35rem,2.1vw,2.35rem)] font-semibold leading-[1.35] tracking-[-0.02em] text-navy/85">
+          <p className="mt-[3vh] max-w-[32ch] font-body text-[clamp(1.15rem,1.55vw,1.6rem)] font-medium leading-[1.45] text-navy/80">
             See who&apos;s free nearby and meet in person spontaneously.
           </p>
         </section>
@@ -58,10 +61,10 @@ export default function TvPage() {
             />
           </div>
 
-          <p className="mt-[2.8vh] text-center font-display text-[clamp(1.25rem,1.9vw,2rem)] font-bold tracking-tight text-navy">
+          <p className="mt-[2.8vh] text-center font-display text-[clamp(1.1rem,1.5vw,1.55rem)] font-bold tracking-tight text-navy">
             Scan to join the waitlist
           </p>
-          <p className="mt-2 text-center font-body text-[clamp(1rem,1.35vw,1.45rem)] font-medium text-navy/70">
+          <p className="mt-2 text-center font-body text-[clamp(0.95rem,1.2vw,1.25rem)] font-medium text-navy/70">
             {APP_DOMAIN.toLowerCase()}
           </p>
         </section>
