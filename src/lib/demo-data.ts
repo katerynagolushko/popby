@@ -285,7 +285,8 @@ type DemoSeed = {
   hangout_note: string | null;
   duration_minutes: 30 | 60 | 120;
   minutes_left: number;
-  avg_score: number;
+  /** Null when rating_count is 0 — never pair an average with zero reviews. */
+  avg_score: number | null;
   rating_count: number;
   linkedin_url?: string | null;
   twitter_url?: string | null;
@@ -662,9 +663,18 @@ function generateSeeds(count: number): DemoSeed[] {
       hangout_note: pick(rng, NOTES),
       duration_minutes,
       minutes_left,
-      avg_score: Math.round((3.8 + rng() * 1.2) * 10) / 10,
-      // Prefer a few reviews so profile pages feel lived-in; 0 still allowed.
-      rating_count: rng() < 0.12 ? 0 : 3 + Math.floor(rng() * 6),
+      // Only show a star average when there is ≥1 review. Demo avgs stay
+      // ≥4.0 — lower scores put people off. ~10% have no reviews yet.
+      ...(rng() < 0.1
+        ? { avg_score: null as number | null, rating_count: 0 }
+        : {
+            avg_score: Math.round((4 + rng()) * 10) / 10, // 4.0–5.0
+            // Mostly a handful; sometimes teens/twenties.
+            rating_count:
+              rng() < 0.7
+                ? 2 + Math.floor(rng() * 8) // 2–9
+                : 10 + Math.floor(rng() * 20), // 10–29
+          }),
       linkedin_url: rng() > 0.45 ? "https://linkedin.com" : null,
       twitter_url: rng() > 0.7 ? "https://x.com" : null,
       luma_profile_url: rng() > 0.85 ? "https://lu.ma" : null,

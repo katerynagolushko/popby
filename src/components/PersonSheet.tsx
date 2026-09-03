@@ -117,9 +117,13 @@ export default function PersonSheet({
                 )}
               </div>
               <p className="text-lg text-navy/80 mt-0.5">{roleLine}</p>
-              {profile.avg_score != null && profile.avg_score > 0 && (
+              {(profile.rating_count ?? 0) > 0 &&
+                profile.avg_score != null &&
+                profile.avg_score > 0 && (
                 <p className="text-lg text-accent mt-1 font-semibold">
-                  ★ {profile.avg_score} ({profile.rating_count} reviews)
+                  ★ {profile.avg_score} (
+                  {profile.rating_count}{" "}
+                  {profile.rating_count === 1 ? "review" : "reviews"})
                 </p>
               )}
             </div>
