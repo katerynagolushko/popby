@@ -63,7 +63,7 @@
 
     .pitch {
       justify-content: center;
-      padding: 5vh 4.5vw;
+      padding: 5vh 3.25vw;
       animation: tv-rise 0.75s ease-out both;
     }
 
@@ -93,12 +93,16 @@
 
     h1 {
       margin-top: 4.5vh;
-      max-width: 22ch;
       font-family: Syne, system-ui, sans-serif;
       font-weight: 700;
-      font-size: clamp(2.15rem, 3.5vw, 3.65rem);
-      line-height: 1.15;
-      letter-spacing: -0.025em;
+      font-size: clamp(2.5rem, 4vw, 4.5rem);
+      line-height: 1.04;
+      letter-spacing: -0.05em;
+    }
+
+    .headline-line {
+      display: block;
+      white-space: nowrap;
     }
 
     .hl-accent {
@@ -195,8 +199,8 @@
         </div>
 
         <h1>
-          The <span class="hl-accent">first</span> startup social network for
-          <span class="hl-accent">IRL</span>
+          <span class="headline-line">The <span class="hl-accent">first startup</span></span>
+          <span class="headline-line">social network for <span class="hl-accent">IRL</span></span>
         </h1>
 
         <p class="subcopy">

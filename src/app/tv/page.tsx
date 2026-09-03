@@ -32,7 +32,7 @@ export default function TvPage() {
 
       <div className="relative z-10 flex h-full w-full flex-row items-stretch">
         {/* Pitch: ~half the viewport */}
-        <section className="tv-rise flex w-1/2 min-w-0 flex-col justify-center px-[4.5vw] py-[5vh]">
+        <section className="tv-rise flex w-1/2 min-w-0 flex-col justify-center px-[3.25vw] py-[5vh]">
           <div className="inline-flex items-center gap-3">
             <LogoMark size={48} tone="onLight" />
             <AppWordmark
@@ -41,9 +41,13 @@ export default function TvPage() {
             />
           </div>
 
-          <h1 className="mt-[4.5vh] max-w-[22ch] font-display text-[clamp(2.15rem,3.5vw,3.65rem)] font-bold leading-[1.15] tracking-[-0.025em]">
-            The <span className="hl-accent">first</span> startup social network for{" "}
-            <span className="hl-accent">IRL</span>
+          <h1 className="mt-[4.5vh] font-display text-[clamp(2.5rem,4vw,4.5rem)] font-bold leading-[1.04] tracking-[-0.05em]">
+            <span className="block whitespace-nowrap">
+              The <span className="hl-accent">first startup</span>
+            </span>
+            <span className="block whitespace-nowrap">
+              social network for <span className="hl-accent">IRL</span>
+            </span>
           </h1>
 
           <p className="mt-[3vh] max-w-[32ch] font-body text-[clamp(1.15rem,1.55vw,1.6rem)] font-medium leading-[1.45] text-navy/80">
