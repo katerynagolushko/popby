@@ -6,6 +6,8 @@ export const APP_NAME_LEAD = "Hangby";
 export const APP_NAME_TAIL = "me";
 /** Public domain shown in copy / emails */
 export const APP_DOMAIN = "Hangby.me";
+/** Square mark in waitlist / transactional emails (absolute URL — clients block relative src) */
+export const EMAIL_LOGO_URL = "https://hangby.me/email-logo.png";
 export const APP_TAGLINE = "The startup social network for IRL London Edition";
 export const APP_DESCRIPTION =
   "Hangbyme is the startup social network for IRL. See who's free to spontaneously hang out nearby in London, connect human-first, and meet in person. No feed, no posts, no follower counts.";

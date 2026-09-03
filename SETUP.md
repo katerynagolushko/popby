@@ -50,6 +50,8 @@ Code path is ready in `src/lib/waitlist-email.ts`. If keys are missing, signup s
 5. Set `WAITLIST_REPLY_TO` to `kat@hangby.me` (replies go to you).
 6. Redeploy. Join the waitlist once and check Resend → Emails plus the inbox.
 
+Confirmation emails are HTML + text. The HTML header uses the square mark at `https://hangby.me/email-logo.png` (`public/email-logo.png`). Resend cannot set Gmail’s sender-chip avatar; that needs a Google profile photo / Gravatar for `hello@hangby.me`, or BIMI later.
+
 Do not pretend email works without keys. The API returns `emailSent: true|false` so you can confirm.
 
 ## 3. Run locally
