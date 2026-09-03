@@ -1,4 +1,4 @@
-import { APP_NAME, EMAIL_LOGO_URL } from "@/lib/brand";
+import { APP_NAME } from "@/lib/brand";
 
 /**
  * Optional waitlist confirmation via Resend.
@@ -9,8 +9,9 @@ import { APP_NAME, EMAIL_LOGO_URL } from "@/lib/brand";
  * - WAITLIST_FROM_EMAIL e.g. "Hangbyme <hello@hangby.me>"
  * - WAITLIST_REPLY_TO optional, e.g. "kat@hangby.me"
  *
- * Sends HTML + text. The in-body logo is EMAIL_LOGO_URL.
- * Resend cannot set Gmail's sender-chip avatar (BIMI / Google profile / Gravatar).
+ * Sends HTML + text (typography only — no in-body logo).
+ * Resend has no sender-avatar API field. Gmail's circle is Google profile /
+ * Gravatar / BIMI (DNS + certificate), not HTML.
  */
 
 const WAITLIST_REPLY_TO = "kat@hangby.me";
@@ -69,7 +70,6 @@ function waitlistHtml(copy: ReturnType<typeof waitlistCopy>): string {
 </head>
 <body style="margin:0;padding:0;background:#ffffff;">
   <div style="max-width:560px;margin:0 auto;padding:28px 20px 36px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;">
-    <img src="${EMAIL_LOGO_URL}" width="72" height="72" alt="${escapeHtml(APP_NAME)}" style="display:block;border:0;outline:none;text-decoration:none;margin:0 0 24px;width:72px;height:72px;" />
     ${p(copy.greeting)}
     ${p(copy.paragraphs[0])}
     ${p(copy.paragraphs[1])}
