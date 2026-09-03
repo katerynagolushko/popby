@@ -7,13 +7,13 @@ import { APP_NAME, EMAIL_LOGO_URL } from "@/lib/brand";
  * Env:
  * - RESEND_API_KEY
  * - WAITLIST_FROM_EMAIL e.g. "Hangbyme <hello@hangby.me>"
- * - WAITLIST_REPLY_TO optional, e.g. "kat@hangby.me"
+ * - WAITLIST_REPLY_TO optional, e.g. "hello@hangby.me"
  *
  * Sends HTML + text. The in-body logo is EMAIL_LOGO_URL.
  * Resend cannot set Gmail's sender-chip avatar (BIMI / Google profile / Gravatar).
  */
 
-const WAITLIST_REPLY_TO = "kat@hangby.me";
+const WAITLIST_REPLY_TO = "hello@hangby.me";
 
 function escapeHtml(value: string): string {
   return value

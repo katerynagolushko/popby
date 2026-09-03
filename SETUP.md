@@ -47,7 +47,7 @@ Code path is ready in `src/lib/waitlist-email.ts`. If keys are missing, signup s
 2. Add and verify your domain (DNS: SPF, DKIM, and whatever Resend shows for the domain). Until the domain is verified, you can only send from Resend’s onboarding address in test mode.
 3. Create an API key. Put it in Vercel / `.env.local` as `RESEND_API_KEY`.
 4. Set `WAITLIST_FROM_EMAIL` to a verified sender, e.g. `Hangbyme <hello@hangby.me>`.
-5. Set `WAITLIST_REPLY_TO` to `kat@hangby.me` (replies go to you).
+5. Set `WAITLIST_REPLY_TO` to `hello@hangby.me` (replies go to that inbox / forwarder).
 6. Redeploy. Join the waitlist once and check Resend → Emails plus the inbox.
 
 Confirmation emails are HTML + text (no logo in the body). Resend cannot set Gmail’s sender-chip avatar via the API or HTML — upload `public/email-logo.png` as the Google Workspace / Google Account photo for `hello@hangby.me`, or use Gravatar; BIMI (DNS + paid certificate) is the only reliable brand logo for strangers’ inboxes (see Resend → Domains → BIMI).
