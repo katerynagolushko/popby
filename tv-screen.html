@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Hangbyme: Encode screen</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Syne:wght@600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --paper: #f2efe9;
+      --navy: #1a1f36;
+      --accent: #ff5722;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      height: 100%;
+      width: 100%;
+      overflow: hidden;
+      background: var(--paper);
+      color: var(--navy);
+      font-family: "IBM Plex Sans", system-ui, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .screen {
+      position: relative;
+      height: 100vh;
+      width: 100vw;
+      overflow: hidden;
+    }
+
+    .atmosphere {
+      pointer-events: none;
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 70% 55% at 18% 40%, rgba(255, 87, 34, 0.08), transparent 55%),
+        radial-gradient(ellipse 55% 50% at 88% 55%, rgba(26, 31, 54, 0.06), transparent 50%),
+        linear-gradient(165deg, #f2efe9 0%, #ebe6dc 48%, #e4dfd4 100%);
+    }
+
+    .layout {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      flex-direction: row;
+      align-items: stretch;
+      height: 100%;
+      width: 100%;
+    }
+
+    .pitch, .qr-side {
+      width: 50%;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .pitch {
+      justify-content: center;
+      padding: 5vh 4.5vw;
+      animation: tv-rise 0.75s ease-out both;
+    }
+
+    .qr-side {
+      align-items: center;
+      justify-content: center;
+      padding: 5vh 4vw;
+      animation: tv-rise 0.75s ease-out 0.18s both;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .wordmark {
+      font-family: Syne, system-ui, sans-serif;
+      font-weight: 700;
+      font-size: clamp(2.75rem, 4.2vw, 4.5rem);
+      letter-spacing: -0.03em;
+      line-height: 1;
+    }
+
+    .wordmark .lead { color: var(--navy); }
+    .wordmark .tail { color: var(--accent); }
+
+    h1 {
+      margin-top: 5.5vh;
+      max-width: 16ch;
+      font-family: Syne, system-ui, sans-serif;
+      font-weight: 800;
+      font-size: clamp(2.85rem, 5.4vw, 6.25rem);
+      line-height: 1.02;
+      letter-spacing: -0.04em;
+    }
+
+    .hl-accent {
+      color: var(--accent);
+      text-shadow:
+        0 1px 0 rgba(255, 87, 34, 0.22),
+        0 2px 10px rgba(255, 87, 34, 0.12);
+    }
+
+    .subcopy {
+      margin-top: 3.5vh;
+      max-width: 26ch;
+      font-family: Syne, system-ui, sans-serif;
+      font-weight: 600;
+      font-size: clamp(1.35rem, 2.1vw, 2.35rem);
+      line-height: 1.35;
+      letter-spacing: -0.02em;
+      color: rgba(26, 31, 54, 0.85);
+    }
+
+    .qr-frame {
+      border-radius: 1.35rem;
+      border: 3px solid rgba(255, 87, 34, 0.7);
+      background: var(--paper);
+      padding: clamp(0.75rem, 1.4vw, 1.5rem);
+      box-shadow: 0 12px 40px rgba(26, 31, 54, 0.12);
+      animation: tv-qr-pulse 2.8s ease-in-out infinite;
+    }
+
+    .qr-frame svg {
+      display: block;
+      height: min(58vh, 36vw);
+      width: min(58vh, 36vw);
+    }
+
+    .scan-label {
+      margin-top: 2.8vh;
+      text-align: center;
+      font-family: Syne, system-ui, sans-serif;
+      font-weight: 700;
+      font-size: clamp(1.25rem, 1.9vw, 2rem);
+      letter-spacing: -0.02em;
+      color: var(--navy);
+    }
+
+    .domain {
+      margin-top: 0.5rem;
+      text-align: center;
+      font-family: "IBM Plex Sans", system-ui, sans-serif;
+      font-weight: 500;
+      font-size: clamp(1rem, 1.35vw, 1.45rem);
+      color: rgba(26, 31, 54, 0.7);
+    }
+
+    @keyframes tv-rise {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes tv-qr-pulse {
+      0%, 100% {
+        box-shadow:
+          0 12px 40px rgba(26, 31, 54, 0.12),
+          0 0 0 0 rgba(255, 87, 34, 0.28);
+      }
+      50% {
+        box-shadow:
+          0 12px 40px rgba(26, 31, 54, 0.12),
+          0 0 0 14px rgba(255, 87, 34, 0);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .pitch, .qr-side, .qr-frame { animation: none; }
+    }
+  </style>
+</head>
+<body>
+  <main class="screen" role="main">
+    <div class="atmosphere" aria-hidden="true"></div>
+    <div class="layout">
+      <section class="pitch">
+        <div class="brand">
+          <svg width="72" height="72" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <rect width="48" height="48" rx="14" fill="#1a1f36" />
+            <path d="M14 16c0-2.2 1.8-4 4-4h12c2.2 0 4 1.8 4 4v8c0 2.2-1.8 4-4 4h-6l-4 4v-4h-2c-2.2 0-4-1.8-4-4v-8z" fill="#ff5722" />
+            <circle cx="24" cy="22" r="3" fill="#1a1f36" />
+            <path d="M24 28v6" stroke="#1a1f36" stroke-width="2.5" stroke-linecap="round" />
+            <path d="M21 34h6" stroke="#1a1f36" stroke-width="2.5" stroke-linecap="round" />
+          </svg>
+          <span class="wordmark" aria-label="Hangbyme">
+            <span class="lead">Hangby</span><span class="tail">me</span>
+          </span>
+        </div>
+
+        <h1>
+          The <span class="hl-accent">first</span> startup social network for
+          <span class="hl-accent">IRL</span>
+        </h1>
+
+        <p class="subcopy">
+          See who's free nearby and meet in person spontaneously.
+        </p>
+      </section>
+
+      <section class="qr-side">
+        <div class="qr-frame">
+<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" role="img" aria-label="QR code to open Hangbyme" viewBox="0 0 29 29" shape-rendering="crispEdges"><path fill="#f2efe9" d="M0 0h29v29H0z"/><path stroke="#1a1f36" d="M2 2.5h7m3 0h1m2 0h1m1 0h1m2 0h7M2 3.5h1m5 0h1m2 0h1m1 0h1m1 0h4m1 0h1m5 0h1M2 4.5h1m1 0h3m1 0h1m1 0h2m1 0h1m1 0h1m1 0h2m1 0h1m1 0h3m1 0h1M2 5.5h1m1 0h3m1 0h1m1 0h5m1 0h2m2 0h1m1 0h3m1 0h1M2 6.5h1m1 0h3m1 0h1m1 0h1m1 0h2m4 0h1m1 0h1m1 0h3m1 0h1M2 7.5h1m5 0h1m1 0h4m3 0h2m1 0h1m5 0h1M2 8.5h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7M10 9.5h1m3 0h1m1 0h3M2 10.5h1m1 0h5m3 0h2m6 0h5M9 11.5h1m2 0h5m1 0h1m2 0h1m3 0h1M6 12.5h3m1 0h2m1 0h1m1 0h3m2 0h1m2 0h1m1 0h2M5 13.5h1m1 0h1m4 0h1m2 0h1m2 0h3m1 0h1m3 0h1M4 14.5h8m1 0h2m1 0h1m2 0h2m1 0h1m1 0h3M2 15.5h1m2 0h2m2 0h2m1 0h1m8 0h1m1 0h1m1 0h1M2 16.5h1m1 0h1m1 0h1m1 0h2m2 0h3m2 0h3m1 0h3m1 0h2M2 17.5h1m2 0h1m1 0h1m2 0h1m1 0h2m2 0h2m3 0h2m3 0h1M2 18.5h1m1 0h1m3 0h1m3 0h2m4 0h5m1 0h1M10 19.5h2m2 0h3m1 0h1m3 0h2M2 20.5h7m2 0h1m3 0h2m1 0h1m1 0h1m1 0h1m1 0h3M2 21.5h1m5 0h1m1 0h2m2 0h2m2 0h1m3 0h2m1 0h2M2 22.5h1m1 0h3m1 0h1m1 0h2m2 0h1m1 0h7m1 0h1m1 0h1M2 23.5h1m1 0h3m1 0h1m1 0h2m5 0h4m1 0h5M2 24.5h1m1 0h3m1 0h1m1 0h5m2 0h1m5 0h2m1 0h1M2 25.5h1m5 0h1m2 0h3m2 0h8m2 0h1M2 26.5h7m1 0h1m2 0h1m5 0h1m1 0h6"/></svg>
+        </div>
+        <p class="scan-label">Scan to join the waitlist</p>
+        <p class="domain">hangby.me</p>
+      </section>
+    </div>
+  </main>
+</body>
+</html>
