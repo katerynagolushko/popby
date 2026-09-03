@@ -11,8 +11,10 @@ import RatingModal from "@/components/RatingModal";
 import DemoOnboardingTour, {
   DEFAULT_DEMO_DRAFT,
   clearDemoTourDone,
+  markDemoIntroBannerDismissed,
   markDemoTourDone,
   markDemoTourSkipped,
+  readDemoIntroBannerDismissed,
   readDemoTourStatus,
   shouldAutoOpenDemoTour,
   type DemoProfileDraft,
@@ -57,6 +59,7 @@ export default function DemoPage() {
   const [tourHydrated, setTourHydrated] = useState(false);
   const [tourStatus, setTourStatus] = useState<DemoTourStatus>(null);
   const [profileTourOpen, setProfileTourOpen] = useState(false);
+  const [introDismissed, setIntroDismissed] = useState(false);
 
   useEffect(() => {
     // Warm the portrait cache so map pins don't sit on the accent circle.
@@ -70,6 +73,7 @@ export default function DemoPage() {
   useEffect(() => {
     const status = readDemoTourStatus();
     setTourStatus(status);
+    setIntroDismissed(readDemoIntroBannerDismissed());
     setTourHydrated(true);
     if (shouldAutoOpenDemoTour()) setProfileTourOpen(true);
   }, []);
@@ -137,6 +141,11 @@ export default function DemoPage() {
     setProfileTourOpen(false);
   }
 
+  function handleDismissIntro() {
+    markDemoIntroBannerDismissed();
+    setIntroDismissed(true);
+  }
+
   function handleStartTour() {
     setMyLive(null);
     setShowMatches(false);
@@ -149,6 +158,7 @@ export default function DemoPage() {
   function handleReplayTour() {
     clearDemoTourDone();
     setTourStatus(null);
+    setIntroDismissed(false);
     handleStartTour();
   }
 
@@ -227,7 +237,11 @@ export default function DemoPage() {
 
   const preferVibe = myLive?.availability.match_preference === "vibe";
   const showIntroBanner =
-    !myLive && tourHydrated && !profileTourOpen && tourStatus === "skipped";
+    !myLive &&
+    tourHydrated &&
+    !profileTourOpen &&
+    tourStatus === "skipped" &&
+    !introDismissed;
 
   return (
     <div className="h-[100dvh] flex flex-col relative bg-paper overflow-hidden">
@@ -279,7 +293,15 @@ export default function DemoPage() {
         <div className="absolute top-[4.75rem] sm:top-16 inset-x-3 z-[900] pointer-events-none">
           <div className="pointer-events-auto max-w-lg mx-auto">
             <div className="bg-white border-2 border-navy rounded-2xl shadow-xl overflow-hidden">
-              <div className="bg-navy text-white px-4 py-3.5">
+              <div className="relative bg-navy text-white px-4 py-3.5 pr-14">
+                <button
+                  type="button"
+                  onClick={handleDismissIntro}
+                  aria-label="Dismiss"
+                  className="absolute top-2 right-2 w-11 h-11 rounded-xl text-white/80 hover:text-white hover:bg-white/10 inline-flex items-center justify-center text-xl"
+                >
+                  ✕
+                </button>
                 <p
                   className="text-lg font-bold tracking-tight leading-snug"
                   style={{ fontFamily: "var(--font-syne), system-ui, sans-serif" }}

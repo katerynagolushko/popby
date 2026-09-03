@@ -10,6 +10,8 @@ export const DEMO_TOUR_STORAGE_KEY = "hangbyme-demo-tour-done";
 const DEMO_TOUR_STORAGE_KEY_LEGACY = "popby-demo-tour-done";
 /** skipped | done — distinguishes Skip from finishing the guided flow */
 export const DEMO_TOUR_STATUS_KEY = "hangbyme-demo-tour-status";
+/** Post-skip map banner — dismiss without taking the tour */
+export const DEMO_INTRO_BANNER_DISMISSED_KEY = "hangbyme-demo-intro-dismissed";
 
 export type DemoTourStatus = "done" | "skipped" | null;
 
@@ -72,6 +74,24 @@ export function clearDemoTourDone() {
     sessionStorage.removeItem(DEMO_TOUR_STORAGE_KEY);
     sessionStorage.removeItem(DEMO_TOUR_STORAGE_KEY_LEGACY);
     sessionStorage.removeItem(DEMO_TOUR_STATUS_KEY);
+    sessionStorage.removeItem(DEMO_INTRO_BANNER_DISMISSED_KEY);
+  } catch {
+    /* ignore */
+  }
+}
+
+export function readDemoIntroBannerDismissed(): boolean {
+  if (typeof window === "undefined") return false;
+  try {
+    return sessionStorage.getItem(DEMO_INTRO_BANNER_DISMISSED_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
+export function markDemoIntroBannerDismissed() {
+  try {
+    sessionStorage.setItem(DEMO_INTRO_BANNER_DISMISSED_KEY, "1");
   } catch {
     /* ignore */
   }
