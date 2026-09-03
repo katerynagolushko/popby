@@ -8,7 +8,7 @@ interface TvQrCodeProps {
   className?: string;
 }
 
-/** Crisp SVG QR for big-screen attract — navy on cream to match brand. */
+/** Crisp SVG QR for big-screen attract: navy on cream to match brand. */
 export default function TvQrCode({
   value,
   size = 420,
