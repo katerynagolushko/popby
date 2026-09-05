@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Logo, { AppWordmark } from "@/components/Logo";
 import WaitlistForm from "@/components/WaitlistForm";
+import WaitlistPriorityNote from "@/components/WaitlistPriorityNote";
 
 export default function CityWaitlistPage() {
   return (
@@ -19,9 +20,10 @@ export default function CityWaitlistPage() {
         <h1 className="text-3xl sm:text-4xl text-navy leading-tight mb-3">
           Launch <AppWordmark /> in your city
         </h1>
+        <WaitlistPriorityNote className="text-lg leading-relaxed text-navy/70 mb-3" />
         <p className="text-xl leading-relaxed text-navy/80 mb-10">
-          V1 is London. If you want us next where you live, join this list —
-          pick your city so we can see demand.
+          V1 is London. If you want us next where you live, join this list.
+          Pick your city so we can see demand.
         </p>
 
         <WaitlistForm mode="city" />

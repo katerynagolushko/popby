@@ -3,6 +3,10 @@ import { createClient } from "@supabase/supabase-js";
 import { COMPANY_TYPES, ROLES } from "@/lib/constants";
 import type { CompanyType, Role } from "@/lib/types";
 import { sendWaitlistConfirmationEmail } from "@/lib/waitlist-email";
+import {
+  isValidSocialLink,
+  SOCIAL_LINK_ERROR,
+} from "@/lib/waitlist-social";
 
 function getEnv() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -93,8 +97,16 @@ export async function POST(request: Request) {
   const isCityWaitlist = source === "city_waitlist";
   const city = optionalText(body.city, 120);
   const country = optionalText(body.country, 80);
-  const social = optionalText(body.social, 200);
+  const socialRaw = optionalText(body.social, 200);
   const feedback = optionalText(body.feedback, 2000);
+
+  if (!socialRaw || !isValidSocialLink(socialRaw)) {
+    return NextResponse.json(
+      { ok: false, error: SOCIAL_LINK_ERROR },
+      { status: 400 }
+    );
+  }
+  const social = socialRaw;
 
   if (isCityWaitlist && !city) {
     return NextResponse.json(

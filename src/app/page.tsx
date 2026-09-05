@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Logo from "@/components/Logo";
 import LandingHeroMapLoader from "@/components/LandingHeroMapLoader";
+import WaitlistPriorityNote from "@/components/WaitlistPriorityNote";
 import { APP_CITY } from "@/lib/brand";
 
 export default async function HomePage({
@@ -44,7 +45,7 @@ export default async function HomePage({
                 href="/waitlist"
                 className="popby-btn popby-btn-accent landing-cta"
               >
-                Join the waitlist
+                Join the waitlist*
               </Link>
               <Link
                 href="/demo"
@@ -56,16 +57,19 @@ export default async function HomePage({
           </div>
         </div>
 
-        <p className="mt-auto pt-4 sm:pt-5 text-base sm:text-lg text-navy/65 leading-snug max-w-xl shrink-0">
-          The V1 is for London. If you want us to launch in your city,{" "}
-          <Link
-            href="/waitlist/city"
-            className="text-navy/80 font-medium underline underline-offset-2 hover:text-accent"
-          >
-            join this waitlist
-          </Link>
-          .
-        </p>
+        <div className="mt-auto pt-4 sm:pt-5 space-y-2 max-w-xl shrink-0">
+          <WaitlistPriorityNote className="text-base sm:text-lg text-navy/65 leading-snug" />
+          <p className="text-base sm:text-lg text-navy/65 leading-snug">
+            The V1 is for London. If you want us to launch in your city,{" "}
+            <Link
+              href="/waitlist/city"
+              className="text-navy/80 font-medium underline underline-offset-2 hover:text-accent"
+            >
+              join this waitlist
+            </Link>
+            .
+          </p>
+        </div>
       </section>
 
       <section className="relative w-full lg:w-[56%] xl:w-[60%] min-h-[42vh] sm:min-h-[48vh] lg:min-h-0 lg:h-full border-t border-paper-3 lg:border-t-0 lg:border-l">

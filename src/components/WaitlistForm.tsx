@@ -9,6 +9,10 @@ import {
   WAITLIST_CITY_OTHER,
   parseCityCountry,
 } from "@/lib/waitlist-cities";
+import {
+  isValidSocialLink,
+  SOCIAL_LINK_ERROR,
+} from "@/lib/waitlist-social";
 
 type Status = "idle" | "loading" | "ok" | "error" | "duplicate";
 
@@ -69,6 +73,11 @@ export default function WaitlistForm({
       setMessage("Pick a company type.");
       return;
     }
+    if (!trimmedSocial || !isValidSocialLink(trimmedSocial)) {
+      setStatus("error");
+      setMessage(SOCIAL_LINK_ERROR);
+      return;
+    }
 
     let city: string | null = null;
     let country: string | null = null;
@@ -113,7 +122,7 @@ export default function WaitlistForm({
           company_type: companyType,
           city,
           country,
-          social: trimmedSocial || null,
+          social: trimmedSocial,
           feedback: trimmedFeedback || null,
           source: isCity ? "city_waitlist" : "landing",
         }),
@@ -304,19 +313,19 @@ export default function WaitlistForm({
 
       <div>
         <label htmlFor="waitlist-social" className={labelClass}>
-          Social media{" "}
-          <span className="font-normal text-navy/55">(optional)</span>
+          Social media
         </label>
         <input
           id="waitlist-social"
           type="text"
           name="social"
+          required
           value={social}
           onChange={(e) => {
             setSocial(e.target.value);
             clearError();
           }}
-          placeholder="LinkedIn / X / Instagram handle or link"
+          placeholder="LinkedIn / X or Instagram link"
           className="popby-input w-full text-lg min-h-[54px]"
           disabled={status === "loading"}
           maxLength={200}
