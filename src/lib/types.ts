@@ -32,6 +32,12 @@ export type HangoutIntent =
 /** Set when creating a hangout — how you want suggestions ranked while you're live */
 export type MatchPreference = "nearest" | "vibe";
 
+/**
+ * Demo-only: who appears on the map / matches while live.
+ * Friend = after hangout completes (rate), not after connect accept.
+ */
+export type DemoAudiencePreference = "anyone" | "friends";
+
 export interface Profile {
   id: string;
   first_name: string;

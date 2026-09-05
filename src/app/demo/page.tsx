@@ -34,10 +34,15 @@ import {
 } from "@/lib/demo-data";
 import { ALL_DEMO_PORTRAIT_URLS } from "@/lib/demo-portraits";
 import { LONDON_CENTER } from "@/lib/constants";
+import type { DemoAudiencePreference } from "@/lib/types";
 
 /** Frames the central London pin cluster (not Greater London empty outskirts). */
 const DEMO_MAP_CENTER: [number, number] = [51.505, -0.115];
 const DEMO_MAP_ZOOM = 12;
+
+const FRIENDS_EMPTY_COPY = "Friends show up here after you've hung out.";
+const FRIENDS_NOW_TOAST =
+  "You're friends now. You'll see them when they're free.";
 
 type ConnectionMap = Record<string, "none" | "pending" | "accepted">;
 
@@ -47,12 +52,16 @@ type SelectedPerson = DemoPerson & { isSelf?: boolean };
 export default function DemoPage() {
   const [people] = useState<DemoPerson[]>(INITIAL_DEMO_PEOPLE);
   const [myLive, setMyLive] = useState<DemoPerson | null>(null);
+  const [audiencePreference, setAudiencePreference] =
+    useState<DemoAudiencePreference>("anyone");
   const [matchBatchSeed, setMatchBatchSeed] = useState(0);
   const [selected, setSelected] = useState<SelectedPerson | null>(null);
   const [showGoLive, setShowGoLive] = useState(false);
   const [showRating, setShowRating] = useState(false);
   const [showMatches, setShowMatches] = useState(false);
   const [connections, setConnections] = useState<ConnectionMap>({});
+  /** Friend = after hang/rate, not after connect. Seed empty for teachable first friend. */
+  const [friendIds, setFriendIds] = useState<Set<string>>(() => new Set());
   const [toast, setToast] = useState<string | null>(null);
 
   const [draft, setDraft] = useState<DemoProfileDraft>(DEFAULT_DEMO_DRAFT);
@@ -85,20 +94,34 @@ export default function DemoPage() {
     return LONDON_CENTER;
   }, [myLive]);
 
+  const friendsOnly = audiencePreference === "friends";
+
   const topMatches = useMemo(
     () =>
       myLive
-        ? topDemoMatches(people, origin, myLive, DEMO_TOP_MATCH_COUNT, matchBatchSeed)
+        ? topDemoMatches(
+            people,
+            origin,
+            myLive,
+            DEMO_TOP_MATCH_COUNT,
+            matchBatchSeed,
+            { friendsOnly, friendIds }
+          )
         : [],
-    [people, myLive, origin, matchBatchSeed]
+    [people, myLive, origin, matchBatchSeed, friendsOnly, friendIds]
   );
 
   const mapPeople = useMemo(() => {
+    if (friendsOnly) {
+      const friends = people.filter((p) => friendIds.has(p.profile.id));
+      const all = myLive ? [...friends, myLive] : friends;
+      return toMapPeople(all);
+    }
     const all = myLive ? [...people, myLive] : people;
     return toMapPeople(subsampleForMap(all));
-  }, [people, myLive]);
+  }, [people, myLive, friendsOnly, friendIds]);
 
-  const matchesOpen = Boolean(myLive && showMatches && topMatches.length > 0);
+  const matchesOpen = Boolean(myLive && showMatches);
   const tourBlocking = profileTourOpen;
 
   // Lock body / map scroll bleed while the fullscreen matches view is open.
@@ -151,6 +174,9 @@ export default function DemoPage() {
     setShowMatches(false);
     setShowGoLive(false);
     setSelected(null);
+    setFriendIds(new Set());
+    setConnections({});
+    setAudiencePreference("anyone");
     setDraft({ ...DEFAULT_DEMO_DRAFT });
     setProfileTourOpen(true);
   }
@@ -170,8 +196,10 @@ export default function DemoPage() {
 
   function handleGoLive(payload: GoLivePayload) {
     const name = draft.first_name.trim() || "You";
+    const audience = payload.audience_preference ?? "anyone";
     // New seed each go-live so Top 5 rotates across replay / re-test sessions.
     setMatchBatchSeed(newDemoMatchBatchSeed());
+    setAudiencePreference(audience);
     const session: DemoPerson = {
       profile: {
         ...DEMO_ME_PROFILE,
@@ -204,11 +232,15 @@ export default function DemoPage() {
     setMyLive(session);
     setShowGoLive(false);
     setShowMatches(true);
-    showToast(
-      payload.match_preference === "vibe"
-        ? `You're live. ${DEMO_TOP_MATCH_COUNT} vibe matches.`
-        : `You're live. ${DEMO_TOP_MATCH_COUNT} people near you.`
-    );
+    if (audience === "friends") {
+      showToast(
+        friendIds.size === 0
+          ? FRIENDS_EMPTY_COPY
+          : `You're live. Friends only.`
+      );
+    } else {
+      showToast(`You're live. ${DEMO_TOP_MATCH_COUNT} people near you.`);
+    }
   }
 
   function handleStopLive() {
@@ -235,7 +267,20 @@ export default function DemoPage() {
     return connections[userId] ?? "none";
   }
 
-  const preferVibe = myLive?.availability.match_preference === "vibe";
+  function isFriend(userId: string): boolean {
+    return friendIds.has(userId);
+  }
+
+  function handleHangRated(userId: string) {
+    setFriendIds((prev) => {
+      const next = new Set(prev);
+      next.add(userId);
+      return next;
+    });
+    setShowRating(false);
+    showToast(FRIENDS_NOW_TOAST);
+  }
+
   const showIntroBanner =
     !myLive &&
     tourHydrated &&
@@ -287,6 +332,13 @@ export default function DemoPage() {
           onPersonClick={handlePersonClick}
           className="h-full w-full"
         />
+        {friendsOnly && myLive && friendIds.size === 0 && !matchesOpen && (
+          <div className="absolute inset-x-4 top-[30%] z-[900] flex justify-center pointer-events-none">
+            <p className="bg-white/95 border-2 border-navy/15 text-navy text-lg font-medium px-4 py-3.5 rounded-xl shadow-lg max-w-xs text-center leading-snug">
+              {FRIENDS_EMPTY_COPY}
+            </p>
+          </div>
+        )}
       </div>
 
       {showIntroBanner && (
@@ -372,7 +424,9 @@ export default function DemoPage() {
           matches={topMatches}
           me={myLive}
           origin={origin}
-          preferVibe={preferVibe}
+          friendsOnly={friendsOnly}
+          emptyCopy={friendsOnly ? FRIENDS_EMPTY_COPY : undefined}
+          isFriend={isFriend}
           getConnectionStatus={getConnectionStatus}
           onOpen={(p) => setSelected({ ...p })}
           onConnect={handleConnect}
@@ -396,6 +450,7 @@ export default function DemoPage() {
           profile={selected.profile}
           availability={selected.availability}
           isSelf={selected.isSelf ?? false}
+          isFriend={isFriend(selected.profile.id)}
           connectionStatus={getConnectionStatus(selected.profile.id)}
           profileHref={
             selected.isSelf ? undefined : `/demo/person/${selected.profile.id}`
@@ -416,10 +471,7 @@ export default function DemoPage() {
           toUserName={selected.profile.first_name}
           fromUserId={DEMO_ME_ID}
           onClose={() => setShowRating(false)}
-          onSubmitted={() => {
-            setShowRating(false);
-            showToast("Rating saved in the demo only");
-          }}
+          onSubmitted={() => handleHangRated(selected.profile.id)}
         />
       )}
 

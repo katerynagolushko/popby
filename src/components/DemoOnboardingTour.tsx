@@ -246,8 +246,11 @@ export default function DemoOnboardingTour({
                   Simulated London crowd
                 </h2>
                 <p className="text-xl sm:text-[1.35rem] text-ink/80 leading-relaxed">
-                  Create your profile and open a hangout. See who else is close
-                  by and get matched with your top 5 by vibe or location.
+                  Create your profile and go live. Connect, hang, then become
+                  friends. Friends only shows people you&apos;ve hung out with.
+                </p>
+                <p className="text-xl text-navy font-semibold leading-snug">
+                  Connect → hang → friends.
                 </p>
                 <p className="text-xl text-muted leading-relaxed">
                   * Not saving your data
@@ -454,8 +457,8 @@ export default function DemoOnboardingTour({
                   After you hang
                 </h2>
                 <p className="text-xl text-ink/80 leading-relaxed">
-                  You will be able to rate the person you met, and you will also
-                  be rated.
+                  Rate after you hang. That&apos;s when you become friends, and
+                  they show up under Friends only.
                 </p>
                 <div
                   className="flex items-center justify-center gap-2 pt-1 pointer-events-none"

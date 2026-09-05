@@ -1050,15 +1050,25 @@ export function newDemoMatchBatchSeed(): number {
  * Top N matches after go-live. Product of matching = this list, not an endless strip.
  * Pass `batchSeed` (new each go-live) so testers see rotating batches from the
  * top candidate pool while Closest / Most my vibe still drive who is eligible.
+ * Pass `friendIds` with friendsOnly to restrict to friends earned after a hang.
  */
 export function topDemoMatches(
   people: DemoPerson[],
   origin: { lat: number; lng: number },
   myLive: DemoPerson | null,
   count = DEMO_TOP_MATCH_COUNT,
-  batchSeed = 0
+  batchSeed = 0,
+  options?: { friendsOnly?: boolean; friendIds?: ReadonlySet<string> }
 ): DemoPerson[] {
-  const ranked = rankDemoPeople(people, origin, myLive);
+  const poolPeople =
+    options?.friendsOnly && options.friendIds
+      ? people.filter((p) => options.friendIds!.has(p.profile.id))
+      : people;
+  if (options?.friendsOnly) {
+    // Friends-only: show every live friend, ranked by distance (no variety batch).
+    return rankDemoPeople(poolPeople, origin, myLive).slice(0, count);
+  }
+  const ranked = rankDemoPeople(poolPeople, origin, myLive);
   const poolSize = Math.max(count, DEMO_MATCH_CANDIDATE_POOL);
   const pool = ranked.slice(0, poolSize);
   return pickVariedMatchBatch(pool, origin, count, batchSeed);

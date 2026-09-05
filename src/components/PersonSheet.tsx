@@ -16,6 +16,8 @@ interface PersonSheetProps {
   connectionStatus?: "none" | "pending" | "accepted" | "declined";
   /** Demo: soften messaging CTA and show pair copy. */
   demo?: boolean;
+  /** Demo: friend after hang/rate (not after connect). */
+  isFriend?: boolean;
   /** When set, name/photo and "View profile" open the full profile page. */
   profileHref?: string;
   onConnect: () => void;
@@ -31,6 +33,7 @@ export default function PersonSheet({
   isSelf,
   connectionStatus = "none",
   demo = false,
+  isFriend = false,
   profileHref,
   onConnect,
   onMessage,
@@ -113,6 +116,11 @@ export default function PersonSheet({
                   <span className="flex items-center gap-1.5 text-lg text-mint font-semibold">
                     <span className="live-dot" />
                     Live
+                  </span>
+                )}
+                {isFriend && (
+                  <span className="text-sm font-bold bg-accent text-white px-2 py-0.5 rounded-lg">
+                    Friend
                   </span>
                 )}
               </div>
@@ -239,7 +247,7 @@ export default function PersonSheet({
                   onClick={onRate}
                   className="popby-btn popby-btn-ghost w-full"
                 >
-                  Leave a rating
+                  {demo && !isFriend ? "We hung out · rate" : "Leave a rating"}
                 </button>
               </>
             ) : connectionStatus === "pending" ? (

@@ -9,7 +9,12 @@ import {
   LONDON_BOUNDS,
   LONDON_CENTER,
 } from "@/lib/constants";
-import type { HangoutFormat, HangoutIntent, MatchPreference } from "@/lib/types";
+import type {
+  DemoAudiencePreference,
+  HangoutFormat,
+  HangoutIntent,
+  MatchPreference,
+} from "@/lib/types";
 import PopbyMapLoader from "./PopbyMapLoader";
 
 function clampToLondon(lat: number, lng: number): [number, number] {
@@ -25,6 +30,8 @@ export interface GoLivePayload {
   hangout_format: HangoutFormat;
   hangout_intent: HangoutIntent;
   match_preference: MatchPreference;
+  /** Demo only: Anyone vs Friends only (who you see). */
+  audience_preference?: DemoAudiencePreference;
   hangout_note: string | null;
   duration_minutes: 30 | 60 | 120;
   expires_at: string;
@@ -52,6 +59,8 @@ export default function GoLiveModal({
   const [intent, setIntent] = useState<HangoutIntent>("just_hang");
   const [matchPreference, setMatchPreference] =
     useState<MatchPreference>("nearest");
+  const [audiencePreference, setAudiencePreference] =
+    useState<DemoAudiencePreference>("anyone");
   const [hangoutNote, setHangoutNote] = useState("");
   const [duration, setDuration] = useState<30 | 60 | 120>(60);
   const [location, setLocation] = useState<[number, number]>([
@@ -135,7 +144,9 @@ export default function GoLiveModal({
       lng: location[1],
       hangout_format: format,
       hangout_intent: intent,
-      match_preference: matchPreference,
+      // Demo ranks by distance; audience_preference filters who you see.
+      match_preference: demo ? "nearest" : matchPreference,
+      ...(demo ? { audience_preference: audiencePreference } : {}),
       hangout_note: hangoutNote.trim() || null,
       duration_minutes: duration,
       expires_at: expiresAt,
@@ -193,7 +204,7 @@ export default function GoLiveModal({
             <h2 className="text-2xl text-navy font-display">Go live</h2>
             <p className="text-lg text-navy/70 mt-0.5">
               {demo
-                ? "Demo: matches rank against your picks"
+                ? "Demo: pick format, intent, and who you see"
                 : "People nearby can see you while you're live"}
             </p>
           </div>
@@ -278,27 +289,48 @@ export default function GoLiveModal({
             <label className="block text-lg font-semibold mb-2.5 text-navy">
               Show me
             </label>
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                type="button"
-                onClick={() => setMatchPreference("nearest")}
-                className={`popby-chip justify-center ${matchPreference === "nearest" ? "popby-chip-selected" : ""}`}
-              >
-                Closest to me
-              </button>
-              <button
-                type="button"
-                onClick={() => setMatchPreference("vibe")}
-                className={`popby-chip justify-center ${matchPreference === "vibe" ? "popby-chip-selected" : ""}`}
-              >
-                Most my vibe
-              </button>
-            </div>
-            <p className="text-lg text-navy/70 mt-2 leading-relaxed">
-              {matchPreference === "nearest"
-                ? "Closest pins first."
-                : "Same format and intent first (coffee + product feedback, etc.), then distance."}
-            </p>
+            {demo ? (
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => setAudiencePreference("anyone")}
+                  className={`popby-chip justify-center ${audiencePreference === "anyone" ? "popby-chip-selected" : ""}`}
+                >
+                  Anyone
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setAudiencePreference("friends")}
+                  className={`popby-chip justify-center ${audiencePreference === "friends" ? "popby-chip-selected" : ""}`}
+                >
+                  Friends only
+                </button>
+              </div>
+            ) : (
+              <>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setMatchPreference("nearest")}
+                    className={`popby-chip justify-center ${matchPreference === "nearest" ? "popby-chip-selected" : ""}`}
+                  >
+                    Closest to me
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setMatchPreference("vibe")}
+                    className={`popby-chip justify-center ${matchPreference === "vibe" ? "popby-chip-selected" : ""}`}
+                  >
+                    Most my vibe
+                  </button>
+                </div>
+                <p className="text-lg text-navy/70 mt-2 leading-relaxed">
+                  {matchPreference === "nearest"
+                    ? "Closest pins first."
+                    : "Same format and intent first (coffee + product feedback, etc.), then distance."}
+                </p>
+              </>
+            )}
           </div>
 
           <div>
