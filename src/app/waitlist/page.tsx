@@ -2,7 +2,6 @@ import Link from "next/link";
 import Logo, { AppWordmark } from "@/components/Logo";
 import WaitlistForm from "@/components/WaitlistForm";
 import WaitlistPriorityNote from "@/components/WaitlistPriorityNote";
-import { APP_CITY } from "@/lib/brand";
 
 export default function WaitlistPage() {
   return (
@@ -21,11 +20,7 @@ export default function WaitlistPage() {
         <h1 className="text-3xl sm:text-4xl text-navy leading-tight mb-3">
           Join the <AppWordmark /> waitlist*
         </h1>
-        <WaitlistPriorityNote className="text-lg leading-relaxed text-navy/70 mb-3" />
-        <p className="text-xl leading-relaxed text-navy/80 mb-10">
-          Early access for startup people in {APP_CITY}. We&apos;ll email when
-          the live map opens.
-        </p>
+        <WaitlistPriorityNote className="text-lg leading-relaxed text-navy/70 mb-10" />
 
         <WaitlistForm />
 
