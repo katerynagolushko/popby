@@ -40,16 +40,16 @@ export default async function HomePage({
               </p>
             )}
 
-            <div className="mt-[clamp(1.25rem,2.8vh,2.25rem)] flex flex-col sm:flex-row sm:flex-wrap gap-3 w-full max-w-full min-w-0 shrink-0">
+            <div className="mt-[clamp(1.25rem,2.8vh,2.25rem)] flex flex-col sm:flex-row flex-wrap gap-3 w-full max-w-full min-w-0 shrink">
               <Link
                 href="/waitlist"
-                className="popby-btn popby-btn-accent landing-cta"
+                className="popby-btn popby-btn-accent landing-cta max-w-full min-w-0"
               >
                 Join the waitlist*
               </Link>
               <Link
                 href="/demo"
-                className="popby-btn popby-btn-navy landing-cta"
+                className="popby-btn popby-btn-navy landing-cta max-w-full min-w-0"
               >
                 Try the full demo
               </Link>
