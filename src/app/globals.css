@@ -128,10 +128,8 @@ h1, h2, h3 {
   font-family: var(--font-ibm-plex), system-ui, sans-serif;
 }
 
-/* Landing hero CTAs — fixed rem size at every breakpoint (browser zoom scales
-   rem evenly). Do not clamp/vw-shrink these: tiny padding made 80% look broken.
-   On lg+ the cream column is narrow, so CTAs stack full-width instead of
-   shrinking to fit side-by-side. */
+/* Landing hero CTAs — fixed rem only (no clamp/vw). Browser zoom scales rem
+   evenly so 80% and 100% look the same. Side-by-side from sm+; never shrink. */
 .landing-cta {
   padding: 0.95rem 1.5rem;
   min-height: 3.375rem; /* ~54px — same as .popby-btn */
@@ -141,25 +139,50 @@ h1, h2, h3 {
   font-weight: 600;
   text-align: center;
   width: 100%;
-  max-width: 100%;
   box-sizing: border-box;
   flex-shrink: 0;
-  white-space: nowrap;
 }
 
-/* Tablet / full-width hero: side-by-side, same fixed rem size */
-@media (min-width: 640px) and (max-width: 1023px) {
+@media (min-width: 640px) {
   .landing-cta {
     width: auto;
-    flex: 1 1 0;
+    flex: 0 0 auto;
+    padding: 1.235rem 2.6rem;
+    min-height: 4.55rem; /* ~73px */
+    font-size: 1.56rem;
+    white-space: nowrap;
   }
 }
 
-/* Desktop cream column: stacked full width, same fixed rem size */
-@media (min-width: 1024px) {
+@media (min-width: 1280px) {
   .landing-cta {
-    width: 100%;
-    flex: none;
+    padding: 1.3rem 2.925rem;
+    min-height: 4.7125rem; /* ~75px */
+    font-size: 1.625rem;
+  }
+}
+
+/* Cream column: author left copy+CTAs at a fixed artboard width, then zoom
+   the whole block to fit. Buttons stay side-by-side at locked rem size. */
+.landing-left-fit {
+  container-type: inline-size;
+  container-name: landing-left;
+  width: 100%;
+  min-width: 0;
+}
+
+.landing-left-artboard {
+  width: 100%;
+  max-width: 36rem; /* max-w-xl */
+}
+
+@media (min-width: 1024px) {
+  .landing-left-artboard {
+    --landing-artboard-w: 38rem; /* fits both fixed-rem CTAs + gap */
+    width: var(--landing-artboard-w);
+    max-width: none;
+    /* zoom (not transform) so layout height/width track the scaled size */
+    zoom: min(1, calc(100cqi / 38rem));
   }
 }
 
