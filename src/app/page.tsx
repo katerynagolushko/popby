@@ -18,7 +18,7 @@ export default async function HomePage({
         <Logo size="md" />
 
         <div className="flex-1 flex flex-col justify-center min-h-0 py-4 sm:py-5 lg:py-2 xl:py-4">
-          <div className="flex flex-col max-w-xl">
+          <div className="flex flex-col max-w-xl w-full min-w-0">
             <h1 className="font-display font-extrabold text-[clamp(2.35rem,5.2vw+0.4rem,3.75rem)] lg:text-[clamp(2.35rem,2.6vw+0.85rem,3.55rem)] xl:text-[clamp(2.75rem,2.4vw+1rem,4.25rem)] text-navy leading-[1.02] tracking-[-0.04em]">
               The <span className="hl-accent">startup</span> social network for{" "}
               <span className="hl-accent">IRL</span>
@@ -40,7 +40,7 @@ export default async function HomePage({
               </p>
             )}
 
-            <div className="mt-[clamp(1.25rem,2.8vh,2.25rem)] flex flex-col sm:flex-row gap-3 sm:gap-4 shrink-0">
+            <div className="mt-[clamp(1.25rem,2.8vh,2.25rem)] flex flex-col sm:flex-row sm:flex-wrap gap-3 w-full max-w-full min-w-0 shrink-0">
               <Link
                 href="/waitlist"
                 className="popby-btn popby-btn-accent landing-cta"
