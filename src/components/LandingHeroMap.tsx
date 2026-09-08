@@ -21,6 +21,10 @@ import {
   OPENFREEMAP_STYLES,
 } from "@/lib/map-tiles";
 
+/** Desktop card layout is authored on this artboard, then scaled as a unit. */
+const ARTBOARD = { w: 900, h: 960 };
+const CARD_W = 248;
+
 type LandingPerson = {
   name: string;
   role: string;
@@ -30,7 +34,10 @@ type LandingPerson = {
   photo: string;
   lat: number;
   lng: number;
-  positionClass: string;
+  /** Artboard x (px) — desktop only */
+  x: number;
+  /** Artboard y (px) — desktop only */
+  y: number;
   rotateClass: string;
   delayClass: string;
 };
@@ -45,7 +52,8 @@ const PEOPLE: LandingPerson[] = [
     photo: WHITE_MALE_PORTRAIT_URLS[0]!,
     lat: 51.5256,
     lng: -0.0877,
-    positionClass: "top-[8%] left-[6%] sm:left-[8%]",
+    x: 36,
+    y: 44,
     rotateClass: "rotate-[-2.5deg]",
     delayClass: "",
   },
@@ -58,7 +66,8 @@ const PEOPLE: LandingPerson[] = [
     photo: YOUNG_FEMALE_PORTRAIT_URLS[0]!,
     lat: 51.5225,
     lng: -0.078,
-    positionClass: "top-[12%] right-[5%] sm:right-[8%]",
+    x: 620,
+    y: 52,
     rotateClass: "rotate-[2deg]",
     delayClass: "landing-card-delay-1",
   },
@@ -71,7 +80,8 @@ const PEOPLE: LandingPerson[] = [
     photo: YOUNG_FEMALE_PORTRAIT_URLS[2]!,
     lat: 51.5308,
     lng: -0.1238,
-    positionClass: "bottom-[22%] left-[4%] sm:left-[10%] hidden sm:block",
+    x: 52,
+    y: 700,
     rotateClass: "rotate-[1.5deg]",
     delayClass: "landing-card-delay-2",
   },
@@ -84,7 +94,8 @@ const PEOPLE: LandingPerson[] = [
     photo: WHITE_MALE_PORTRAIT_URLS[2]!,
     lat: 51.5055,
     lng: -0.0865,
-    positionClass: "bottom-[14%] right-[4%] sm:right-[7%] hidden md:block",
+    x: 620,
+    y: 730,
     rotateClass: "rotate-[-1.5deg]",
     delayClass: "landing-card-delay-3",
   },
@@ -97,7 +108,8 @@ const PEOPLE: LandingPerson[] = [
     photo: YOUNG_FEMALE_PORTRAIT_URLS[4]!,
     lat: 51.5136,
     lng: -0.1365,
-    positionClass: "top-[38%] left-[18%] hidden lg:block",
+    x: 48,
+    y: 270,
     rotateClass: "rotate-[-1deg]",
     delayClass: "landing-card-delay-2",
   },
@@ -110,7 +122,8 @@ const PEOPLE: LandingPerson[] = [
     photo: WHITE_MALE_PORTRAIT_URLS[5]!,
     lat: 51.545,
     lng: -0.055,
-    positionClass: "bottom-[36%] right-[18%] hidden lg:block",
+    x: 560,
+    y: 380,
     rotateClass: "rotate-[2.5deg]",
     delayClass: "landing-card-delay-3",
   },
@@ -123,7 +136,8 @@ const PEOPLE: LandingPerson[] = [
     photo: YOUNG_FEMALE_PORTRAIT_URLS[6]!,
     lat: 51.5054,
     lng: -0.0235,
-    positionClass: "top-[48%] right-[28%] hidden xl:block",
+    x: 340,
+    y: 210,
     rotateClass: "rotate-[-2deg]",
     delayClass: "landing-card-delay-1",
   },
@@ -136,7 +150,8 @@ const PEOPLE: LandingPerson[] = [
     photo: OTHER_MALE_PORTRAIT_URLS[1]!,
     lat: 51.5045,
     lng: -0.0865,
-    positionClass: "bottom-[42%] left-[28%] hidden xl:block",
+    x: 160,
+    y: 460,
     rotateClass: "rotate-[1deg]",
     delayClass: "landing-card-delay-2",
   },
@@ -203,9 +218,59 @@ function CardFace({
 function DesktopProfileCard({ person }: { person: LandingPerson }) {
   return (
     <div
-      className={`absolute z-20 w-[min(100%,15.5rem)] pointer-events-none landing-card-in ${person.positionClass} ${person.delayClass}`}
+      className={`absolute z-20 pointer-events-none landing-card-in ${person.delayClass}`}
+      style={{ left: person.x, top: person.y, width: CARD_W }}
     >
       <CardFace person={person} className={person.rotateClass} />
+    </div>
+  );
+}
+
+/**
+ * Fixed artboard of cards, uniformly scaled to fit the map panel.
+ * Browser zoom / laptop widths change the scale, not relative card gaps.
+ */
+function DesktopCardsArtboard({ people }: { people: LandingPerson[] }) {
+  const fitRef = useRef<HTMLDivElement>(null);
+  const [scale, setScale] = useState(1);
+
+  useEffect(() => {
+    const el = fitRef.current;
+    if (!el) return;
+
+    const update = () => {
+      const { width, height } = el.getBoundingClientRect();
+      if (width <= 0 || height <= 0) return;
+      setScale(Math.min(width / ARTBOARD.w, height / ARTBOARD.h, 1.08));
+    };
+
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  return (
+    <div
+      className="absolute inset-0 hidden sm:block pointer-events-none overflow-hidden"
+      aria-hidden
+    >
+      {/* Inner fit box leaves room for the bottom caption pill */}
+      <div ref={fitRef} className="absolute inset-x-1 top-2 bottom-16">
+        <div
+          className="absolute left-1/2 top-1/2 will-change-transform"
+          style={{
+            width: ARTBOARD.w,
+            height: ARTBOARD.h,
+            transform: `translate(-50%, -50%) scale(${scale})`,
+            transformOrigin: "center center",
+          }}
+        >
+          {people.map((person) => (
+            <DesktopProfileCard key={person.name} person={person} />
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
@@ -371,12 +436,8 @@ export default function LandingHeroMap({ className = "" }: { className?: string 
       <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-navy/25 via-transparent to-navy/10" />
       <div className="absolute inset-y-0 left-0 w-16 pointer-events-none bg-gradient-to-r from-paper/40 to-transparent lg:from-transparent" />
 
-      {/* Desktop / tablet: scattered cards */}
-      <div className="hidden sm:contents">
-        {PEOPLE.map((person) => (
-          <DesktopProfileCard key={person.name} person={person} />
-        ))}
-      </div>
+      {/* Desktop / tablet: artboard-scaled cards (composition stays frozen) */}
+      <DesktopCardsArtboard people={PEOPLE} />
 
       {/* Phone: swipeable deck */}
       <MobileSwipeDeck people={PEOPLE} />
