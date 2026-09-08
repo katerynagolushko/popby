@@ -128,9 +128,10 @@ h1, h2, h3 {
   font-family: var(--font-ibm-plex), system-ui, sans-serif;
 }
 
-/* Landing hero CTAs — mobile matches base .popby-btn.
-   sm–lg (full-width hero): modest scale. lg+ (narrow cream column beside map):
-   keep both buttons inside the column — no bleed onto the map. */
+/* Landing hero CTAs — fixed rem size at every breakpoint (browser zoom scales
+   rem evenly). Do not clamp/vw-shrink these: tiny padding made 80% look broken.
+   On lg+ the cream column is narrow, so CTAs stack full-width instead of
+   shrinking to fit side-by-side. */
 .landing-cta {
   padding: 0.95rem 1.5rem;
   min-height: 3.375rem; /* ~54px — same as .popby-btn */
@@ -141,35 +142,24 @@ h1, h2, h3 {
   text-align: center;
   width: 100%;
   max-width: 100%;
-  min-width: 0;
   box-sizing: border-box;
-  flex-shrink: 1;
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 
+/* Tablet / full-width hero: side-by-side, same fixed rem size */
 @media (min-width: 640px) and (max-width: 1023px) {
   .landing-cta {
     width: auto;
-    flex: 1 1 auto;
-    max-width: 100%;
-    min-width: 0;
-    padding: clamp(0.95rem, 1.4vh + 0.5rem, 1.2rem) clamp(1.35rem, 1.5vw + 0.7rem, 2rem);
-    min-height: clamp(3.375rem, 4.5vh + 1.4rem, 4.25rem);
-    font-size: clamp(1.125rem, 0.4vw + 1rem, 1.375rem);
-    white-space: nowrap;
+    flex: 1 1 0;
   }
 }
 
+/* Desktop cream column: stacked full width, same fixed rem size */
 @media (min-width: 1024px) {
   .landing-cta {
-    /* Content-sized basis so the row wraps instead of bleeding into the map */
-    width: auto;
-    flex: 1 1 auto;
-    max-width: 100%;
-    min-width: 0;
-    padding: 0.7rem 0.85rem;
-    min-height: 3rem;
-    font-size: 0.9875rem;
-    white-space: nowrap;
+    width: 100%;
+    flex: none;
   }
 }
 

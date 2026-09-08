@@ -14,11 +14,11 @@ export default async function HomePage({
 
   return (
     <main className="min-h-svh flex flex-col lg:flex-row lg:h-svh lg:overflow-hidden">
-      <section className="relative z-10 flex flex-col w-full min-h-svh lg:h-full lg:min-h-0 lg:w-[44%] xl:w-[40%] px-5 pt-3 pb-4 sm:px-8 sm:pt-4 sm:pb-5 lg:px-8 lg:pt-4 lg:pb-4 xl:px-12 xl:pt-5 xl:pb-5">
+      <section className="relative z-10 flex flex-col w-full min-h-svh lg:h-full lg:min-h-0 lg:w-[46%] xl:w-[42%] px-5 pt-3 pb-4 sm:px-8 sm:pt-4 sm:pb-5 lg:px-8 lg:pt-4 lg:pb-4 xl:px-12 xl:pt-5 xl:pb-5">
         <Logo size="md" />
 
         <div className="flex-1 flex flex-col justify-center min-h-0 py-4 sm:py-5 lg:py-2 xl:py-4">
-          <div className="flex flex-col max-w-xl w-full min-w-0">
+          <div className="flex flex-col max-w-xl w-full">
             <h1 className="font-display font-extrabold text-[clamp(2.35rem,5.2vw+0.4rem,3.75rem)] lg:text-[clamp(2.35rem,2.6vw+0.85rem,3.55rem)] xl:text-[clamp(2.75rem,2.4vw+1rem,4.25rem)] text-navy leading-[1.02] tracking-[-0.04em]">
               The <span className="hl-accent">startup</span> social network for{" "}
               <span className="hl-accent">IRL</span>
@@ -40,16 +40,17 @@ export default async function HomePage({
               </p>
             )}
 
-            <div className="mt-[clamp(1.25rem,2.8vh,2.25rem)] flex flex-col sm:flex-row flex-wrap gap-3 w-full max-w-full min-w-0 shrink">
+            {/* Stack on mobile + desktop cream column; side-by-side only on sm–md full-width */}
+            <div className="mt-[clamp(1.25rem,2.8vh,2.25rem)] flex flex-col sm:flex-row lg:flex-col gap-3 w-full shrink-0">
               <Link
                 href="/waitlist"
-                className="popby-btn popby-btn-accent landing-cta max-w-full min-w-0"
+                className="popby-btn popby-btn-accent landing-cta"
               >
                 Join the waitlist*
               </Link>
               <Link
                 href="/demo"
-                className="popby-btn popby-btn-navy landing-cta max-w-full min-w-0"
+                className="popby-btn popby-btn-navy landing-cta"
               >
                 Try the full demo
               </Link>
@@ -72,7 +73,7 @@ export default async function HomePage({
         </div>
       </section>
 
-      <section className="relative w-full lg:w-[56%] xl:w-[60%] min-h-[42vh] sm:min-h-[48vh] lg:min-h-0 lg:h-full border-t border-paper-3 lg:border-t-0 lg:border-l">
+      <section className="relative w-full lg:w-[54%] xl:w-[58%] min-h-[42vh] sm:min-h-[48vh] lg:min-h-0 lg:h-full border-t border-paper-3 lg:border-t-0 lg:border-l">
         <LandingHeroMapLoader className="absolute inset-0 h-full w-full min-h-[42vh] lg:min-h-full" />
       </section>
     </main>
